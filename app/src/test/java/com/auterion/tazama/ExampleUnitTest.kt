@@ -1,4 +1,4 @@
-package com.example.tazama
+package com.auterion.tazama
 
 import org.junit.Test
 
