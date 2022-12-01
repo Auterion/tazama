@@ -1,4 +1,4 @@
-package com.example.tazama
+package com.auterion.tazama
 
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng

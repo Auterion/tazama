@@ -1,4 +1,4 @@
-package com.example.tazama.ui.theme
+package com.auterion.tazama.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
