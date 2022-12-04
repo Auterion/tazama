@@ -5,18 +5,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.auterion.tazama.ui.theme.TazamaTheme
 import com.auterion.tazama.data.VehicleViewModel
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.auterion.tazama.navigation.Navigation
+import com.auterion.tazama.navigation.destinations
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -42,8 +44,31 @@ fun Main() {
     val navController = rememberNavController()
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
 
-    Scaffold(bottomBar = {
-        MainToolBar()
+
+
+    Scaffold(topBar = {
+        BottomNavigation {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+
+            destinations.forEach { screen ->
+                BottomNavigationItem(
+                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                    label = {Text(screen.label)},
+                    icon = { Icon(screen.icon, contentDescription = null)},
+                    onClick = {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    })
+            }
+
+    }
     }) { innerPadding->
                 Navigation(navController = navController, vehicleViewModel, modifier=Modifier.padding(innerPadding))
     }

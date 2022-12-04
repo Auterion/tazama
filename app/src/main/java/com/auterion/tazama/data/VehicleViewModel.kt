@@ -12,5 +12,5 @@ import kotlin.random.Random
 @HiltViewModel
 class VehicleViewModel @Inject constructor(vehicleRepository: VehicleRepository) : ViewModel() {
     private val _vehiclePosition = vehicleRepository.vehiclePosition
-    val vehiclePosition = _vehiclePosition.asStateFlow()
+    val vehiclePosition = _vehiclePosition
 }

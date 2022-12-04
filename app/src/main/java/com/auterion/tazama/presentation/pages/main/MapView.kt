@@ -5,7 +5,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.auterion.tazama.data.VehicleViewModel
+import com.auterion.tazama.map.VehicleMapMarker
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.GoogleMap
@@ -25,10 +27,10 @@ fun MapView(vehicleViewModel : VehicleViewModel,
         modifier = modifier,
         cameraPositionState = cameraPositionState
     ) {
-        Marker(
-            state = MarkerState(position = vehiclePosition.value),
+        VehicleMapMarker(
+            context = LocalContext.current,
+            position = vehiclePosition.value,
             title = "Vehicle",
-            snippet = "Vehicle Location"
-        )
+            iconResourceId = R.drawable.drone)
     }
 }
