@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.auterion.tazama.ui.theme.TazamaTheme
 import com.auterion.tazama.data.VehicleViewModel
 import com.auterion.tazama.navigation.Navigation
-import com.auterion.tazama.navigation.destinations
+import com.auterion.tazama.navigation.navBarDestinations
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -53,7 +51,7 @@ fun Main() {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
-            destinations.forEach { screen ->
+            navBarDestinations.forEach { screen ->
                 BottomNavigationItem(
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     label = {Text(screen.label)},

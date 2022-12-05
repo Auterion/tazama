@@ -1,31 +1,29 @@
 package com.auterion.tazama.navigation
 
-import android.widget.ImageButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
-interface AppDestination {
+interface NavDestination {
     val route : String
     val label : String
     val icon : ImageVector
 }
 
-object HomeDestination : AppDestination {
+object HomeDestination : NavDestination {
     override val route = "home"
     override val label = "Home"
     override val icon = Icons.Filled.Home
 }
 
-object SettingsDestination : AppDestination {
+object SettingsDestination : NavDestination {
     override val route = "settings"
     override val label = "Settings"
     override val icon = Icons.Filled.Settings
 }
 
 
-val destinations = listOf<AppDestination>(
+val navBarDestinations = listOf<NavDestination>(
     SettingsDestination
 )
