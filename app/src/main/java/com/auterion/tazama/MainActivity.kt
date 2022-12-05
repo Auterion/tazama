@@ -1,26 +1,26 @@
 package com.auterion.tazama
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.auterion.tazama.ui.theme.TazamaTheme
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.auterion.tazama.data.VehicleViewModel
+import com.auterion.tazama.navigation.Navigation
+import com.auterion.tazama.navigation.navBarDestinations
+import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,42 +31,50 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainView()
+                    Main()
                 }
             }
         }
     }
 }
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainView() {
+fun Main() {
+    val navController = rememberNavController()
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
-    Column(modifier = Modifier.fillMaxHeight()) {
-        MapView(vehicleViewModel,
-        modifier = Modifier.height(500.dp))
-        Button(onClick = {vehicleViewModel.setRandomVehiclePosition()}) {
-            Text(text = "Change Position")
-        }
-    }
-}
+    val settingsViewModel = hiltViewModel<SettingsViewModel>()
 
-@Composable
-fun MapView(vehicleViewModel : VehicleViewModel,
-            modifier: Modifier) {
 
-    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState()
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(vehiclePosition.value, 10f)
+
+    Scaffold(topBar = {
+        BottomNavigation {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+
+            navBarDestinations.forEach { screen ->
+                BottomNavigationItem(
+                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                    label = {Text(screen.label)},
+                    icon = { Icon(screen.icon, contentDescription = null)},
+                    onClick = {
+                        navController.navigate(screen.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    })
+            }
+
     }
-    GoogleMap(
-        modifier = modifier,
-        cameraPositionState = cameraPositionState
-    ) {
-        Marker(
-            state = MarkerState(position = vehiclePosition.value),
-            title = "Vehicle",
-            snippet = "Vehicle Location"
-        )
+    }) { innerPadding->
+                Navigation(
+                    navController = navController,
+                    vehicleViewModel,
+                    settingsViewModel,
+                    modifier=Modifier.padding(innerPadding))
     }
+
 }
