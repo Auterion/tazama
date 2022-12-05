@@ -19,6 +19,7 @@ import com.auterion.tazama.ui.theme.TazamaTheme
 import com.auterion.tazama.data.VehicleViewModel
 import com.auterion.tazama.navigation.Navigation
 import com.auterion.tazama.navigation.destinations
+import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -43,6 +44,7 @@ class MainActivity : ComponentActivity() {
 fun Main() {
     val navController = rememberNavController()
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
+    val settingsViewModel = hiltViewModel<SettingsViewModel>()
 
 
 
@@ -70,7 +72,11 @@ fun Main() {
 
     }
     }) { innerPadding->
-                Navigation(navController = navController, vehicleViewModel, modifier=Modifier.padding(innerPadding))
+                Navigation(
+                    navController = navController,
+                    vehicleViewModel,
+                    settingsViewModel,
+                    modifier=Modifier.padding(innerPadding))
     }
 
 }
