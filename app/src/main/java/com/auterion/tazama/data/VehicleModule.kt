@@ -1,8 +1,6 @@
 package com.auterion.tazama.data
 
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
-import com.example.tazama.data.VehicleRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,15 +12,15 @@ import javax.inject.Singleton
 object VehicleModule {
     @Singleton
     @Provides
-    fun provideVehicleInterface() : VehicleInterface {
-        return VehicleInterfaceDummyImpl()
+    fun provideVehicleInterface() : Vehicle {
+        return VehicleDummyImpl()
     }
 
     @Singleton
     @Provides
-    fun provideVehicleRepository(vehicleInterface : VehicleInterface,
-    settingsViewModel: SettingsViewModel) : VehicleRepository {
-        return VehicleRepository(vehicleInterface, settingsViewModel)
+    fun provideVehicleRepository(vehicle : Vehicle,
+                                 settingsViewModel: SettingsViewModel) : VehicleRepository {
+        return VehicleRepository(vehicle, settingsViewModel)
     }
 
     @Singleton

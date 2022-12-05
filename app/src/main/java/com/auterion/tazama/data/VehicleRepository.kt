@@ -1,7 +1,5 @@
-package com.example.tazama.data
+package com.auterion.tazama.data
 
-import androidx.compose.runtime.collectAsState
-import com.auterion.tazama.data.VehicleInterface
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
@@ -9,14 +7,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
 
 class VehicleRepository @Inject constructor(
-    private val vehicleService : VehicleInterface,
+    private val vehicleService : Vehicle,
     private val settingsViewModel: SettingsViewModel
     ) {
     private var _vehiclePosition = MutableStateFlow<LatLng>(LatLng(3.0,46.0))

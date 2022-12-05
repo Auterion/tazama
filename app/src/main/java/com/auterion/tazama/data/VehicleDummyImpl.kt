@@ -5,7 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.random.Random
 
-class VehicleInterfaceDummyImpl : VehicleInterface {
+class VehicleDummyImpl : Vehicle {
     override  val vehiclePosition = MutableStateFlow<LatLng>(LatLng(0.0,0.0))
 
     init {

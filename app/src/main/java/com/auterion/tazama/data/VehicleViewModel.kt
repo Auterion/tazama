@@ -2,7 +2,7 @@
 package com.auterion.tazama.data
 
 import androidx.lifecycle.ViewModel
-import com.example.tazama.data.VehicleRepository
+import com.auterion.tazama.data.VehicleRepository
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.asStateFlow
