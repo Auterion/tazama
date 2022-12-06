@@ -2,25 +2,24 @@ package com.auterion.tazama.data
 
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 class VehicleRepository @Inject constructor(
     private val vehicleService : Vehicle,
     private val settingsViewModel: SettingsViewModel
-    ) {
-    private var _vehiclePosition = MutableStateFlow<LatLng>(LatLng(3.0,46.0))
-    var vehiclePosition = _vehiclePosition.asStateFlow()
-    var collectorJob : Job = Job()
+    ) : CoroutineScope {
+    override val coroutineContext: CoroutineContext = Job() + Dispatchers.IO
+
+    private val _vehiclePosition = MutableStateFlow(LatLng(3.0, 46.0))
+    val vehiclePosition = _vehiclePosition.asStateFlow()
 
     init {
-        CoroutineScope(Job() + Dispatchers.Main).launch {
+        launch {
             settingsViewModel.fakeVehiclePosition.collect { fakeVehiclePosition ->
                 if (fakeVehiclePosition) {
                     launchFakeVehicleCollector()
@@ -29,18 +28,16 @@ class VehicleRepository @Inject constructor(
                 }
             }
         }
-
-
     }
 
     fun cancelFakeVehicleCollector() {
-        if (collectorJob.isActive) {
-            collectorJob.cancel(CancellationException("Use real data"))
+        if (isActive) {
+            cancel(CancellationException("Use real data"))
         }
     }
 
     fun launchFakeVehicleCollector() {
-        collectorJob = CoroutineScope(Job() + Dispatchers.Main).launch {
+        launch {
             vehicleService.vehiclePosition.collect {
                 if (settingsViewModel.fakeVehiclePosition.value) {
                     _vehiclePosition.value = it
