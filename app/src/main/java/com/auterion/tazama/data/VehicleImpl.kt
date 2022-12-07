@@ -16,7 +16,7 @@ class VehicleImpl : Vehicle {
 
     init {
         MavsdkEventQueue.executor().execute {
-            drone = System("172.0.0.1", mavSdkServer.run())
+            drone = System("127.0.0.1", mavSdkServer.run())
         }
     }
 }
