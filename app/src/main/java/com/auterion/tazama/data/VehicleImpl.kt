@@ -15,8 +15,11 @@ class VehicleImpl : Vehicle {
     override val vehiclePosition = MutableStateFlow<LatLng>(LatLng(0.0,0.0))
 
     init {
-        MavsdkEventQueue.executor().execute {
+        MavsdkEventQueue.executor().execute() {
             drone = System("127.0.0.1", mavSdkServer.run())
+            drone.telemetry.position.subscribe({
+                vehiclePosition.value = LatLng(it.latitudeDeg, it.longitudeDeg)
+            }, {})
         }
     }
 }
