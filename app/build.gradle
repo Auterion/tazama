@@ -82,6 +82,6 @@ dependencies {
 
     // MAVSDK-Java
     implementation 'io.mavsdk:mavsdk:1.2.0'
-    implementation 'io.mavsdk:mavsdk-server:1.2.2'
+    implementation 'io.mavsdk:mavsdk-server:1.2.5'
 
 }
