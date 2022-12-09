@@ -4,5 +4,5 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 
 interface Vehicle {
-    val vehiclePosition : MutableStateFlow<LatLng>
+    var vehiclePosition : MutableStateFlow<LatLng>
 }

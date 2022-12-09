@@ -6,13 +6,14 @@ import io.mavsdk.System
 import io.mavsdk.mavsdkserver.MavsdkServer
 import io.mavsdk.telemetry.Telemetry
 import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 
-class VehicleImpl : Vehicle {
+class VehicleImpl @Inject constructor() : Vehicle {
 
     lateinit var drone : io.mavsdk.System
     var mavSdkServer = MavsdkServer()
 
-    override val vehiclePosition = MutableStateFlow<LatLng>(LatLng(0.0,0.0))
+    override var vehiclePosition = MutableStateFlow<LatLng>(LatLng(0.0,0.0))
 
     init {
         MavsdkEventQueue.executor().execute() {
