@@ -1,0 +1,27 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+    - 'main'
+  pull_request:
+    branches:
+    - '*'
+  release:
+    types: [created]
+
+
+jobs:
+  tazama_debug:
+    name: Assemble Tazama (debug)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+            echo "MAPS_API_KEY=none" >> local.properties
+            ./gradlew assembleDebug
+
+
