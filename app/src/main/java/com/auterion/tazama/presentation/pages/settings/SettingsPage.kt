@@ -13,14 +13,18 @@ import androidx.compose.ui.unit.dp
 fun SettingsPage(settingsViewModel: SettingsViewModel) {
     val fakeVehiclePosition = settingsViewModel.fakeVehiclePosition.collectAsState()
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier.padding(horizontal = 20.dp)) {
-            Text(text = "Fake Vehicle Position",
-            modifier = Modifier.align(Alignment.CenterVertically))
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        ) {
+            Text(
+                text = "Fake Vehicle Position",
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
             Spacer(modifier = Modifier.fillMaxWidth())
             Checkbox(
                 checked = fakeVehiclePosition.value,
-                onCheckedChange = {settingsViewModel.setFakeVehiclePosition(it)} )
+                onCheckedChange = { settingsViewModel.setFakeVehiclePosition(it) })
         }
     }
 }

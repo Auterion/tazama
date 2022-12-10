@@ -12,27 +12,29 @@ import javax.inject.Singleton
 object VehicleModule {
     @Singleton
     @Provides
-    fun provideVehicleInterface() : VehicleImpl {
+    fun provideVehicleInterface(): VehicleImpl {
         return VehicleImpl()
     }
 
     @Singleton
     @Provides
-    fun provideVehicleDummy() : VehicleDummyImpl {
+    fun provideVehicleDummy(): VehicleDummyImpl {
         return VehicleDummyImpl()
     }
 
     @Singleton
     @Provides
-    fun provideVehicleRepository(vehicle : VehicleImpl,
-                                 vehicleDummy : VehicleDummyImpl,
-                                 settingsViewModel: SettingsViewModel) : VehicleRepository {
+    fun provideVehicleRepository(
+        vehicle: VehicleImpl,
+        vehicleDummy: VehicleDummyImpl,
+        settingsViewModel: SettingsViewModel
+    ): VehicleRepository {
         return VehicleRepository(vehicle, vehicleDummy, settingsViewModel)
     }
 
     @Singleton
     @Provides
-    fun provideSettingsViewModel() : SettingsViewModel {
+    fun provideSettingsViewModel(): SettingsViewModel {
         return SettingsViewModel()
     }
 }

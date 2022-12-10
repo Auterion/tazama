@@ -7,14 +7,15 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 class VehicleDummyImpl @Inject constructor() : Vehicle {
-    override  var vehiclePosition = MutableStateFlow<LatLng>(LatLng(0.0,0.0))
+    override var vehiclePosition = MutableStateFlow(LatLng(0.0, 0.0))
 
     init {
-        // this simulates the vehicle sending it's position at 1Hz
+        // This simulates the vehicle sending it's position at 1Hz
         CoroutineScope(Job() + Dispatchers.IO).launch {
-            while(true) {
+            while (true) {
                 println("emitting stuff into this value")
-                vehiclePosition.value = LatLng(Random.nextDouble(3.0, 4.0), Random.nextDouble(46.0, 47.0))
+                vehiclePosition.value =
+                    LatLng(Random.nextDouble(3.0, 4.0), Random.nextDouble(46.0, 47.0))
                 delay(1000)
             }
         }

@@ -1,11 +1,10 @@
-package com.auterion.tazama.map
+package com.auterion.tazama.presentation.components
 
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
-import com.auterion.tazama.R
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -33,7 +32,7 @@ fun bitMapDescriptorFromVector(
     context: Context,
     vectorResId: Int,
     iconSize: Int
-) : BitmapDescriptor? {
+): BitmapDescriptor? {
     val drawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
     drawable.setBounds(0, 0, iconSize, iconSize)
     val bm = Bitmap.createBitmap(
@@ -46,4 +45,3 @@ fun bitMapDescriptorFromVector(
     drawable.draw(canvas)
     return BitmapDescriptorFactory.fromBitmap(bm)
 }
-

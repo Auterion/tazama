@@ -6,9 +6,9 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 interface NavDestination {
-    val route : String
-    val label : String
-    val icon : ImageVector
+    val route: String
+    val label: String
+    val icon: ImageVector
 }
 
 object HomeDestination : NavDestination {
@@ -22,7 +22,6 @@ object SettingsDestination : NavDestination {
     override val label = "Settings"
     override val icon = Icons.Filled.Settings
 }
-
 
 val navBarDestinations = listOf<NavDestination>(
     SettingsDestination
