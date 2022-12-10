@@ -7,9 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.update
-import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -20,19 +17,31 @@ class VehicleRepository @Inject constructor(
     ) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.IO
+    private var collectorJob : Job? = null
 
-    var vehicle : Vehicle = vehicleService
-
-    //private var _vehiclePosition = vehicleService.vehiclePosition
-    //var vehiclePosition = _vehiclePosition.asStateFlow()
+    private val _vehiclePosition = MutableStateFlow(LatLng(0.0, 0.0))
+    val vehiclePosition = _vehiclePosition.asStateFlow()
 
     init {
         launch {
             settingsViewModel.fakeVehiclePosition.collect { fakeVehiclePosition ->
+
+                collectorJob?.cancelAndJoin()
+
                if (fakeVehiclePosition) {
-                   vehicle = vehicleDummyService
+                    collectorJob = launch {
+                        vehicleDummyService.vehiclePosition.collect() {
+                            coroutineContext.ensureActive()
+                            _vehiclePosition.value = it
+                        }
+                    }
                } else {
-                   vehicle = vehicleService
+                    collectorJob = launch {
+                        vehicleService.vehiclePosition.collect() {
+                            coroutineContext.ensureActive()
+                            _vehiclePosition.value = it
+                        }
+                    }
                }
             }
         }
