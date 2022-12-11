@@ -5,26 +5,80 @@ import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.auterion.tazama.presentation.components.DropDown
 
 @Composable
 fun SettingsPage(settingsViewModel: SettingsViewModel) {
     val fakeVehiclePosition = settingsViewModel.fakeVehiclePosition.collectAsState()
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        ) {
-            Text(
-                text = "Fake Vehicle Position",
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
-            Spacer(modifier = Modifier.fillMaxWidth())
-            Checkbox(
-                checked = fakeVehiclePosition.value,
-                onCheckedChange = { settingsViewModel.setFakeVehiclePosition(it) })
-        }
+        CheckBoxSetting(modifier = Modifier.padding(horizontal = 20.dp),
+            label = "Fake Vehicle Position",
+            checked = fakeVehiclePosition.value,
+            onCheckedChanged = { settingsViewModel.setFakeVehiclePosition(it) })
+
+        val settingsViewModel = hiltViewModel<SettingsViewModel>()
+        val items = settingsViewModel.mapTypes
+        val currentItem = settingsViewModel.currentMapType.collectAsState()
+        DropDownSetting(
+            modifier = Modifier.padding(horizontal = 20.dp),
+            label = "MapType",
+            currentItem = currentItem.value,
+            items = items,
+            onItemSelected = { settingsViewModel.setSatelliteMap(it) }
+        )
+    }
+}
+
+@Composable
+fun CheckBoxSetting(
+    modifier: Modifier,
+    label: String,
+    checked: Boolean,
+    onCheckedChanged: (Boolean) -> Unit
+) {
+    SettingRow(modifier = modifier, label = label) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = { onCheckedChanged(it) })
+    }
+}
+
+@Composable
+fun DropDownSetting(
+    modifier: Modifier,
+    label: String,
+    currentItem: String,
+    items: List<String>,
+    onItemSelected: (String) -> Unit
+
+) {
+    SettingRow(modifier = modifier, label = label) {
+        DropDown(
+            modifier = Modifier,
+            selectedItem = currentItem,
+            items = items,
+            onItemSelected = {
+                onItemSelected(it)
+            })
+    }
+}
+
+@Composable
+fun SettingRow(
+    modifier: Modifier,
+    label: String,
+    content: @Composable() () -> Unit
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label
+        )
+        content()
     }
 }
