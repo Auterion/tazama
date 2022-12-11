@@ -13,12 +13,20 @@ import com.auterion.tazama.presentation.components.DropDown
 
 @Composable
 fun SettingsPage(settingsViewModel: SettingsViewModel) {
-    val fakeVehiclePosition = settingsViewModel.fakeVehiclePosition.collectAsState()
+    val vehicleType = settingsViewModel.vehicleType.collectAsState()
     Column(modifier = Modifier.fillMaxSize()) {
-        CheckBoxSetting(modifier = Modifier.padding(horizontal = 20.dp),
+        CheckBoxSetting(
+            modifier = Modifier.padding(horizontal = 20.dp),
             label = "Fake Vehicle Position",
-            checked = fakeVehiclePosition.value,
-            onCheckedChanged = { settingsViewModel.setFakeVehiclePosition(it) })
+            checked = vehicleType.value == SettingsViewModel.VehicleType.FAKE,
+            onCheckedChanged = { isChecked ->
+                if (isChecked) {
+                    settingsViewModel.setVehicleType(SettingsViewModel.VehicleType.FAKE)
+                } else {
+                    settingsViewModel.setVehicleType(SettingsViewModel.VehicleType.MAVSDK)
+                }
+            }
+        )
 
         val settingsViewModel = hiltViewModel<SettingsViewModel>()
         val items = settingsViewModel.mapTypes

@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.auterion.tazama.data.VehicleViewModel
+import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.pages.main.MapView
 import com.auterion.tazama.presentation.pages.settings.SettingsPage
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel

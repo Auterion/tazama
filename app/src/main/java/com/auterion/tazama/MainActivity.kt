@@ -16,7 +16,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.auterion.tazama.data.VehicleViewModel
+import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.navigation.Navigation
 import com.auterion.tazama.navigation.navBarDestinations
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
