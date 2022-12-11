@@ -24,5 +24,6 @@ object SettingsDestination : NavDestination {
 }
 
 val navBarDestinations = listOf<NavDestination>(
+    HomeDestination,
     SettingsDestination
 )

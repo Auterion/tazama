@@ -9,6 +9,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -45,8 +47,8 @@ fun Main() {
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
 
-    Scaffold(topBar = {
-        BottomNavigation {
+    Scaffold(bottomBar = {
+        BottomNavigation(backgroundColor = colorResource(id = R.color.purple_500)) {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
@@ -55,6 +57,8 @@ fun Main() {
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     label = { Text(screen.label) },
                     icon = { Icon(screen.icon, contentDescription = null) },
+                    selectedContentColor = Color.White,
+                    unselectedContentColor = Color.White.copy(0.4f),
                     onClick = {
                         navController.navigate(screen.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
