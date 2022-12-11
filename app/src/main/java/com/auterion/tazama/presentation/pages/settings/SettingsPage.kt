@@ -5,6 +5,7 @@ import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -77,7 +78,8 @@ fun SettingRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = label
+            text = label,
+            modifier = Modifier.align(Alignment.CenterVertically)
         )
         content()
     }
