@@ -8,18 +8,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor() : ViewModel() {
-    private val _fakeVehiclePosition = MutableStateFlow(false)
-    val fakeVehiclePosition = _fakeVehiclePosition.asStateFlow()
+    // Vehicle
+    enum class VehicleType { FAKE, MAVSDK }
 
+    private val _vehicleType = MutableStateFlow(VehicleType.FAKE)
+    val vehicleType = _vehicleType.asStateFlow()
+
+    fun setVehicleType(vehicleType: VehicleType) {
+        _vehicleType.value = vehicleType
+    }
+
+    // Map
     private val _mapTypes = listOf("Satellite", "Normal", "Hybrid")
     val mapTypes = _mapTypes
 
     private var _currentMapType = MutableStateFlow("Satellite")
     val currentMapType = _currentMapType.asStateFlow()
-
-    fun setFakeVehiclePosition(fake: Boolean) {
-        _fakeVehiclePosition.value = fake
-    }
 
     fun setSatelliteMap(mapType: String) {
         if (_mapTypes.contains(mapType)) {

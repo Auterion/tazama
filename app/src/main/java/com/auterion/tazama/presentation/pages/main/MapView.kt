@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.R
-import com.auterion.tazama.data.VehicleViewModel
+import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.gms.maps.model.CameraPosition
