@@ -73,6 +73,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.maps.android:maps-compose:2.7.2'
 
+    // video player
+    implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
+
     // dagger hilt
     implementation "com.google.dagger:hilt-android:2.40.5"
     kapt "com.google.dagger:hilt-android-compiler:2.40.5"
