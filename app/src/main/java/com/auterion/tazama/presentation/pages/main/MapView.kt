@@ -10,17 +10,13 @@ import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.*
 
 @Composable
 fun MapView(
     vehicleViewModel: VehicleViewModel,
     modifier: Modifier
 ) {
-
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val mapType = settingsViewModel.currentMapType.collectAsState()
 
@@ -42,7 +38,8 @@ fun MapView(
     GoogleMap(
         modifier = modifier,
         cameraPositionState = cameraPositionState,
-        properties = props
+        properties = props,
+        uiSettings = MapUiSettings(zoomControlsEnabled = false),
     ) {
         VehicleMapMarker(
             context = LocalContext.current,
