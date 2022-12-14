@@ -17,7 +17,6 @@ fun Navigation(
     settingsViewModel: SettingsViewModel,
     modifier: Modifier
 ) {
-
     NavHost(navController = navController, startDestination = HomeDestination.route) {
         composable(HomeDestination.route) {
             MapView(vehicleViewModel, modifier = modifier)
