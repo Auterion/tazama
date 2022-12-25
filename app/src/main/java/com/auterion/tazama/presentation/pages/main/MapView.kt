@@ -1,20 +1,22 @@
 package com.auterion.tazama.presentation.pages.main
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
@@ -24,11 +26,12 @@ import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.*
+import kotlin.math.max
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MapView(
     mainViewModel: MainViewModel,
@@ -67,37 +70,13 @@ fun MapView(
         )
     }
 
-    var mapisMainScreen by mainViewModel.mapisMainScreen
-
     val mSize = mainViewModel.mapSize.collectAsState()
     val vSize = mainViewModel.videoSize.collectAsState()
-
-    var mapZValue = remember(key1 = mapisMainScreen) {
-        if (mapisMainScreen) {
-            0.0F
-        } else {
-            1.0F
-        }
-    }
-
-    val resources = LocalContext.current.resources
-    val density = resources.displayMetrics.density
-
+    val mapZValue = mainViewModel.mapZValue.collectAsState(initial = 0.0F).value
+    
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
-                .background(Color.Red)
-                .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
-                        mainViewModel.onUiEvent(
-                            ScreenEvent.MapWindowDrag(
-                                dragAmount.copy(
-                                    x = dragAmount.x / density, y = dragAmount.y / density
-                                )
-                            )
-                        )
-                    }
-                }
                 .size(mSize.value.width.dp, mSize.value.height.dp)
                 .zIndex(mapZValue)
         ) {
@@ -117,22 +96,16 @@ fun MapView(
                     iconResourceId = R.drawable.drone
                 )
             }
+
+            if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
+                WindowDragger(onDragAmount = {
+                    mainViewModel.onUiEvent(ScreenEvent.MapWindowDrag(it))
+                }, modifier = Modifier.align(Alignment.BottomEnd))
+            }
         }
 
         Box(modifier = Modifier
             .background(color = Color.Black)
-            .pointerInput(Unit) {
-
-                detectDragGestures { change, dragAmount ->
-                    mainViewModel.onUiEvent(
-                        ScreenEvent.VideoWindowDrag(
-                            dragAmount.copy(
-                                x = dragAmount.x / density, y = dragAmount.y / density
-                            )
-                        )
-                    )
-                }
-            }
             .size(vSize.value.width.dp, vSize.value.height.dp)
             .align(Alignment.TopStart)
             .clickable {
@@ -140,13 +113,57 @@ fun MapView(
             }) {
             AndroidView(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .aspectRatio(max(0.1F, vSize.value.width / max(vSize.value.height, 1.0F))),
                 factory = {
                     StyledPlayerView(it).apply {
                         this.player = player
                         useController = false
+                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
                     }
                 })
+
+            if (mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
+                WindowDragger(
+                    onDragAmount =
+                    {
+                        mainViewModel.onUiEvent(
+                            ScreenEvent.VideoWindowDrag(it)
+                        )
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun WindowDragger(
+    onDragAmount: (Offset) -> Unit,
+    modifier: Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(color = Color.White)
+            .size(30.dp)
+            .pointerInput(Unit) {
+                detectDragGestures { _, dragAmount ->
+                    onDragAmount(
+                        dragAmount.copy(
+                            x = dragAmount.x / density, y = dragAmount.y / density
+                        )
+                    )
+
+                }
+            }
+    ) {
+        Image(
+            painterResource(id = R.drawable.diagonal_arrow),
+            contentDescription = "null",
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(5.dp)
+        )
     }
 }
