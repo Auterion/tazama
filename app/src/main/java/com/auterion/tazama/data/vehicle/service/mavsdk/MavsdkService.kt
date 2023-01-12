@@ -1,7 +1,6 @@
 package com.auterion.tazama.data.vehicle.service.mavsdk
 
-import com.auterion.tazama.data.vehicle.TelemetryWriter
-import com.auterion.tazama.data.vehicle.VehicleWriter
+import com.auterion.tazama.data.vehicle.*
 import com.auterion.tazama.data.vehicle.service.VehicleService
 import com.google.android.gms.maps.model.LatLng
 import io.mavsdk.MavsdkEventQueue
@@ -29,6 +28,8 @@ class MavsdkService @Inject constructor(
 
     private fun linkTelemetry(from: io.mavsdk.telemetry.Telemetry, to: TelemetryWriter) {
         linkPosition(from.position, to.positionWriter)
+        linkVelocity(from.velocityNed, to.velocityWriter)
+        linkAttitude(from.attitudeEuler, to.attitudeWriter)
     }
 
     private fun linkPosition(
@@ -40,6 +41,36 @@ class MavsdkService @Inject constructor(
         }, {})
 
         disposables.add(positionDisposable)
+    }
+
+    private fun linkVelocity(
+        from: Flowable<io.mavsdk.telemetry.Telemetry.VelocityNed>,
+        to: MutableStateFlow<VelocityNed>
+    ) {
+        val velocityDisposable = from.subscribe({
+            to.value = VelocityNed(
+                it.northMS.toDouble(),
+                it.eastMS.toDouble(),
+                it.downMS.toDouble()
+            )
+        }, {})
+
+        disposables.add(velocityDisposable)
+    }
+
+    private fun linkAttitude(
+        from: Flowable<io.mavsdk.telemetry.Telemetry.EulerAngle>,
+        to: MutableStateFlow<Euler>
+    ) {
+        val headingDisposable = from.subscribe({
+            to.value = Euler(
+                Radian(it.rollDeg.toDouble()),
+                Radian(it.pitchDeg.toDouble()),
+                Radian(it.yawDeg.toDouble())
+            )
+        }, {})
+
+        disposables.add(headingDisposable)
     }
 
     override suspend fun destroy() {

@@ -1,6 +1,9 @@
 package com.auterion.tazama.data.vehicle.service.dummy
 
+import com.auterion.tazama.data.vehicle.Euler
+import com.auterion.tazama.data.vehicle.Radian
 import com.auterion.tazama.data.vehicle.VehicleWriter
+import com.auterion.tazama.data.vehicle.VelocityNed
 import com.auterion.tazama.data.vehicle.service.VehicleService
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.*
@@ -18,6 +21,8 @@ class DummyService @Inject constructor(
 
     override fun connect() {
         emitJobs.add(launch { emitPosition() })
+        emitJobs.add(launch { emitVelocity() })
+        emitJobs.add(launch { emitAttitude() })
     }
 
     private tailrec suspend fun emitPosition() {
@@ -31,6 +36,33 @@ class DummyService @Inject constructor(
 
         delay(1000)
         emitPosition()
+    }
+
+    private tailrec suspend fun emitVelocity() {
+        if (!isActive) {
+            return
+        }
+
+        println("Emitting dummy velocity")
+        vehicleWriter.telemetryWriter.velocityWriter.value =
+            VelocityNed(0.0, 0.0, 0.0)
+
+        delay(1000)
+        emitVelocity()
+    }
+
+
+    private tailrec suspend fun emitAttitude() {
+        if (!isActive) {
+            return
+        }
+
+        println("Emitting dummy attitude")
+        vehicleWriter.telemetryWriter.attitudeWriter.value =
+            Euler(Radian(0.0), Radian(0.0), Radian(0.0))
+
+        delay(1000)
+        emitAttitude()
     }
 
     override suspend fun destroy() {
