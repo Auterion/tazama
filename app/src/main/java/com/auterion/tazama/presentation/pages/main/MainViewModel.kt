@@ -37,6 +37,7 @@ class MainViewModel @Inject constructor(val player: ExoPlayer) : ViewModel() {
     }
 
     val screenSize = mutableStateOf(Size(0.0F, 0.0F))
+    private val _secondary_screen_height_percent_min = 25.0F
 
     private val _showDragIndicators = mutableStateOf(false)
     val showDragIndicators
@@ -74,6 +75,21 @@ class MainViewModel @Inject constructor(val player: ExoPlayer) : ViewModel() {
         return screenSize.value.width > screenSize.value.height
     }
 
+    private fun secondaryScreenWidthToHeightRatio(): Float {
+        if (isLandScape()) {
+            if (_mapIsMainScreen.value)
+                return _videoSize.value.width / _videoSize.value.height
+            else return _mapSize.value.width / _mapSize.value.height
+        } else {
+            return _videoSize.value.width / _mapSize.value.height
+        }
+    }
+
+    private fun widthIsLimiting(): Boolean {
+        val screenWidthToHeightRatio = screenSize.value.width / screenSize.value.height
+        return screenWidthToHeightRatio < secondaryScreenWidthToHeightRatio()
+    }
+
     fun onUiEvent(event: ScreenEvent) {
         when (event) {
             is ScreenEvent.ScreenSizeChanged -> {
@@ -100,13 +116,13 @@ class MainViewModel @Inject constructor(val player: ExoPlayer) : ViewModel() {
 
             is ScreenEvent.VideoWindowDrag -> {
                 if (_mapIsMainScreen.value && isLandScape()) {
-                    val newVideoWidth = _videoSize.value.width + event.drag.y
+                    val newVideoWidth = _videoSize.value.width + event.drag.x
                     val newVideoHeight = newVideoWidth * _videoWidthToHeightRatio
 
                     val limit = min(screenSize.value.width, screenSize.value.height)
 
-                    if (isLandScape() && newVideoHeight < limit ||
-                        !isLandScape() && newVideoWidth < limit
+                    if (newVideoHeight < limit ||
+                        newVideoWidth < limit
                     ) {
                         _videoSize.value =
                             Size(newVideoWidth, newVideoHeight)
@@ -116,7 +132,7 @@ class MainViewModel @Inject constructor(val player: ExoPlayer) : ViewModel() {
 
             is ScreenEvent.MapWindowDrag -> {
                 if (!_mapIsMainScreen.value && isLandScape()) {
-                    val newMapWidth = _mapSize.value.width + event.drag.y
+                    val newMapWidth = _mapSize.value.width + event.drag.x
                     val newMapHeight = newMapWidth * _videoWidthToHeightRatio
                     val limit = min(screenSize.value.width, screenSize.value.height)
                     if (isLandScape() && newMapHeight < limit ||
