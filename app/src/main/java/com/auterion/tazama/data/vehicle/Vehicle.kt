@@ -7,6 +7,7 @@ package com.auterion.tazama.data.vehicle
  */
 interface Vehicle {
     val telemetry: Telemetry
+    val camera: Camera
 }
 
 /**
@@ -16,6 +17,7 @@ interface Vehicle {
  */
 interface VehicleWriter {
     val telemetryWriter: TelemetryWriter
+    val cameraWriter: CameraWriter
 
     /**
      * Set all the streams to their default values (e.g. "0" or "N/A"). This is useful e.g. when

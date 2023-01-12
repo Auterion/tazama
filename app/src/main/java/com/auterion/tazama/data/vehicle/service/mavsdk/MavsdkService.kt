@@ -23,6 +23,7 @@ class MavsdkService @Inject constructor(
         MavsdkEventQueue.executor().execute {
             drone = System("127.0.0.1", mavsdkServer.run())
             linkTelemetry(drone.telemetry, vehicleWriter.telemetryWriter)
+            linkCamera(drone.camera, vehicleWriter.cameraWriter)
         }
     }
 
@@ -71,6 +72,21 @@ class MavsdkService @Inject constructor(
         }, {})
 
         disposables.add(headingDisposable)
+    }
+
+    private fun linkCamera(from: io.mavsdk.camera.Camera, to: CameraWriter) {
+        linkVideoStreamInfo(from.videoStreamInfo, to.videoStreamInfoWriter)
+    }
+
+    private fun linkVideoStreamInfo(
+        from: Flowable<io.mavsdk.camera.Camera.VideoStreamInfo>,
+        to: MutableStateFlow<VideoStreamInfo>
+    ) {
+        val videoStreamInfoDisposable = from.subscribe({ videoStreamInfo ->
+            to.value = VideoStreamInfo(videoStreamInfo.settings.uri)
+        }, {})
+
+        disposables.add(videoStreamInfoDisposable)
     }
 
     override suspend fun destroy() {
