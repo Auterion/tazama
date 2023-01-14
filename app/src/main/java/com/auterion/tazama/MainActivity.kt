@@ -49,8 +49,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Main() {
     val navController = rememberNavController()
-    val mainViewModel = hiltViewModel<MainViewModel>()
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
+    val mainViewModel = hiltViewModel<MainViewModel>()
+    mainViewModel.setVideoStreamInfoFlow(vehicleViewModel.videoStreamInfo)
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
 
     Scaffold(
