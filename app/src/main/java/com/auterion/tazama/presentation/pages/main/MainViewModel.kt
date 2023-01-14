@@ -5,20 +5,45 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.auterion.tazama.data.vehicle.VideoStreamInfo
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.min
 
 @HiltViewModel
-class MainViewModel @Inject constructor(val player: ExoPlayer) : ViewModel() {
+class MainViewModel @Inject constructor(
+    val player: ExoPlayer
+) : ViewModel() {
+    fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo>) {
+        if (videoStreamInfo != null) {
+            return
+        }
+        videoStreamInfo = flow
 
-    private val _videoStreamUri = "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4"
+        viewModelScope.launch {
+            videoStreamInfo
+                ?.distinctUntilChanged { left, right -> left.uri == right.uri }
+                ?.collect {
+                    player.stop()
+                    val mediaSource = RtspMediaSource.Factory()
+                        .setForceUseRtpTcp(it.uri.contains("rtspt"))
+                        .createMediaSource(MediaItem.fromUri(it.uri))
+
+                    player.setMediaSource(mediaSource)
+                    player.prepare()
+                    player.play()
+                }
+        }
+
+    }
+
+    var videoStreamInfo: StateFlow<VideoStreamInfo>? = null
 
     private val _videoSize = MutableStateFlow<Size>(Size(0.0F, 0.0F))
     val videoSize = _videoSize.asStateFlow()
@@ -48,13 +73,8 @@ class MainViewModel @Inject constructor(val player: ExoPlayer) : ViewModel() {
         get() = _mapIsMainScreen.value
 
     init {
-        val mediaSource = RtspMediaSource.Factory()
-            .setForceUseRtpTcp(_videoStreamUri.contains("rtspt"))
-            .createMediaSource(MediaItem.fromUri(_videoStreamUri))
 
-        player.setMediaSource(mediaSource)
-        player.prepare()
-        player.play()
+
     }
 
     private fun swapMapAndVideo() {
