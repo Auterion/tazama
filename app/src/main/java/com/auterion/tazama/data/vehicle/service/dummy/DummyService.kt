@@ -2,7 +2,6 @@ package com.auterion.tazama.data.vehicle.service.dummy
 
 import com.auterion.tazama.data.vehicle.*
 import com.auterion.tazama.data.vehicle.service.VehicleService
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.*
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
@@ -30,7 +29,10 @@ class DummyService @Inject constructor(
 
         println("Emitting dummy position")
         vehicleWriter.telemetryWriter.positionWriter.value =
-            LatLng(Random.nextDouble(3.0, 4.0), Random.nextDouble(46.0, 47.0))
+            PositionAbsolute(
+                Degrees(Random.nextDouble(3.0, 4.0)),
+                Degrees(Random.nextDouble(46.0, 47.0))
+            )
 
         delay(1000)
         emitPosition()
