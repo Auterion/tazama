@@ -17,6 +17,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.R
+import com.auterion.tazama.data.vehicle.Degrees
 import com.auterion.tazama.data.vehicle.HomePosition
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.components.VehicleMapMarker
@@ -135,8 +136,11 @@ fun MapView(
                         vehiclePosition.value.lon.value
                     ),
                     title = "Vehicle",
-                    iconResourceId = R.drawable.drone
+                    iconResourceId = R.drawable.plane,
+                    rotation = Degrees(attitude.value.yaw.value - 90)
                 )
+
+
             }
 
             if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
