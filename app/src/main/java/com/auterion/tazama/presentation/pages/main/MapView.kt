@@ -21,7 +21,7 @@ import com.auterion.tazama.data.vehicle.HomePosition
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
-import com.auterion.tazama.util.distanceBetween
+import com.auterion.tazama.util.GeoUtils
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
@@ -84,7 +84,7 @@ fun MapView(
     val homePosition = vehicleViewModel.homePosition.collectAsState(initial = HomePosition())
 
     val distToHome = if (homePosition.value.isValid()) {
-        distanceBetween(
+        GeoUtils.distanceBetween(
             homePosition.value.lat!!.value,
             homePosition.value.lon!!.value,
             vehiclePosition.value.lat.value,
