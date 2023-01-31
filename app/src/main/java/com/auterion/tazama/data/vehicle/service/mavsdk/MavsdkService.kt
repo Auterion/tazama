@@ -2,7 +2,6 @@ package com.auterion.tazama.data.vehicle.service.mavsdk
 
 import com.auterion.tazama.data.vehicle.*
 import com.auterion.tazama.data.vehicle.service.VehicleService
-import com.google.android.gms.maps.model.LatLng
 import io.mavsdk.MavsdkEventQueue
 import io.mavsdk.System
 import io.mavsdk.mavsdkserver.MavsdkServer
@@ -31,14 +30,20 @@ class MavsdkService @Inject constructor(
         linkPosition(from.position, to.positionWriter)
         linkVelocity(from.velocityNed, to.velocityWriter)
         linkAttitude(from.attitudeEuler, to.attitudeWriter)
+        linkHomePosition(from.home, to.homePositionWriter)
     }
 
     private fun linkPosition(
         from: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
-        to: MutableStateFlow<LatLng>
+        to: MutableStateFlow<PositionAbsolute>
     ) {
         val positionDisposable = from.subscribe({ position ->
-            to.value = LatLng(position.latitudeDeg, position.longitudeDeg)
+            to.value =
+                PositionAbsolute(
+                    Degrees(position.latitudeDeg),
+                    Degrees(position.longitudeDeg),
+                    position.absoluteAltitudeM.toDouble()
+                )
         }, {})
 
         disposables.add(positionDisposable)
@@ -72,6 +77,21 @@ class MavsdkService @Inject constructor(
         }, {})
 
         disposables.add(headingDisposable)
+    }
+
+    private fun linkHomePosition(
+        from: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
+        to: MutableStateFlow<HomePosition>
+    ) {
+        val homeDisposable = from.subscribe({
+            to.value = HomePosition(
+                lat = Degrees(it.latitudeDeg),
+                lon = Degrees(it.longitudeDeg),
+                alt = it.absoluteAltitudeM.toDouble()
+            )
+        }, {})
+
+        disposables.add(homeDisposable)
     }
 
     private fun linkCamera(from: io.mavsdk.camera.Camera, to: CameraWriter) {

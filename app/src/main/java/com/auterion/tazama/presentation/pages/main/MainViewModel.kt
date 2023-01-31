@@ -62,7 +62,10 @@ class MainViewModel @Inject constructor(
     }
 
     val screenSize = mutableStateOf(Size(0.0F, 0.0F))
-    private val _secondary_screen_height_percent_min = 25.0F
+
+    val isLandScape = snapshotFlow { screenSize }.mapLatest {
+        isLandScape()
+    }
 
     private val _showDragIndicators = mutableStateOf(false)
     val showDragIndicators
@@ -115,8 +118,8 @@ class MainViewModel @Inject constructor(
             is ScreenEvent.ScreenSizeChanged -> {
                 screenSize.value = event.size
                 _mapIsMainScreen.value = true
-                _mapSize.value = screenSize.value
                 if (isLandScape()) {
+                    _mapSize.value = screenSize.value
                     _showDragIndicators.value = true
                     _mapSize.value = screenSize.value
                     val desired_video_height = _mapSize.value.height * 0.5f
@@ -130,6 +133,10 @@ class MainViewModel @Inject constructor(
                     _videoSize.value = Size(
                         screenSize.value.width,
                         screenSize.value.width * _videoWidthToHeightRatio
+                    )
+                    _mapSize.value = Size(
+                        screenSize.value.width,
+                        screenSize.value.height - _videoSize.value.height
                     )
                 }
             }
