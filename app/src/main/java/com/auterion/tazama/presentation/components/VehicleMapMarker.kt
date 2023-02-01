@@ -40,13 +40,14 @@ fun bitMapDescriptorFromVector(
 ): BitmapDescriptor? {
     val drawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
     drawable.setBounds(0, 0, iconSize, iconSize)
-    val bm = Bitmap.createBitmap(
+    val bitmap = Bitmap.createBitmap(
         iconSize,
         iconSize,
         Bitmap.Config.RGBA_F16
     )
 
-    val canvas = android.graphics.Canvas(bm)
+    val canvas = android.graphics.Canvas(bitmap)
     drawable.draw(canvas)
-    return BitmapDescriptorFactory.fromBitmap(bm)
+
+    return BitmapDescriptorFactory.fromBitmap(bitmap)
 }
