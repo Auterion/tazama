@@ -12,8 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -70,7 +72,12 @@ fun Main() {
                     BottomNavigationItem(
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         label = { Text(screen.label) },
-                        icon = { Icon(screen.icon, contentDescription = null) },
+                        icon = {
+                            Icon(
+                                ImageVector.vectorResource(id = screen.icon_source_id),
+                                contentDescription = null
+                            )
+                        },
                         selectedContentColor = Color.White,
                         unselectedContentColor = Color.White.copy(0.4f),
                         onClick = {

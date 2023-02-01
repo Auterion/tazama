@@ -2,12 +2,17 @@ package com.auterion.tazama.presentation.pages.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -29,7 +34,6 @@ import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -102,12 +106,7 @@ fun MapView(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .size(mSize.value.width.dp, mSize.value.height.dp)
-                .zIndex(mapZValue)
-                .align(if (isLandScape) Alignment.TopStart else Alignment.BottomCenter)
-        ) {
+        if (isLandScape) {
             TelemetryInfo(
                 modifier = Modifier
                     .zIndex(mapZValue + 1)
@@ -120,6 +119,29 @@ fun MapView(
                 ).toFloat(),
                 heading = attitude.value.yaw.value.toFloat()
             )
+        }
+        Box(
+            modifier = Modifier
+                .size(mSize.value.width.dp, mSize.value.height.dp)
+                .zIndex(mapZValue)
+                .align(if (isLandScape) Alignment.TopStart else Alignment.BottomCenter)
+                .padding(if (mainViewModel.mapIsMainScreen || !isLandScape) 0.dp else 15.dp)
+            //.clip(RoundedCornerShape(10.dp))
+        ) {
+            if (!isLandScape) {
+                TelemetryInfo(
+                    modifier = Modifier
+                        .zIndex(mapZValue + 1)
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp),
+                    distFromHome = distToHome.toFloat(),
+                    height = distAboveHome.toFloat(),
+                    speed = sqrt(
+                        velocity.value.vx.pow(2) + velocity.value.vy.pow(2)
+                    ).toFloat(),
+                    heading = attitude.value.yaw.value.toFloat()
+                )
+            }
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
@@ -137,7 +159,7 @@ fun MapView(
                     ),
                     title = "Vehicle",
                     iconResourceId = R.drawable.plane,
-                    rotation = Degrees(attitude.value.yaw.value - 90)
+                    rotation = Degrees(attitude.value.yaw.value)
                 )
 
 
@@ -151,16 +173,17 @@ fun MapView(
         }
 
         Box(modifier = Modifier
-            .background(color = Color.Black)
+            .background(color = Color.Transparent)
             .size(vSize.value.width.dp, vSize.value.height.dp)
             .align(Alignment.TopStart)
+            .padding(if (!mainViewModel.mapIsMainScreen || !isLandScape) 0.dp else 15.dp)
+            .clip(RoundedCornerShape(10.dp))
             .clickable {
                 mainViewModel.onUiEvent(ScreenEvent.VideoTapped)
             }) {
             AndroidView(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .aspectRatio(max(0.1F, vSize.value.width / max(vSize.value.height, 1.0F))),
+                    .size(width = vSize.value.width.dp, vSize.value.height.dp),
                 factory = {
                     StyledPlayerView(it).apply {
                         this.player = player

@@ -21,8 +21,8 @@ fun Navigation(
     modifier: Modifier,
     player: ExoPlayer
 ) {
-    NavHost(navController = navController, startDestination = HomeDestination.route) {
-        composable(HomeDestination.route) {
+    NavHost(navController = navController, startDestination = MapDestination.route) {
+        composable(MapDestination.route) {
             MapView(mainViewModel, vehicleViewModel, player)
         }
 
