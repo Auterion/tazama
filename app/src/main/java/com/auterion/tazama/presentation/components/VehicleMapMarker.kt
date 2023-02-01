@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
+import com.auterion.tazama.data.vehicle.Degrees
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -16,15 +17,19 @@ fun VehicleMapMarker(
     context: Context,
     position: LatLng,
     title: String,
+    rotation: Degrees = Degrees(0.0),
     @DrawableRes iconResourceId: Int
 ) {
-    val iconSize = 100
+    val iconSize = 150
     val icon = bitMapDescriptorFromVector(context, iconResourceId, iconSize)
+
+    println("getting rotation " + rotation.value)
 
     Marker(
         state = MarkerState(position = position),
         title = title,
-        icon = icon
+        icon = icon,
+        rotation = rotation.value.toFloat()
     )
 }
 
@@ -38,7 +43,7 @@ fun bitMapDescriptorFromVector(
     val bm = Bitmap.createBitmap(
         iconSize,
         iconSize,
-        Bitmap.Config.ARGB_8888
+        Bitmap.Config.RGBA_F16
     )
 
     val canvas = android.graphics.Canvas(bm)
