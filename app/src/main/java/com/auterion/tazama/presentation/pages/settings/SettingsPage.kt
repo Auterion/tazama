@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.presentation.components.DropDown
+import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.MapType
 
 @Composable
 fun SettingsPage(settingsViewModel: SettingsViewModel) {
@@ -29,14 +30,14 @@ fun SettingsPage(settingsViewModel: SettingsViewModel) {
         )
 
         val settingsViewModel = hiltViewModel<SettingsViewModel>()
-        val items = settingsViewModel.mapTypes
+        val items = MapType.values().map { value -> value.toString() }
         val currentItem = settingsViewModel.currentMapType.collectAsState()
         DropDownSetting(
             modifier = Modifier.padding(horizontal = 20.dp),
             label = "MapType",
-            currentItem = currentItem.value,
+            currentItem = currentItem.value.toString(),
             items = items,
-            onItemSelected = { settingsViewModel.setSatelliteMap(it) }
+            onItemSelected = { settingsViewModel.setSatelliteMap(MapType.valueOf(it)) }
         )
     }
 }
