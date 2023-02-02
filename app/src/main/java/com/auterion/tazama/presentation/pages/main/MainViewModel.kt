@@ -20,6 +20,38 @@ import kotlin.math.min
 class MainViewModel @Inject constructor(
     val player: ExoPlayer
 ) : ViewModel() {
+    var videoStreamInfo: StateFlow<VideoStreamInfo>? = null
+
+    private val _videoSize = MutableStateFlow(Size(0.0F, 0.0F))
+    val videoSize = _videoSize.asStateFlow()
+
+    private val videoWidthToHeightRatio: Float = 9.0f / 16.0f
+
+    private val _mapSize = MutableStateFlow(Size(0.0F, 0.0F))
+    val mapSize = _mapSize.asStateFlow()
+
+    val mapZValue = snapshotFlow { _mapIsMainScreen.value }.mapLatest {
+        if (it) {
+            0.0F
+        } else {
+            1.0F
+        }
+    }
+
+    private val screenSize = mutableStateOf(Size(0.0F, 0.0F))
+
+    val isLandScape = snapshotFlow { screenSize }.mapLatest {
+        isLandScape()
+    }
+
+    private val _showDragIndicators = mutableStateOf(false)
+    val showDragIndicators
+        get() = _showDragIndicators.value
+
+    private val _mapIsMainScreen = mutableStateOf(true)
+    val mapIsMainScreen
+        get() = _mapIsMainScreen.value
+
     fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo>) {
         if (videoStreamInfo != null) {
             return
@@ -40,53 +72,14 @@ class MainViewModel @Inject constructor(
                     player.play()
                 }
         }
-
-    }
-
-    var videoStreamInfo: StateFlow<VideoStreamInfo>? = null
-
-    private val _videoSize = MutableStateFlow<Size>(Size(0.0F, 0.0F))
-    val videoSize = _videoSize.asStateFlow()
-
-    private val _videoWidthToHeightRatio: Float = 9.0f / 16.0f
-
-    private val _mapSize = MutableStateFlow<Size>(Size(0.0F, 0.0F))
-    val mapSize = _mapSize.asStateFlow()
-
-    val mapZValue = snapshotFlow { _mapIsMainScreen.value }.mapLatest {
-        if (it) {
-            0.0F
-        } else {
-            1.0F
-        }
-    }
-
-    val screenSize = mutableStateOf(Size(0.0F, 0.0F))
-
-    val isLandScape = snapshotFlow { screenSize }.mapLatest {
-        isLandScape()
-    }
-
-    private val _showDragIndicators = mutableStateOf(false)
-    val showDragIndicators
-        get() = _showDragIndicators.value
-
-    private val _mapIsMainScreen = mutableStateOf(true)
-    val mapIsMainScreen
-        get() = _mapIsMainScreen.value
-
-    init {
-
-
     }
 
     private fun swapMapAndVideo() {
-
         _mapIsMainScreen.value = !_mapIsMainScreen.value
 
         if (_mapIsMainScreen.value) {
             _videoSize.value =
-                Size(_mapSize.value.width, _videoWidthToHeightRatio * _mapSize.value.width)
+                Size(_mapSize.value.width, videoWidthToHeightRatio * _mapSize.value.width)
             _mapSize.value = screenSize.value
         } else {
             _mapSize.value = _videoSize.value
@@ -99,12 +92,11 @@ class MainViewModel @Inject constructor(
     }
 
     private fun secondaryScreenWidthToHeightRatio(): Float {
-        if (isLandScape()) {
-            if (_mapIsMainScreen.value)
-                return _videoSize.value.width / _videoSize.value.height
-            else return _mapSize.value.width / _mapSize.value.height
+        return if (isLandScape()) {
+            if (_mapIsMainScreen.value) _videoSize.value.width / _videoSize.value.height
+            else _mapSize.value.width / _mapSize.value.height
         } else {
-            return _videoSize.value.width / _mapSize.value.height
+            _videoSize.value.width / _mapSize.value.height
         }
     }
 
@@ -122,17 +114,17 @@ class MainViewModel @Inject constructor(
                     _mapSize.value = screenSize.value
                     _showDragIndicators.value = true
                     _mapSize.value = screenSize.value
-                    val desired_video_height = _mapSize.value.height * 0.5f
+                    val desiredVideoHeight = _mapSize.value.height * 0.5f
 
                     _videoSize.value = Size(
-                        desired_video_height / _videoWidthToHeightRatio,
-                        desired_video_height
+                        desiredVideoHeight / videoWidthToHeightRatio,
+                        desiredVideoHeight
                     )
                 } else {
                     _showDragIndicators.value = false
                     _videoSize.value = Size(
                         screenSize.value.width,
-                        screenSize.value.width * _videoWidthToHeightRatio
+                        screenSize.value.width * videoWidthToHeightRatio
                     )
                     _mapSize.value = Size(
                         screenSize.value.width,
@@ -144,7 +136,7 @@ class MainViewModel @Inject constructor(
             is ScreenEvent.VideoWindowDrag -> {
                 if (_mapIsMainScreen.value && isLandScape()) {
                     val newVideoWidth = _videoSize.value.width + event.drag.x
-                    val newVideoHeight = newVideoWidth * _videoWidthToHeightRatio
+                    val newVideoHeight = newVideoWidth * videoWidthToHeightRatio
 
                     val limit = min(screenSize.value.width, screenSize.value.height)
 
@@ -160,13 +152,13 @@ class MainViewModel @Inject constructor(
             is ScreenEvent.MapWindowDrag -> {
                 if (!_mapIsMainScreen.value && isLandScape()) {
                     val newMapWidth = _mapSize.value.width + event.drag.x
-                    val newMapHeight = newMapWidth * _videoWidthToHeightRatio
+                    val newMapHeight = newMapWidth * videoWidthToHeightRatio
                     val limit = min(screenSize.value.width, screenSize.value.height)
                     if (isLandScape() && newMapHeight < limit ||
                         !isLandScape() && newMapWidth < limit
                     ) {
                         _mapSize.value =
-                            Size(newMapWidth, newMapWidth * _videoWidthToHeightRatio)
+                            Size(newMapWidth, newMapWidth * videoWidthToHeightRatio)
                     }
                 }
             }
@@ -182,7 +174,6 @@ class MainViewModel @Inject constructor(
                     swapMapAndVideo()
                 }
             }
-
         }
     }
 }

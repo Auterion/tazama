@@ -31,7 +31,6 @@ fun TelemetryInfo(
     speed: Float,
     heading: Float
 ) {
-
     Surface(
         color = MaterialTheme.colors.onSecondary.copy(alpha = 0.5f),
         modifier = modifier
@@ -67,7 +66,7 @@ fun TelemetryInfo(
                     3 ->
                         TelemetryElement(
                             image = painterResource(id = R.drawable.baseline_drone_map_symbol),
-                            imageModifier = Modifier.rotate(heading - 90),
+                            modifier = Modifier.rotate(heading - 90),
                             value = DecimalFormat("#").format(heading),
                             unit = "deg"
                         )
@@ -75,13 +74,12 @@ fun TelemetryInfo(
             }
         }
     }
-
 }
 
 @Composable
 fun TelemetryElement(
+    modifier: Modifier = Modifier,
     image: Painter? = null,
-    imageModifier: Modifier = Modifier,
     textSymbol: String? = null,
     value: String,
     unit: String
@@ -92,7 +90,7 @@ fun TelemetryElement(
                 painter = image,
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(color = Color.White),
-                modifier = imageModifier
+                modifier = modifier
             )
         } else if (textSymbol != null) {
             Text(

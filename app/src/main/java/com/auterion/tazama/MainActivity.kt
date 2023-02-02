@@ -56,13 +56,12 @@ fun Main() {
     mainViewModel.setVideoStreamInfoFlow(vehicleViewModel.videoStreamInfo)
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
 
-    Scaffold(
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
+    Scaffold(
         bottomBar = {
             BottomNavigation(
-                modifier = if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) Modifier.height(
-                    0.dp
-                ) else Modifier,
+                modifier = if (isLandscape) Modifier.height(0.dp) else Modifier,
                 backgroundColor = colorResource(id = R.color.purple_500)
             ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()

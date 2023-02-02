@@ -51,7 +51,8 @@ fun CheckBoxSetting(
     SettingRow(modifier = modifier, label = label) {
         Checkbox(
             checked = checked,
-            onCheckedChange = { onCheckedChanged(it) })
+            onCheckedChange = { onCheckedChanged(it) },
+        )
     }
 }
 
@@ -62,16 +63,14 @@ fun DropDownSetting(
     currentItem: String,
     items: List<String>,
     onItemSelected: (String) -> Unit
-
 ) {
     SettingRow(modifier = modifier, label = label) {
         DropDown(
-            modifier = Modifier,
-            selectedItem = currentItem,
             items = items,
-            onItemSelected = {
-                onItemSelected(it)
-            })
+            selectedItem = currentItem
+        ) {
+            onItemSelected(it)
+        }
     }
 }
 
@@ -79,7 +78,7 @@ fun DropDownSetting(
 fun SettingRow(
     modifier: Modifier,
     label: String,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),

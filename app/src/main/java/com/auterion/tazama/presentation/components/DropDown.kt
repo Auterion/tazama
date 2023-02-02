@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DropDown(
-    modifier: Modifier,
     items: List<String>,
     selectedItem: String,
     onItemSelected: (String) -> Unit
@@ -31,16 +30,15 @@ fun DropDown(
             .padding(5.dp)
     ) {
         Text(
-            text = selectedItem, modifier = Modifier
-                .clickable(onClick = { expanded = true })
+            text = selectedItem,
+            modifier = Modifier.clickable(onClick = { expanded = true })
         )
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .background(color = Color.White)
+            modifier = Modifier.background(color = Color.White)
         ) {
-            items.forEachIndexed { index, s ->
+            items.forEachIndexed { _, s ->
                 DropdownMenuItem(onClick = {
                     expanded = false
                     onItemSelected(s)

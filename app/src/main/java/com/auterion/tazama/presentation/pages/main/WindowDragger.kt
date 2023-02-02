@@ -37,7 +37,6 @@ fun WindowDragger(
                             x = dragAmount.x / density, y = dragAmount.y / density
                         )
                     )
-
                 }
             }
     ) {
