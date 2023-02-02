@@ -1,5 +1,6 @@
 package com.auterion.tazama.presentation.pages.settings
 
+import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.auterion.tazama.util.Preferences
@@ -9,28 +10,32 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor() : ViewModel() {
-    private val context: Context
+class SettingsViewModel @Inject constructor(private val application: Application) : ViewModel() {
+    private fun getContext(): Context {
+        return application.applicationContext
+    }
 
     // Vehicle
     enum class VehicleType { FAKE, MAVSDK }
 
-    private val _vehicleType = MutableStateFlow(Preferences.getVehicleType(context).toSettings())
+    private val _vehicleType =
+        MutableStateFlow(Preferences.getVehicleType(getContext()).toSettings())
     val vehicleType = _vehicleType.asStateFlow()
 
     fun setVehicleType(vehicleType: VehicleType) {
-        Preferences.setVehicleType(context, vehicleType.toPrefs())
+        Preferences.setVehicleType(getContext(), vehicleType.toPrefs())
         _vehicleType.value = vehicleType
     }
 
     // Map
     enum class MapType { SATELLITE, NORMAL, HYBRID }
 
-    private var _currentMapType = MutableStateFlow(Preferences.getMapType(context).toSettings())
+    private var _currentMapType =
+        MutableStateFlow(Preferences.getMapType(getContext()).toSettings())
     val currentMapType = _currentMapType.asStateFlow()
 
     fun setSatelliteMap(mapType: MapType) {
-        Preferences.setMapType(context, mapType.toPrefs())
+        Preferences.setMapType(getContext(), mapType.toPrefs())
         _currentMapType.value = mapType
     }
 

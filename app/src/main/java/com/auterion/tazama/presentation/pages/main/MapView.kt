@@ -59,10 +59,9 @@ fun MapView(
     val props =
         MapProperties(
             mapType = when (mapType.value) {
-                "Satellite" -> MapType.SATELLITE
-                "Normal" -> MapType.NORMAL
-                "Hybrid" -> MapType.HYBRID
-                else -> MapType.NORMAL
+                SettingsViewModel.MapType.SATELLITE -> MapType.SATELLITE
+                SettingsViewModel.MapType.NORMAL -> MapType.NORMAL
+                SettingsViewModel.MapType.HYBRID -> MapType.HYBRID
             }
         )
 

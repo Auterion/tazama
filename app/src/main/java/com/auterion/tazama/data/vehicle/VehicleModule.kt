@@ -1,5 +1,6 @@
 package com.auterion.tazama.data.vehicle
 
+import android.app.Application
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import dagger.Module
 import dagger.Provides
@@ -20,7 +21,7 @@ object VehicleModule {
 
     @Singleton
     @Provides
-    fun provideSettingsViewModel(): SettingsViewModel {
-        return SettingsViewModel()
+    fun provideSettingsViewModel(application: Application): SettingsViewModel {
+        return SettingsViewModel(application)
     }
 }
