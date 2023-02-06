@@ -73,7 +73,7 @@ fun Main() {
                         label = { Text(screen.label) },
                         icon = {
                             Icon(
-                                ImageVector.vectorResource(id = screen.icon_source_id),
+                                ImageVector.vectorResource(id = screen.iconSourceId),
                                 contentDescription = null
                             )
                         },
