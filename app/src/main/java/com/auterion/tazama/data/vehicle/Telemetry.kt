@@ -3,37 +3,41 @@ package com.auterion.tazama.data.vehicle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlin.math.PI
-
-data class Radian(val value: Double = 0.0) {
-    fun toDegrees(): Double {
-        return value * 180.0 / PI
-    }
-}
-
-data class Degrees(val value: Double = 0.0) {
-    fun toRadians(): Double {
-        return value * PI / 180.0
-    }
-}
 
 data class PositionAbsolute(
     val lat: Degrees = Degrees(),
     val lon: Degrees = Degrees(),
-    val alt: Double = 0.0
-)
+    val alt: Altitude = Altitude(0.0)
+) {
+    fun toMetric(): PositionAbsolute {
+        return if (alt.measurementSystem == Measure.MeasurementSystem.METRIC) {
+            this
+        } else PositionAbsolute(lat, lon, alt.toMetric())
+    }
+
+    fun toImperial(): PositionAbsolute {
+        return if (alt.measurementSystem == Measure.MeasurementSystem.IMPERIAL) {
+            this
+        } else PositionAbsolute(lat, lon, alt.toImperial())
+    }
+}
 
 data class HomePosition(
     val lat: Degrees? = null,
     val lon: Degrees? = null,
-    val alt: Double? = null
+    val alt: Altitude? = null
 ) {
     fun isValid(): Boolean {
         return lat != Degrees() && lon != Degrees() && alt != null
     }
 }
 
-data class VelocityNed(val vx: Double = 0.0, val vy: Double = 0.0, val vz: Double = 0.0)
+data class VelocityNed(
+    val vx: Speed = Speed(),
+    val vy: Speed = Speed(),
+    val vz: Speed = Speed()
+)
+
 data class Euler(
     val roll: Radian = Radian(),
     val pitch: Radian = Radian(),
@@ -63,5 +67,4 @@ class TelemetryImpl : Telemetry, TelemetryWriter {
     override val velocity = velocityWriter.asStateFlow()
     override val attitude = attitudeWriter.asStateFlow()
     override val homePosition = homePositionWriter.asStateFlow()
-
 }

@@ -1,28 +1,24 @@
 package com.auterion.tazama.util
 
+import com.auterion.tazama.data.vehicle.Degrees
+import com.auterion.tazama.data.vehicle.Distance
+import com.auterion.tazama.data.vehicle.Radian
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
 
 class GeoUtils {
     companion object {
-        fun distanceBetween(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        fun distanceBetween(lat1: Degrees, lon1: Degrees, lat2: Degrees, lon2: Degrees): Distance {
             val theta = lon1 - lon2
-            var dist = sin(deg2rad(lat1)) * sin(deg2rad(lat2)) +
-                    cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta))
-            dist = acos(dist)
-            dist = rad2deg(dist)
-            dist *= 60 * 1.1515
-            dist *= 1609.344
-            return dist
-        }
+            val dist = sin(lat1.toRadian().value) * sin(lat2.toRadian().value) +
+                    cos(lat1.toRadian().value) * cos(lat2.toRadian().value) * cos(theta.toRadian().value)
 
-        private fun deg2rad(deg: Double): Double {
-            return deg * Math.PI / 180.0
-        }
+            val distRad = Radian(acos(dist))
+            val distDeg = distRad.toDegrees()
+            val distMeters = distDeg.value * 60.0 * 1.1515 * 1609.344
 
-        private fun rad2deg(rad: Double): Double {
-            return rad * 180.0 / Math.PI
+            return Distance(distMeters)
         }
     }
 }

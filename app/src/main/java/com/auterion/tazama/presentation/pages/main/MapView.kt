@@ -22,9 +22,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.R
-import com.auterion.tazama.data.vehicle.Degrees
-import com.auterion.tazama.data.vehicle.HomePosition
-import com.auterion.tazama.data.vehicle.VehicleViewModel
+import com.auterion.tazama.data.vehicle.*
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.auterion.tazama.util.GeoUtils
@@ -46,7 +44,7 @@ fun MapView(
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val mapType = settingsViewModel.currentMapType.collectAsState()
 
-    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState()
+    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(
@@ -89,20 +87,26 @@ fun MapView(
 
     val distToHome = if (homePosition.value.isValid()) {
         GeoUtils.distanceBetween(
-            homePosition.value.lat!!.value,
-            homePosition.value.lon!!.value,
-            vehiclePosition.value.lat.value,
-            vehiclePosition.value.lon.value
+            Degrees(homePosition.value.lat!!.value),
+            Degrees(homePosition.value.lon!!.value),
+            Degrees(vehiclePosition.value.lat.value),
+            Degrees(vehiclePosition.value.lon.value)
         )
     } else {
-        0.0f
+        Distance(0.0)
     }
 
     val distAboveHome = if (homePosition.value.isValid()) {
         vehiclePosition.value.alt - homePosition.value.alt!!
     } else {
-        0.0f
+        Altitude(0.0)
     }
+
+    val speed = Speed(
+        sqrt(velocity.value.vx.value.pow(2) + velocity.value.vy.value.pow(2))
+    )
+
+    val heading = Degrees(attitude.value.yaw.value)
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLandScape) {
@@ -111,12 +115,10 @@ fun MapView(
                     .zIndex(mapZValue + 1)
                     .align(Alignment.TopEnd)
                     .padding(10.dp),
-                distFromHome = distToHome.toFloat(),
-                height = distAboveHome.toFloat(),
-                speed = sqrt(
-                    velocity.value.vx.pow(2) + velocity.value.vy.pow(2)
-                ).toFloat(),
-                heading = attitude.value.yaw.value.toFloat()
+                distFromHome = distToHome,
+                height = distAboveHome,
+                speed = speed,
+                heading = heading
             )
         }
         Box(
@@ -133,12 +135,10 @@ fun MapView(
                         .zIndex(mapZValue + 1)
                         .align(Alignment.TopEnd)
                         .padding(10.dp),
-                    distFromHome = distToHome.toFloat(),
-                    height = distAboveHome.toFloat(),
-                    speed = sqrt(
-                        velocity.value.vx.pow(2) + velocity.value.vy.pow(2)
-                    ).toFloat(),
-                    heading = attitude.value.yaw.value.toFloat()
+                    distFromHome = distToHome,
+                    height = distAboveHome,
+                    speed = speed,
+                    heading = heading
                 )
             }
             GoogleMap(
@@ -160,8 +160,6 @@ fun MapView(
                     iconResourceId = R.drawable.plane,
                     rotation = Degrees(attitude.value.yaw.value)
                 )
-
-
             }
 
             if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
@@ -205,4 +203,3 @@ fun MapView(
         }
     }
 }
-

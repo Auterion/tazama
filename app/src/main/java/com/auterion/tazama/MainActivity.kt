@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ import com.auterion.tazama.navigation.navBarDestinations
 import com.auterion.tazama.presentation.pages.main.MainViewModel
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.auterion.tazama.ui.theme.TazamaTheme
+import com.auterion.tazama.util.Preferences
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -50,8 +52,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Main() {
+    val context = LocalContext.current
     val navController = rememberNavController()
-    val vehicleViewModel = hiltViewModel<VehicleViewModel>()
+    val measurementSystemFlow = Preferences.getMeasureSystemFlow(context)
+    val vehicleViewModel = hiltViewModel<VehicleViewModel>(measurementSystemFlow)
     val mainViewModel = hiltViewModel<MainViewModel>()
     mainViewModel.setVideoStreamInfoFlow(vehicleViewModel.videoStreamInfo)
     val settingsViewModel = hiltViewModel<SettingsViewModel>()

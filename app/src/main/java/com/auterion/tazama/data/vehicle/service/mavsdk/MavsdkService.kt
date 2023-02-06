@@ -42,7 +42,7 @@ class MavsdkService @Inject constructor(
                 PositionAbsolute(
                     Degrees(position.latitudeDeg),
                     Degrees(position.longitudeDeg),
-                    position.absoluteAltitudeM.toDouble()
+                    Altitude(position.absoluteAltitudeM.toDouble())
                 )
         }, {})
 
@@ -55,9 +55,9 @@ class MavsdkService @Inject constructor(
     ) {
         val velocityDisposable = from.subscribe({
             to.value = VelocityNed(
-                it.northMS.toDouble(),
-                it.eastMS.toDouble(),
-                it.downMS.toDouble()
+                Speed(it.northMS.toDouble()),
+                Speed(it.eastMS.toDouble()),
+                Speed(it.downMS.toDouble())
             )
         }, {})
 
@@ -87,7 +87,7 @@ class MavsdkService @Inject constructor(
             to.value = HomePosition(
                 lat = Degrees(it.latitudeDeg),
                 lon = Degrees(it.longitudeDeg),
-                alt = it.absoluteAltitudeM.toDouble()
+                alt = Altitude(it.absoluteAltitudeM.toDouble())
             )
         }, {})
 

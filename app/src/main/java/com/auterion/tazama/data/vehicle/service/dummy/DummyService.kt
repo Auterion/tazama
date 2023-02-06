@@ -45,7 +45,7 @@ class DummyService @Inject constructor(
 
         println("Emitting dummy velocity")
         vehicleWriter.telemetryWriter.velocityWriter.value =
-            VelocityNed(0.0, 0.0, 0.0)
+            VelocityNed(Speed(0.0), Speed(0.0), Speed(0.0))
 
         delay(1000)
         emitVelocity()
