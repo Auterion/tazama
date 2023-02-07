@@ -1,5 +1,7 @@
 package com.auterion.tazama.data.vehicle
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import dagger.Module
 import dagger.Provides
@@ -20,7 +22,7 @@ object VehicleModule {
 
     @Singleton
     @Provides
-    fun provideSettingsViewModel(): SettingsViewModel {
-        return SettingsViewModel()
+    fun provideSettingsViewModel(dataStore: DataStore<Preferences>): SettingsViewModel {
+        return SettingsViewModel(dataStore)
     }
 }
