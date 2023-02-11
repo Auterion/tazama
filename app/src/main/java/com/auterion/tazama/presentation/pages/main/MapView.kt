@@ -25,15 +25,12 @@ import com.auterion.tazama.R
 import com.auterion.tazama.data.vehicle.*
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
-import com.auterion.tazama.util.GeoUtils
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 @Composable
 fun MapView(
@@ -84,28 +81,9 @@ fun MapView(
     val velocity = vehicleViewModel.vehicleVelocity.collectAsState()
     val attitude = vehicleViewModel.vehicleAttitude.collectAsState()
     val homePosition = vehicleViewModel.homePosition.collectAsState(initial = HomePosition())
-
-    val distToHome = if (homePosition.value.isValid()) {
-        GeoUtils.distanceBetween(
-            Degrees(homePosition.value.lat!!.value),
-            Degrees(homePosition.value.lon!!.value),
-            Degrees(vehiclePosition.value.lat.value),
-            Degrees(vehiclePosition.value.lon.value)
-        )
-    } else {
-        Distance(0.0)
-    }
-
-    val distAboveHome = if (homePosition.value.isValid()) {
-        vehiclePosition.value.alt - homePosition.value.alt!!
-    } else {
-        Altitude(0.0)
-    }
-
-    val speed = Speed(
-        sqrt(velocity.value.vx.value.pow(2) + velocity.value.vy.value.pow(2))
-    )
-
+    val distToHome = vehicleViewModel.distanceToHome.collectAsState(initial = Distance(0.0))
+    val distAboveHome = vehicleViewModel.distAboveHome.collectAsState(initial = Altitude(0.0))
+    val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(initial = Speed(0.0))
     val heading = Degrees(attitude.value.yaw.value)
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -115,9 +93,9 @@ fun MapView(
                     .zIndex(mapZValue + 1)
                     .align(Alignment.TopEnd)
                     .padding(10.dp),
-                distFromHome = distToHome,
-                height = distAboveHome,
-                speed = speed,
+                distFromHome = distToHome.value,
+                height = distAboveHome.value,
+                speed = groundSpeed.value,
                 heading = heading
             )
         }
@@ -135,9 +113,9 @@ fun MapView(
                         .zIndex(mapZValue + 1)
                         .align(Alignment.TopEnd)
                         .padding(10.dp),
-                    distFromHome = distToHome,
-                    height = distAboveHome,
-                    speed = speed,
+                    distFromHome = distToHome.value,
+                    height = distAboveHome.value,
+                    speed = groundSpeed.value,
                     heading = heading
                 )
             }

@@ -24,7 +24,7 @@ class Speed(value: Double = 0.0, measurementSystem: MeasurementSystem = Measurem
     }
 
     override fun toImperial(): Speed {
-        TODO("Not yet implemented")
+        return Speed(value * 3, MeasurementSystem.IMPERIAL)
     }
 }
 
@@ -43,7 +43,7 @@ class Distance(
     }
 
     override fun toImperial(): Distance {
-        TODO("Not yet implemented")
+        return Distance(value * 3, MeasurementSystem.IMPERIAL)
     }
 }
 
@@ -62,7 +62,7 @@ class Altitude(
     }
 
     override fun toImperial(): Altitude {
-        TODO("Not yet implemented")
+        return Altitude(value * 3, MeasurementSystem.IMPERIAL)
     }
 
     operator fun minus(other: Altitude): Altitude {

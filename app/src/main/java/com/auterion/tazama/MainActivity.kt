@@ -29,7 +29,6 @@ import com.auterion.tazama.navigation.navBarDestinations
 import com.auterion.tazama.presentation.pages.main.MainViewModel
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.auterion.tazama.ui.theme.TazamaTheme
-import com.auterion.tazama.util.Preferences
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -54,8 +53,7 @@ class MainActivity : ComponentActivity() {
 fun Main() {
     val context = LocalContext.current
     val navController = rememberNavController()
-    val measurementSystemFlow = Preferences.getMeasureSystemFlow(context)
-    val vehicleViewModel = hiltViewModel<VehicleViewModel>(measurementSystemFlow)
+    val vehicleViewModel = hiltViewModel<VehicleViewModel>()
     val mainViewModel = hiltViewModel<MainViewModel>()
     mainViewModel.setVideoStreamInfoFlow(vehicleViewModel.videoStreamInfo)
     val settingsViewModel = hiltViewModel<SettingsViewModel>()

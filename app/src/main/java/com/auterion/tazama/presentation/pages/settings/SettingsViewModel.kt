@@ -39,6 +39,19 @@ class SettingsViewModel @Inject constructor(private val application: Application
         _currentMapType.value = mapType
     }
 
+    // Measure System
+    enum class MeasureSystem { METRIC, IMPERIAL }
+
+    private val _measureSystem =
+        MutableStateFlow(Preferences.getMeasureSystem(getContext()).toSettings())
+    val measureSystem = _measureSystem.asStateFlow()
+
+    fun setMeasureSystem(measureSystem: MeasureSystem) {
+        println(measureSystem.toString())
+        Preferences.setMeasureSystem(getContext(), measureSystem.toPrefs())
+        _measureSystem.value = measureSystem
+    }
+
     private fun Preferences.VehicleType.toSettings(): VehicleType {
         return when (this) {
             Preferences.VehicleType.FAKE -> VehicleType.FAKE
@@ -66,6 +79,20 @@ class SettingsViewModel @Inject constructor(private val application: Application
             MapType.SATELLITE -> Preferences.MapType.SATELLITE
             MapType.NORMAL -> Preferences.MapType.NORMAL
             MapType.HYBRID -> Preferences.MapType.HYBRID
+        }
+    }
+
+    private fun Preferences.MeasureSystem.toSettings(): MeasureSystem {
+        return when (this) {
+            Preferences.MeasureSystem.METRIC -> MeasureSystem.METRIC
+            Preferences.MeasureSystem.IMPERIAL -> MeasureSystem.IMPERIAL
+        }
+    }
+
+    private fun MeasureSystem.toPrefs(): Preferences.MeasureSystem {
+        return when (this) {
+            MeasureSystem.METRIC -> Preferences.MeasureSystem.METRIC
+            MeasureSystem.IMPERIAL -> Preferences.MeasureSystem.IMPERIAL
         }
     }
 }
