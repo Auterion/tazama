@@ -2,6 +2,8 @@ package com.auterion.tazama.data.vehicle
 
 import androidx.lifecycle.ViewModel
 import com.auterion.tazama.util.FlowHolder
+import com.auterion.tazama.util.GeoUtils
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -28,6 +30,33 @@ class VehicleViewModel @Inject constructor(
                 }
             }
         }
+    val vehiclePathPoints: MutableList<LatLng> = mutableListOf()
+
+    val vehiclePath = vehicleRepository.vehicle.telemetry.position
+        .map { position ->
+
+            position?.let {
+                if (vehiclePathPoints.size > 0) {
+                    val dist = GeoUtils.distanceBetween(
+                        position.lat,
+                        position.lon,
+                        Degrees(vehiclePathPoints.last().latitude),
+                        Degrees(vehiclePathPoints.last().longitude)
+                    )
+
+                    if (dist.value > 1.0) {
+                        vehiclePathPoints.add(LatLng(position.lat.value, position.lon.value))
+                    }
+                }
+            }
+
+            if (vehiclePathPoints.size > 5000) {
+                vehiclePathPoints.removeAt(0)
+            }
+
+            vehiclePathPoints.toList()
+        }
+
     val heightAboveHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->
             when (dist) {
