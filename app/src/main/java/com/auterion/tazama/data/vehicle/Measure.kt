@@ -1,5 +1,7 @@
 package com.auterion.tazama.data.vehicle
 
+const val METER_TO_FEET = 3.0
+
 abstract class Measure(
     val value: Double,
     val measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
@@ -20,11 +22,11 @@ class Speed(value: Double = 0.0, measurementSystem: MeasurementSystem = Measurem
         }
 
     override fun toMetric(): Speed {
-        TODO("Not yet implemented")
+        return Speed(value / METER_TO_FEET)
     }
 
     override fun toImperial(): Speed {
-        return Speed(value * 3, MeasurementSystem.IMPERIAL)
+        return Speed(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
     }
 }
 
@@ -39,13 +41,14 @@ class Distance(
         }
 
     override fun toMetric(): Distance {
-        TODO("Not yet implemented")
+        return Distance(value / METER_TO_FEET)
     }
 
     override fun toImperial(): Distance {
-        return Distance(value * 3, MeasurementSystem.IMPERIAL)
+        return Distance(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
     }
 }
+
 
 class Altitude(
     value: Double = 0.0,
@@ -58,11 +61,11 @@ class Altitude(
         }
 
     override fun toMetric(): Altitude {
-        TODO("Not yet implemented")
+        return Altitude(value / METER_TO_FEET)
     }
 
     override fun toImperial(): Altitude {
-        return Altitude(value * 3, MeasurementSystem.IMPERIAL)
+        return Altitude(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
     }
 
     operator fun minus(other: Altitude): Altitude {
