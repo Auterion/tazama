@@ -78,9 +78,7 @@ fun MapView(
     val vSize = mainViewModel.videoSize.collectAsState()
     val mapZValue = mainViewModel.mapZValue.collectAsState(initial = 0.0F).value
     val isLandScape = mainViewModel.isLandScape.collectAsState(initial = false).value
-    val velocity = vehicleViewModel.vehicleVelocity.collectAsState()
     val attitude = vehicleViewModel.vehicleAttitude.collectAsState()
-    val homePosition = vehicleViewModel.homePosition.collectAsState(initial = HomePosition())
     val distToHome = vehicleViewModel.distanceToHome.collectAsState(initial = Distance(0.0))
     val distAboveHome = vehicleViewModel.distAboveHome.collectAsState(initial = Altitude(0.0))
     val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(initial = Speed(0.0))
