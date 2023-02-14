@@ -43,12 +43,9 @@ fun MapView(
 
     val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(
-            LatLng(
-                vehiclePosition.value.lat.value,
-                vehiclePosition.value.lon.value
-            ), 10f
-        )
+        vehiclePosition.value?.let {
+            position = CameraPosition.fromLatLngZoom(LatLng(it.lat.value, it.lon.value), 10f)
+        }
     }
 
     val props =
@@ -76,13 +73,12 @@ fun MapView(
 
     val mSize = mainViewModel.mapSize.collectAsState()
     val vSize = mainViewModel.videoSize.collectAsState()
-    val mapZValue = mainViewModel.mapZValue.collectAsState(initial = 0.0F).value
-    val isLandScape = mainViewModel.isLandScape.collectAsState(initial = false).value
+    val mapZValue = mainViewModel.mapZValue.collectAsState(0.0F).value
+    val isLandScape = mainViewModel.isLandScape.collectAsState(false).value
     val attitude = vehicleViewModel.vehicleAttitude.collectAsState()
-    val distToHome = vehicleViewModel.distanceToHome.collectAsState(initial = Distance(0.0))
-    val distAboveHome = vehicleViewModel.distAboveHome.collectAsState(initial = Altitude(0.0))
-    val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(initial = Speed(0.0))
-    val heading = Degrees(attitude.value.yaw.value)
+    val distToHome = vehicleViewModel.distanceToHome.collectAsState(HomeDistance())
+    val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(Speed(0.0))
+    val heading = attitude.value?.let { Degrees(it.yaw.value) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLandScape) {
@@ -91,10 +87,10 @@ fun MapView(
                     .zIndex(mapZValue + 1)
                     .align(Alignment.TopEnd)
                     .padding(10.dp),
-                distFromHome = distToHome.value,
-                height = distAboveHome.value,
-                speed = groundSpeed.value,
-                heading = heading
+                distFromHome = distToHome.value?.horizontal ?: Distance(),
+                height = distToHome.value?.vertical ?: Altitude(),
+                speed = groundSpeed.value ?: Speed(),
+                heading = heading ?: Degrees(),
             )
         }
         Box(
@@ -111,10 +107,10 @@ fun MapView(
                         .zIndex(mapZValue + 1)
                         .align(Alignment.TopEnd)
                         .padding(10.dp),
-                    distFromHome = distToHome.value,
-                    height = distAboveHome.value,
-                    speed = groundSpeed.value,
-                    heading = heading
+                    distFromHome = distToHome.value?.horizontal ?: Distance(),
+                    height = distToHome.value?.vertical ?: Altitude(),
+                    speed = groundSpeed.value ?: Speed(),
+                    heading = heading ?: Degrees(),
                 )
             }
             GoogleMap(
@@ -122,20 +118,17 @@ fun MapView(
                 cameraPositionState = cameraPositionState,
                 properties = props,
                 uiSettings = MapUiSettings(zoomControlsEnabled = false),
-                onMapClick = {
-                    mainViewModel.onUiEvent(ScreenEvent.MapTapped)
-                }
+                onMapClick = { mainViewModel.onUiEvent(ScreenEvent.MapTapped) }
             ) {
-                VehicleMapMarker(
-                    context = LocalContext.current,
-                    position = LatLng(
-                        vehiclePosition.value.lat.value,
-                        vehiclePosition.value.lon.value
-                    ),
-                    title = "Vehicle",
-                    iconResourceId = R.drawable.plane,
-                    rotation = Degrees(attitude.value.yaw.value)
-                )
+                vehiclePosition.value?.let { position ->
+                    VehicleMapMarker(
+                        context = LocalContext.current,
+                        position = LatLng(position.lat.value, position.lon.value),
+                        title = "Vehicle",
+                        iconResourceId = R.drawable.plane,
+                        rotation = attitude.value?.let { Degrees(it.yaw.value) } ?: Degrees(),
+                    )
+                }
             }
 
             if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {

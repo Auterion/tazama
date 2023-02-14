@@ -2,20 +2,25 @@ package com.auterion.tazama.data.vehicle
 
 const val METER_TO_FEET = 3.0
 
-abstract class Measure(
-    val value: Double,
-    val measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
-) {
-    abstract val unit: String
-    abstract fun toMetric(): Measure
-    abstract fun toImperial(): Measure
+abstract class Measure<T : Measure<T>>(val measurementSystem: MeasurementSystem = MeasurementSystem.METRIC) {
+    fun toSystem(system: MeasurementSystem): T {
+        return when (system) {
+            MeasurementSystem.METRIC -> toMetric()
+            MeasurementSystem.IMPERIAL -> toImperial()
+        }
+    }
+
+    abstract fun toMetric(): T
+    abstract fun toImperial(): T
 
     enum class MeasurementSystem { METRIC, IMPERIAL }
 }
 
-class Speed(value: Double = 0.0, measurementSystem: MeasurementSystem = MeasurementSystem.METRIC) :
-    Measure(value, measurementSystem) {
-    override val unit: String
+class Speed(
+    val value: Double = 0.0,
+    measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
+) : Measure<Speed>(measurementSystem) {
+    val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m/s"
             MeasurementSystem.IMPERIAL -> "f/s"
@@ -31,10 +36,10 @@ class Speed(value: Double = 0.0, measurementSystem: MeasurementSystem = Measurem
 }
 
 class Distance(
-    value: Double = 0.0,
+    val value: Double = 0.0,
     measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
-) : Measure(value, measurementSystem) {
-    override val unit: String
+) : Measure<Distance>(measurementSystem) {
+    val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m"
             MeasurementSystem.IMPERIAL -> "f"
@@ -49,12 +54,11 @@ class Distance(
     }
 }
 
-
 class Altitude(
-    value: Double = 0.0,
+    val value: Double = 0.0,
     measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
-) : Measure(value, measurementSystem) {
-    override val unit: String
+) : Measure<Altitude>(measurementSystem) {
+    val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m"
             MeasurementSystem.IMPERIAL -> "f"

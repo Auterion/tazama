@@ -20,7 +20,7 @@ import kotlin.math.min
 class MainViewModel @Inject constructor(
     val player: ExoPlayer
 ) : ViewModel() {
-    var videoStreamInfo: StateFlow<VideoStreamInfo>? = null
+    var videoStreamInfo: StateFlow<VideoStreamInfo?>? = null
 
     private val _videoSize = MutableStateFlow(Size(0.0F, 0.0F))
     val videoSize = _videoSize.asStateFlow()
@@ -52,16 +52,17 @@ class MainViewModel @Inject constructor(
     val mapIsMainScreen
         get() = _mapIsMainScreen.value
 
-    fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo>) {
+    fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
         if (videoStreamInfo != null) {
             return
         }
         videoStreamInfo = flow
 
         viewModelScope.launch {
-            videoStreamInfo
-                ?.distinctUntilChanged { left, right -> left.uri == right.uri }
-                ?.collect {
+            videoStreamInfo!!
+                .filterNotNull()
+                .distinctUntilChanged { left, right -> left.uri == right.uri }
+                .collect {
                     player.stop()
                     val mediaSource = RtspMediaSource.Factory()
                         .setForceUseRtpTcp(it.uri.contains("rtspt"))

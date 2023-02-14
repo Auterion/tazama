@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -51,7 +50,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Main() {
-    val context = LocalContext.current
     val navController = rememberNavController()
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
     val mainViewModel = hiltViewModel<MainViewModel>()
