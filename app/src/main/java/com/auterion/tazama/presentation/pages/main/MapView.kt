@@ -76,9 +76,12 @@ fun MapView(
     val mapZValue = mainViewModel.mapZValue.collectAsState(0.0F).value
     val isLandScape = mainViewModel.isLandScape.collectAsState(false).value
     val attitude = vehicleViewModel.vehicleAttitude.collectAsState()
-    val distToHome = vehicleViewModel.distanceToHome.collectAsState(HomeDistance())
-    val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(Speed(0.0))
-    val heading = attitude.value?.let { Degrees(it.yaw.value) }
+    val distToHome =
+        vehicleViewModel.horizonalDistanceToHome.collectAsState(TelemetryDisplayNumber())
+    val heightAboveHome =
+        vehicleViewModel.heightAboveHome.collectAsState(TelemetryDisplayNumber())
+    val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(TelemetryDisplayNumber())
+    val heading = vehicleViewModel.vehicleHeading.collectAsState(initial = TelemetryDisplayNumber())
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLandScape) {
@@ -87,10 +90,10 @@ fun MapView(
                     .zIndex(mapZValue + 1)
                     .align(Alignment.TopEnd)
                     .padding(10.dp),
-                distFromHome = distToHome.value?.horizontal ?: Distance(),
-                height = distToHome.value?.vertical ?: Altitude(),
-                speed = groundSpeed.value ?: Speed(),
-                heading = heading ?: Degrees(),
+                distFromHome = distToHome.value,
+                height = heightAboveHome.value,
+                speed = groundSpeed.value,
+                heading = heading.value,
             )
         }
         Box(
@@ -107,10 +110,10 @@ fun MapView(
                         .zIndex(mapZValue + 1)
                         .align(Alignment.TopEnd)
                         .padding(10.dp),
-                    distFromHome = distToHome.value?.horizontal ?: Distance(),
-                    height = distToHome.value?.vertical ?: Altitude(),
-                    speed = groundSpeed.value ?: Speed(),
-                    heading = heading ?: Degrees(),
+                    distFromHome = distToHome.value,
+                    height = heightAboveHome.value,
+                    speed = groundSpeed.value,
+                    heading = heading.value,
                 )
             }
             GoogleMap(
