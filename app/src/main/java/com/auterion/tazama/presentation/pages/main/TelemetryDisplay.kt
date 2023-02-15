@@ -45,36 +45,28 @@ fun TelemetryInfo(
         ) {
             items(4) { index ->
                 when (index) {
-                    0 ->
-                        TelemetryElement(
-                            image = painterResource(id = R.drawable.baseline_home_24),
-                            value = if (distFromHome.value != null) DecimalFormat("#").format(
-                                distFromHome.value
-                            ) else "N/A",
-                            unit = distFromHome.unit
-                        )
-                    1 ->
-                        TelemetryElement(
-                            image = painterResource(id = R.drawable.baseline_height_24),
-                            value = if (height.value != null) DecimalFormat("###0.0").format(
-                                height.value
-                            ) else "N/A",
-                            unit = height.unit
-                        )
-                    2 ->
-                        TelemetryElement(
-                            image = painterResource(id = R.drawable.baseline_speed_24),
-                            value = if (speed.value != null) DecimalFormat("###0.0").format(speed.value) else "N/A",
-                            unit = speed.unit
-                        )
-
-                    3 ->
-                        TelemetryElement(
-                            image = painterResource(id = R.drawable.baseline_drone_map_symbol),
-                            modifier = if (heading.value != null) Modifier.rotate(heading.value.toFloat() - 90) else Modifier,
-                            value = if (heading.value != null) DecimalFormat("#").format(heading.value) else "N/A",
-                            unit = "deg"
-                        )
+                    0 -> TelemetryElement(
+                        image = painterResource(id = R.drawable.baseline_home_24),
+                        value = distFromHome.value?.let { DecimalFormat("#").format(it) } ?: "N/A",
+                        unit = distFromHome.unit,
+                    )
+                    1 -> TelemetryElement(
+                        image = painterResource(id = R.drawable.baseline_height_24),
+                        value = height.value?.let { DecimalFormat("###0.0").format(it) } ?: "N/A",
+                        unit = height.unit,
+                    )
+                    2 -> TelemetryElement(
+                        image = painterResource(id = R.drawable.baseline_speed_24),
+                        value = speed.value?.let { DecimalFormat("###0.0").format(it) } ?: "N/A",
+                        unit = speed.unit,
+                    )
+                    3 -> TelemetryElement(
+                        image = painterResource(id = R.drawable.baseline_drone_map_symbol),
+                        modifier = heading.value?.let { Modifier.rotate(it.toFloat() - 90) }
+                            ?: Modifier,
+                        value = heading.value?.let { DecimalFormat("#").format(it) } ?: "N/A",
+                        unit = "deg",
+                    )
                 }
             }
         }
