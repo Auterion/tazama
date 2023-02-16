@@ -5,6 +5,12 @@ import kotlin.math.PI
 interface Angle
 
 data class Radian(val value: Double = 0.0) : Angle {
+    companion object {
+        fun fromDegrees(value_degrees: Double = 0.0): Radian {
+            return Radian(value_degrees * PI / 180.0)
+        }
+    }
+
     fun toDegrees(): Degrees {
         return Degrees(value * 180.0 / PI)
     }
