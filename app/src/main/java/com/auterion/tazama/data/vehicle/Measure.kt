@@ -27,11 +27,17 @@ class Speed(
         }
 
     override fun toMetric(): Speed {
-        return Speed(value / METER_TO_FEET)
+        return when (measurementSystem) {
+            MeasurementSystem.METRIC -> this
+            else -> return Speed(value / METER_TO_FEET)
+        }
     }
 
     override fun toImperial(): Speed {
-        return Speed(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
+        return when (measurementSystem) {
+            MeasurementSystem.METRIC -> Speed(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
+            MeasurementSystem.IMPERIAL -> this
+        }
     }
 }
 
@@ -46,11 +52,17 @@ class Distance(
         }
 
     override fun toMetric(): Distance {
-        return Distance(value / METER_TO_FEET)
+        return when (measurementSystem) {
+            MeasurementSystem.METRIC -> this
+            MeasurementSystem.IMPERIAL -> Distance(value / METER_TO_FEET)
+        }
     }
 
     override fun toImperial(): Distance {
-        return Distance(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
+        return when (measurementSystem) {
+            MeasurementSystem.METRIC -> Distance(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
+            MeasurementSystem.IMPERIAL -> this
+        }
     }
 }
 
@@ -65,11 +77,17 @@ class Altitude(
         }
 
     override fun toMetric(): Altitude {
-        return Altitude(value / METER_TO_FEET)
+        return when (measurementSystem) {
+            MeasurementSystem.METRIC -> this
+            MeasurementSystem.IMPERIAL -> Altitude(value / METER_TO_FEET)
+        }
     }
 
     override fun toImperial(): Altitude {
-        return Altitude(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
+        return when (measurementSystem) {
+            MeasurementSystem.METRIC -> Altitude(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
+            MeasurementSystem.IMPERIAL -> this
+        }
     }
 
     operator fun minus(other: Altitude): Altitude {
