@@ -21,15 +21,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.auterion.tazama.R
+import com.auterion.tazama.data.vehicle.TelemetryDisplayNumber
 import java.text.DecimalFormat
 
 @Composable
 fun TelemetryInfo(
     modifier: Modifier,
-    distFromHome: Float,
-    height: Float,
-    speed: Float,
-    heading: Float
+    distFromHome: TelemetryDisplayNumber,
+    height: TelemetryDisplayNumber,
+    speed: TelemetryDisplayNumber,
+    heading: TelemetryDisplayNumber,
 ) {
     Surface(
         color = MaterialTheme.colors.onSecondary.copy(alpha = 0.5f),
@@ -44,32 +45,28 @@ fun TelemetryInfo(
         ) {
             items(4) { index ->
                 when (index) {
-                    0 ->
-                        TelemetryElement(
-                            image = painterResource(id = R.drawable.baseline_home_24),
-                            value = DecimalFormat("#").format(distFromHome),
-                            unit = "m"
-                        )
-                    1 ->
-                        TelemetryElement(
-                            image = painterResource(id = R.drawable.baseline_height_24),
-                            value = DecimalFormat("###0.0").format(height),
-                            unit = "m"
-                        )
-                    2 ->
-                        TelemetryElement(
-                            image = painterResource(id = R.drawable.baseline_speed_24),
-                            value = DecimalFormat("###0.0").format(speed),
-                            unit = "m/s"
-                        )
-
-                    3 ->
-                        TelemetryElement(
-                            image = painterResource(id = R.drawable.baseline_drone_map_symbol),
-                            modifier = Modifier.rotate(heading - 90),
-                            value = DecimalFormat("#").format(heading),
-                            unit = "deg"
-                        )
+                    0 -> TelemetryElement(
+                        image = painterResource(id = R.drawable.baseline_home_24),
+                        value = distFromHome.value?.let { DecimalFormat("#").format(it) } ?: "N/A",
+                        unit = distFromHome.unit,
+                    )
+                    1 -> TelemetryElement(
+                        image = painterResource(id = R.drawable.baseline_height_24),
+                        value = height.value?.let { DecimalFormat("###0.0").format(it) } ?: "N/A",
+                        unit = height.unit,
+                    )
+                    2 -> TelemetryElement(
+                        image = painterResource(id = R.drawable.baseline_speed_24),
+                        value = speed.value?.let { DecimalFormat("###0.0").format(it) } ?: "N/A",
+                        unit = speed.unit,
+                    )
+                    3 -> TelemetryElement(
+                        image = painterResource(id = R.drawable.baseline_drone_map_symbol),
+                        modifier = heading.value?.let { Modifier.rotate(it.toFloat() - 90) }
+                            ?: Modifier,
+                        value = heading.value?.let { DecimalFormat("#").format(it) } ?: "N/A",
+                        unit = "deg",
+                    )
                 }
             }
         }

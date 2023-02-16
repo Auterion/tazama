@@ -5,16 +5,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 interface Camera {
-    val videoStreamInfo: StateFlow<VideoStreamInfo>
+    val videoStreamInfo: StateFlow<VideoStreamInfo?>
 
 }
 
 interface CameraWriter {
-    val videoStreamInfoWriter: MutableStateFlow<VideoStreamInfo>
+    val videoStreamInfoWriter: MutableStateFlow<VideoStreamInfo?>
 }
 
 class CameraImpl : Camera, CameraWriter {
-    override val videoStreamInfoWriter = MutableStateFlow(VideoStreamInfo(""))
+    override val videoStreamInfoWriter = MutableStateFlow<VideoStreamInfo?>(null)
     override val videoStreamInfo = videoStreamInfoWriter.asStateFlow()
 }
 

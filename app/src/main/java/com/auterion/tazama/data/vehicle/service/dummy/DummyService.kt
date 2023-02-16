@@ -20,6 +20,7 @@ class DummyService @Inject constructor(
         emitJobs.add(launch { emitVelocity() })
         emitJobs.add(launch { emitAttitude() })
         emitJobs.add(launch { emitVideoStreamInfo() })
+        emitJobs.add(launch { emitGroundSpeed() })
     }
 
     private tailrec suspend fun emitPosition() {
@@ -45,10 +46,20 @@ class DummyService @Inject constructor(
 
         println("Emitting dummy velocity")
         vehicleWriter.telemetryWriter.velocityWriter.value =
-            VelocityNed(0.0, 0.0, 0.0)
+            VelocityNed(Speed(1.0), Speed(0.0), Speed(0.0))
 
         delay(1000)
         emitVelocity()
+    }
+
+    private tailrec suspend fun emitGroundSpeed() {
+        if (!isActive) {
+            return
+        }
+
+        vehicleWriter.telemetryWriter.groundSpeedWriter.value = Speed(1.0)
+        delay(1000)
+        emitGroundSpeed()
     }
 
     private tailrec suspend fun emitAttitude() {

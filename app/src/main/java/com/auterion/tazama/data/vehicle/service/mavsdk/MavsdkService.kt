@@ -2,6 +2,7 @@ package com.auterion.tazama.data.vehicle.service.mavsdk
 
 import com.auterion.tazama.data.vehicle.*
 import com.auterion.tazama.data.vehicle.service.VehicleService
+import com.auterion.tazama.util.GeoUtils
 import io.mavsdk.MavsdkEventQueue
 import io.mavsdk.System
 import io.mavsdk.mavsdkserver.MavsdkServer
@@ -10,6 +11,8 @@ import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class MavsdkService @Inject constructor(
     private val vehicleWriter: VehicleWriter
@@ -31,18 +34,20 @@ class MavsdkService @Inject constructor(
         linkVelocity(from.velocityNed, to.velocityWriter)
         linkAttitude(from.attitudeEuler, to.attitudeWriter)
         linkHomePosition(from.home, to.homePositionWriter)
+        linkDistanceToHome(from.position, from.home, to.distanceToHomeWriter)
+        linkGroundSpeed(from.velocityNed, to.groundSpeedWriter)
     }
 
     private fun linkPosition(
         from: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
-        to: MutableStateFlow<PositionAbsolute>
+        to: MutableStateFlow<PositionAbsolute?>
     ) {
         val positionDisposable = from.subscribe({ position ->
             to.value =
                 PositionAbsolute(
                     Degrees(position.latitudeDeg),
                     Degrees(position.longitudeDeg),
-                    position.absoluteAltitudeM.toDouble()
+                    Altitude(position.absoluteAltitudeM.toDouble())
                 )
         }, {})
 
@@ -51,13 +56,13 @@ class MavsdkService @Inject constructor(
 
     private fun linkVelocity(
         from: Flowable<io.mavsdk.telemetry.Telemetry.VelocityNed>,
-        to: MutableStateFlow<VelocityNed>
+        to: MutableStateFlow<VelocityNed?>
     ) {
         val velocityDisposable = from.subscribe({
             to.value = VelocityNed(
-                it.northMS.toDouble(),
-                it.eastMS.toDouble(),
-                it.downMS.toDouble()
+                Speed(it.northMS.toDouble()),
+                Speed(it.eastMS.toDouble()),
+                Speed(it.downMS.toDouble())
             )
         }, {})
 
@@ -66,13 +71,13 @@ class MavsdkService @Inject constructor(
 
     private fun linkAttitude(
         from: Flowable<io.mavsdk.telemetry.Telemetry.EulerAngle>,
-        to: MutableStateFlow<Euler>
+        to: MutableStateFlow<Euler?>
     ) {
         val headingDisposable = from.subscribe({
             to.value = Euler(
-                Radian(it.rollDeg.toDouble()),
-                Radian(it.pitchDeg.toDouble()),
-                Radian(it.yawDeg.toDouble())
+                Radian.fromDegrees(it.rollDeg.toDouble()),
+                Radian.fromDegrees(it.pitchDeg.toDouble()),
+                Radian.fromDegrees(it.yawDeg.toDouble())
             )
         }, {})
 
@@ -81,17 +86,49 @@ class MavsdkService @Inject constructor(
 
     private fun linkHomePosition(
         from: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
-        to: MutableStateFlow<HomePosition>
+        to: MutableStateFlow<HomePosition?>
     ) {
         val homeDisposable = from.subscribe({
             to.value = HomePosition(
                 lat = Degrees(it.latitudeDeg),
                 lon = Degrees(it.longitudeDeg),
-                alt = it.absoluteAltitudeM.toDouble()
+                alt = Altitude(it.absoluteAltitudeM.toDouble())
             )
         }, {})
 
         disposables.add(homeDisposable)
+    }
+
+    private fun linkDistanceToHome(
+        fromPos: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
+        fromHome: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
+        to: MutableStateFlow<HomeDistance?>
+    ) {
+        val distanceToHomeDisposable = Flowable.combineLatest(fromPos, fromHome) { position, home ->
+            val horizontal =
+                GeoUtils.distanceBetween(
+                    Degrees(home.latitudeDeg),
+                    Degrees(home.longitudeDeg),
+                    Degrees(position.latitudeDeg),
+                    Degrees(position.longitudeDeg)
+                )
+            val vertical =
+                Altitude((position.absoluteAltitudeM - home.absoluteAltitudeM).toDouble())
+            to.value = HomeDistance(horizontal, vertical)
+        }.subscribe()
+
+        disposables.add(distanceToHomeDisposable)
+    }
+
+    private fun linkGroundSpeed(
+        from: Flowable<io.mavsdk.telemetry.Telemetry.VelocityNed>,
+        to: MutableStateFlow<Speed?>
+    ) {
+        val groundSpeedDisposable = from.subscribe({ velocity ->
+            to.value = Speed(sqrt(velocity.northMS.pow(2) + velocity.eastMS.pow(2)).toDouble())
+        }, {})
+
+        disposables.add(groundSpeedDisposable)
     }
 
     private fun linkCamera(from: io.mavsdk.camera.Camera, to: CameraWriter) {
@@ -100,7 +137,7 @@ class MavsdkService @Inject constructor(
 
     private fun linkVideoStreamInfo(
         from: Flowable<io.mavsdk.camera.Camera.VideoStreamInfo>,
-        to: MutableStateFlow<VideoStreamInfo>
+        to: MutableStateFlow<VideoStreamInfo?>
     ) {
         val videoStreamInfoDisposable = from.subscribe({ videoStreamInfo ->
             to.value = VideoStreamInfo(videoStreamInfo.settings.uri)

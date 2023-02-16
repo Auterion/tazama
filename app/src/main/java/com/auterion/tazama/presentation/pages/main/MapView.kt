@@ -22,20 +22,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.R
-import com.auterion.tazama.data.vehicle.Degrees
-import com.auterion.tazama.data.vehicle.HomePosition
-import com.auterion.tazama.data.vehicle.VehicleViewModel
+import com.auterion.tazama.data.vehicle.*
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
-import com.auterion.tazama.util.GeoUtils
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 @Composable
 fun MapView(
@@ -46,14 +41,11 @@ fun MapView(
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val mapType = settingsViewModel.currentMapType.collectAsState()
 
-    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState()
+    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(
-            LatLng(
-                vehiclePosition.value.lat.value,
-                vehiclePosition.value.lon.value
-            ), 10f
-        )
+        vehiclePosition.value?.let {
+            position = CameraPosition.fromLatLngZoom(LatLng(it.lat.value, it.lon.value), 10f)
+        }
     }
 
     val props =
@@ -81,28 +73,15 @@ fun MapView(
 
     val mSize = mainViewModel.mapSize.collectAsState()
     val vSize = mainViewModel.videoSize.collectAsState()
-    val mapZValue = mainViewModel.mapZValue.collectAsState(initial = 0.0F).value
-    val isLandScape = mainViewModel.isLandScape.collectAsState(initial = false).value
-    val velocity = vehicleViewModel.vehicleVelocity.collectAsState()
+    val mapZValue = mainViewModel.mapZValue.collectAsState(0.0F).value
+    val isLandScape = mainViewModel.isLandScape.collectAsState(false).value
     val attitude = vehicleViewModel.vehicleAttitude.collectAsState()
-    val homePosition = vehicleViewModel.homePosition.collectAsState(initial = HomePosition())
-
-    val distToHome = if (homePosition.value.isValid()) {
-        GeoUtils.distanceBetween(
-            homePosition.value.lat!!.value,
-            homePosition.value.lon!!.value,
-            vehiclePosition.value.lat.value,
-            vehiclePosition.value.lon.value
-        )
-    } else {
-        0.0f
-    }
-
-    val distAboveHome = if (homePosition.value.isValid()) {
-        vehiclePosition.value.alt - homePosition.value.alt!!
-    } else {
-        0.0f
-    }
+    val distToHome =
+        vehicleViewModel.horizonalDistanceToHome.collectAsState(TelemetryDisplayNumber())
+    val heightAboveHome =
+        vehicleViewModel.heightAboveHome.collectAsState(TelemetryDisplayNumber())
+    val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(TelemetryDisplayNumber())
+    val heading = vehicleViewModel.vehicleHeading.collectAsState(initial = TelemetryDisplayNumber())
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLandScape) {
@@ -111,12 +90,10 @@ fun MapView(
                     .zIndex(mapZValue + 1)
                     .align(Alignment.TopEnd)
                     .padding(10.dp),
-                distFromHome = distToHome.toFloat(),
-                height = distAboveHome.toFloat(),
-                speed = sqrt(
-                    velocity.value.vx.pow(2) + velocity.value.vy.pow(2)
-                ).toFloat(),
-                heading = attitude.value.yaw.value.toFloat()
+                distFromHome = distToHome.value,
+                height = heightAboveHome.value,
+                speed = groundSpeed.value,
+                heading = heading.value,
             )
         }
         Box(
@@ -133,12 +110,10 @@ fun MapView(
                         .zIndex(mapZValue + 1)
                         .align(Alignment.TopEnd)
                         .padding(10.dp),
-                    distFromHome = distToHome.toFloat(),
-                    height = distAboveHome.toFloat(),
-                    speed = sqrt(
-                        velocity.value.vx.pow(2) + velocity.value.vy.pow(2)
-                    ).toFloat(),
-                    heading = attitude.value.yaw.value.toFloat()
+                    distFromHome = distToHome.value,
+                    height = heightAboveHome.value,
+                    speed = groundSpeed.value,
+                    heading = heading.value,
                 )
             }
             GoogleMap(
@@ -146,22 +121,17 @@ fun MapView(
                 cameraPositionState = cameraPositionState,
                 properties = props,
                 uiSettings = MapUiSettings(zoomControlsEnabled = false),
-                onMapClick = {
-                    mainViewModel.onUiEvent(ScreenEvent.MapTapped)
-                }
+                onMapClick = { mainViewModel.onUiEvent(ScreenEvent.MapTapped) }
             ) {
-                VehicleMapMarker(
-                    context = LocalContext.current,
-                    position = LatLng(
-                        vehiclePosition.value.lat.value,
-                        vehiclePosition.value.lon.value
-                    ),
-                    title = "Vehicle",
-                    iconResourceId = R.drawable.plane,
-                    rotation = Degrees(attitude.value.yaw.value)
-                )
-
-
+                vehiclePosition.value?.let { position ->
+                    VehicleMapMarker(
+                        context = LocalContext.current,
+                        position = LatLng(position.lat.value, position.lon.value),
+                        title = "Vehicle",
+                        iconResourceId = R.drawable.plane,
+                        rotation = attitude.value?.let { Degrees(it.yaw.value) } ?: Degrees(),
+                    )
+                }
             }
 
             if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
@@ -205,4 +175,3 @@ fun MapView(
         }
     }
 }
-

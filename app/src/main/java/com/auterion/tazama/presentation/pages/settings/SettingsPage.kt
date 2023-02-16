@@ -15,7 +15,7 @@ import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.MapType
 @Composable
 fun SettingsPage(settingsViewModel: SettingsViewModel) {
     val vehicleType = settingsViewModel.vehicleType.collectAsState()
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         CheckBoxSetting(
             modifier = Modifier.padding(horizontal = 20.dp),
             label = "Fake Vehicle Position",
@@ -32,12 +32,27 @@ fun SettingsPage(settingsViewModel: SettingsViewModel) {
         val settingsViewModel = hiltViewModel<SettingsViewModel>()
         val items = MapType.values().map { value -> value.toString() }
         val currentItem = settingsViewModel.currentMapType.collectAsState()
+        val measureSystem = settingsViewModel.measureSystem.collectAsState()
         DropDownSetting(
             modifier = Modifier.padding(horizontal = 20.dp),
             label = "MapType",
             currentItem = currentItem.value.toString(),
             items = items,
             onItemSelected = { settingsViewModel.setSatelliteMap(MapType.valueOf(it)) }
+        )
+
+        DropDownSetting(
+            modifier = Modifier.padding(horizontal = 20.dp),
+            label = "Measure System",
+            currentItem = measureSystem.value.toString(),
+            items = SettingsViewModel.MeasureSystem.values().map { value -> value.toString() },
+            onItemSelected = {
+                settingsViewModel.setMeasureSystem(
+                    SettingsViewModel.MeasureSystem.valueOf(
+                        it
+                    )
+                )
+            }
         )
     }
 }
