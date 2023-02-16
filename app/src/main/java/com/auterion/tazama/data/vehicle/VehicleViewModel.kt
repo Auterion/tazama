@@ -19,14 +19,25 @@ class VehicleViewModel @Inject constructor(
         .combine(measureSystem.flow) { dist, measureSystem ->
             when (dist) {
                 null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
-                else -> TelemetryDisplayNumber(dist.horizontal.value, dist.horizontal.unit)
+                else -> {
+                    val distMapped = dist.horizontal.toSystem(measureSystem)
+                    TelemetryDisplayNumber(
+                        distMapped.value,
+                        distMapped.unit
+                    )
+                }
             }
         }
     val heightAboveHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->
             when (dist) {
                 null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
-                else -> TelemetryDisplayNumber(dist.vertical.value, dist.horizontal.unit)
+                else -> {
+                    val distMapped = dist.toSystem(measureSystem).vertical
+                    TelemetryDisplayNumber(
+                        distMapped.value, distMapped.unit
+                    )
+                }
             }
         }
 
@@ -34,7 +45,10 @@ class VehicleViewModel @Inject constructor(
         .combine(measureSystem.flow) { speed, measureSystem ->
             when (speed) {
                 null -> TelemetryDisplayNumber(unit = Speed(measurementSystem = measureSystem).unit)
-                else -> TelemetryDisplayNumber(speed.value, speed.unit)
+                else -> {
+                    val speedMapped = speed.toSystem(measureSystem)
+                    TelemetryDisplayNumber(speedMapped.value, speedMapped.unit)
+                }
             }
         }
 
