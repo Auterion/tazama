@@ -25,7 +25,7 @@ data class Degrees(val value: Double = 0.0) : Angle {
         return Degrees(this.value - other.value)
     }
 
-    operator fun times(other: Double): Degrees {
-        return Degrees(this.value * other)
+    operator fun times(other: Degrees): Degrees {
+        return Degrees(this.value * other.value)
     }
 }
