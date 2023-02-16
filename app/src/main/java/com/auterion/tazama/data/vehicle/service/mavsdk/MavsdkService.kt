@@ -75,9 +75,9 @@ class MavsdkService @Inject constructor(
     ) {
         val headingDisposable = from.subscribe({
             to.value = Euler(
-                Radian(it.rollDeg.toDouble()),
-                Radian(it.pitchDeg.toDouble()),
-                Radian(it.yawDeg.toDouble())
+                Radian.fromDegrees(it.rollDeg.toDouble()),
+                Radian.fromDegrees(it.pitchDeg.toDouble()),
+                Radian.fromDegrees(it.yawDeg.toDouble())
             )
         }, {})
 
