@@ -41,7 +41,7 @@ data class HomeDistance(
     override fun toImperial(): HomeDistance {
         return if (horizontal.measurementSystem == MeasurementSystem.IMPERIAL) {
             this
-        } else HomeDistance(horizontal.toImperial(), vertical.toMetric())
+        } else HomeDistance(horizontal.toImperial(), vertical.toImperial())
     }
 }
 
