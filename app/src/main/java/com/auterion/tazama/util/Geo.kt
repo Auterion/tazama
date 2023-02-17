@@ -2,6 +2,7 @@ package com.auterion.tazama.util
 
 import com.auterion.tazama.data.vehicle.Degrees
 import com.auterion.tazama.data.vehicle.Distance
+import com.auterion.tazama.data.vehicle.PositionAbsolute
 import com.auterion.tazama.data.vehicle.Radian
 import kotlin.math.acos
 import kotlin.math.cos
@@ -19,6 +20,10 @@ class GeoUtils {
             val distMeters = distDeg.value * 60.0 * 1.1515 * 1609.344
 
             return Distance(distMeters)
+        }
+
+        fun distanceBetween(left: PositionAbsolute, right: PositionAbsolute): Distance {
+            return distanceBetween(left.lat, left.lon, right.lat, right.lon)
         }
     }
 }

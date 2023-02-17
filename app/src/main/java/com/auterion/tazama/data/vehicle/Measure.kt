@@ -64,6 +64,16 @@ class Distance(
             MeasurementSystem.IMPERIAL -> this
         }
     }
+
+    operator fun compareTo(other: Distance): Int {
+        if ((this.value - other.value) > 0) {
+            return 1
+        } else if ((this.value - other.value) < 0) {
+            return -1
+        } else {
+            return 0
+        }
+    }
 }
 
 class Altitude(
