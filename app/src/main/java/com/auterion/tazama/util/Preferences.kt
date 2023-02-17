@@ -98,7 +98,7 @@ class Preferences {
                 val sharedPrefs = getSharedPrefs(context)
                 sharedPrefs?.getString(
                     context.getString(R.string.preference_key_measure_system),
-                    defaultMapType.toString()
+                    defaultMeasureSystem.toString()
                 )?.let { measureSystemStr ->
                     return MeasureSystem.valueOf(measureSystemStr)
                 }
