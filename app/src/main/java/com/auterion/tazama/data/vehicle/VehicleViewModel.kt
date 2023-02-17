@@ -30,7 +30,7 @@ class VehicleViewModel @Inject constructor(
                 }
             }
         }
-    val vehiclePathPoints: MutableList<LatLng> = mutableListOf()
+    private val vehiclePathPoints: MutableList<LatLng> = mutableListOf()
 
     val vehiclePath = vehicleRepository.vehicle.telemetry.position
         .map { position ->
