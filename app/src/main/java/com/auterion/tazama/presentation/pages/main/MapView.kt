@@ -130,7 +130,7 @@ fun MapView(
                         position = LatLng(position.lat.value, position.lon.value),
                         title = "Vehicle",
                         iconResourceId = R.drawable.plane,
-                        rotation = attitude.value?.let { Degrees(it.yaw.value) } ?: Degrees(),
+                        rotation = attitude.value?.let { it.yaw.toDegrees() } ?: Degrees(),
                     )
                 }
 
