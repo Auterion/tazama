@@ -2,14 +2,16 @@ package com.auterion.tazama.data.vehicle
 
 import androidx.lifecycle.ViewModel
 import com.auterion.tazama.util.FlowHolder
-import com.auterion.tazama.util.GeoUtils
+import com.auterion.tazama.util.distinctUntil
+import com.auterion.tazama.util.windowed
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-private const val pathPointsMinDistance = 1.0   // meters
+private val pathPointsMinDistance = Distance(1.0)
 private const val pathPointsMax = 5000
 
 @HiltViewModel
@@ -20,7 +22,7 @@ class VehicleViewModel @Inject constructor(
     val vehiclePosition = vehicleRepository.vehicle.telemetry.position
         .combine(measureSystem.flow) { pos, measureSystem -> pos?.toSystem(measureSystem) }
 
-    val horizonalDistanceToHome = vehicleRepository.vehicle.telemetry.distanceToHome
+    val horizontalDistanceToHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->
             when (dist) {
                 null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
@@ -33,37 +35,12 @@ class VehicleViewModel @Inject constructor(
                 }
             }
         }
-    private val vehiclePathPoints: MutableList<LatLng> = mutableListOf()
 
     val vehiclePath = vehicleRepository.vehicle.telemetry.position
-        .map { position ->
-
-            position?.let {
-                if (vehiclePathPoints.size > 0) {
-                    val dist = GeoUtils.distanceBetween(
-                        position.lat,
-                        position.lon,
-                        Degrees(vehiclePathPoints.last().latitude),
-                        Degrees(vehiclePathPoints.last().longitude)
-                    )
-
-                    when {
-                        dist.value > pathPointsMinDistance -> {
-                            vehiclePathPoints.add(LatLng(position.lat.value, position.lon.value))
-                        }
-                        else -> Unit
-                    }
-                } else {
-                    vehiclePathPoints.add(LatLng(position.lat.value, position.lon.value))
-                }
-            }
-
-            if (vehiclePathPoints.size > pathPointsMax) {
-                vehiclePathPoints.removeAt(0)
-            }
-
-            vehiclePathPoints.toList()
-        }
+        .filterNotNull()
+        .distinctUntil(pathPointsMinDistance)
+        .map { LatLng(it.lat.value, it.lon.value) }
+        .windowed(pathPointsMax)
 
     val heightAboveHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->

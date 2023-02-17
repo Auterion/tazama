@@ -22,7 +22,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.R
-import com.auterion.tazama.data.vehicle.*
+import com.auterion.tazama.data.vehicle.Degrees
+import com.auterion.tazama.data.vehicle.PositionAbsolute
+import com.auterion.tazama.data.vehicle.TelemetryDisplayNumber
+import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.exoplayer2.ExoPlayer
@@ -77,12 +80,12 @@ fun MapView(
     val isLandScape = mainViewModel.isLandScape.collectAsState(false).value
     val attitude = vehicleViewModel.vehicleAttitude.collectAsState()
     val distToHome =
-        vehicleViewModel.horizonalDistanceToHome.collectAsState(TelemetryDisplayNumber())
+        vehicleViewModel.horizontalDistanceToHome.collectAsState(TelemetryDisplayNumber())
     val heightAboveHome =
         vehicleViewModel.heightAboveHome.collectAsState(TelemetryDisplayNumber())
     val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(TelemetryDisplayNumber())
-    val heading = vehicleViewModel.vehicleHeading.collectAsState(initial = TelemetryDisplayNumber())
-    val vehiclePath = vehicleViewModel.vehiclePath.collectAsState(initial = emptyList())
+    val heading = vehicleViewModel.vehicleHeading.collectAsState(TelemetryDisplayNumber())
+    val vehiclePath = vehicleViewModel.vehiclePath.collectAsState(emptyList())
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLandScape) {
