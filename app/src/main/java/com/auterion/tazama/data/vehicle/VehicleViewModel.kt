@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+private const val pathPointsMinDistance = 1.0   // meters
+private const val pathPointsMax = 5000
+
 @HiltViewModel
 class VehicleViewModel @Inject constructor(
     vehicleRepository: VehicleRepository,
@@ -45,7 +48,7 @@ class VehicleViewModel @Inject constructor(
                     )
 
                     when {
-                        dist.value > 1.0 -> {
+                        dist.value > pathPointsMinDistance -> {
                             vehiclePathPoints.add(LatLng(position.lat.value, position.lon.value))
                         }
                         else -> Unit
@@ -55,7 +58,7 @@ class VehicleViewModel @Inject constructor(
                 }
             }
 
-            if (vehiclePathPoints.size > 5000) {
+            if (vehiclePathPoints.size > pathPointsMax) {
                 vehiclePathPoints.removeAt(0)
             }
 
