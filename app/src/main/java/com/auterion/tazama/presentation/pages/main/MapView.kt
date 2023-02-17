@@ -132,6 +132,8 @@ fun MapView(
                         rotation = attitude.value?.let { Degrees(it.yaw.value) } ?: Degrees(),
                     )
                 }
+
+                Polyline(points = vehiclePath.value, color = Color.Red)
             }
 
             if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
