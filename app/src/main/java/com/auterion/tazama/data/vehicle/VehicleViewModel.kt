@@ -44,9 +44,14 @@ class VehicleViewModel @Inject constructor(
                         Degrees(vehiclePathPoints.last().longitude)
                     )
 
-                    if (dist.value > 1.0) {
-                        vehiclePathPoints.add(LatLng(position.lat.value, position.lon.value))
+                    when {
+                        dist.value > 1.0 -> {
+                            vehiclePathPoints.add(LatLng(position.lat.value, position.lon.value))
+                        }
+                        else -> Unit
                     }
+                } else {
+                    vehiclePathPoints.add(LatLng(position.lat.value, position.lon.value))
                 }
             }
 
