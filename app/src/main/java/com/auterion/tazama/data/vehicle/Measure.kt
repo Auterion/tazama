@@ -132,6 +132,10 @@ class Altitude(
     }
 
     operator fun minus(other: Altitude): Altitude {
+        if (other.measurementSystem != measurementSystem) {
+            throw RuntimeException("Incompatible measurement system!")
+        }
+
         return Altitude(this.value - other.value)
     }
 

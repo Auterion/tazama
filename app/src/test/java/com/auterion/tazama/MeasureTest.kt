@@ -5,8 +5,7 @@ import com.auterion.tazama.data.vehicle.Distance
 import com.auterion.tazama.data.vehicle.Measure.MeasurementSystem.IMPERIAL
 import com.auterion.tazama.data.vehicle.Measure.MeasurementSystem.METRIC
 import com.auterion.tazama.data.vehicle.Speed
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert.*
 import org.junit.Test
 
 class MeasureTest {
@@ -302,5 +301,15 @@ class MeasureTest {
         val altitudeDiff = altitudeLeft - altitudeRight
 
         assertEquals(altitudeExpected, altitudeDiff)
+    }
+
+    @Test
+    fun altitude_minusThrowsIfMeasurementSystemDiffers() {
+        val altitudeLeft = Altitude(40.2)
+        val altitudeRight = Altitude(18.4, IMPERIAL)
+
+        assertThrows(RuntimeException::class.java) {
+            altitudeLeft - altitudeRight
+        }
     }
 }
