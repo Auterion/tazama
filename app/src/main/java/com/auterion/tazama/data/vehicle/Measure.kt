@@ -23,7 +23,7 @@ class Speed(
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m/s"
-            MeasurementSystem.IMPERIAL -> "f/s"
+            MeasurementSystem.IMPERIAL -> "ft/s"
         }
 
     override fun toMetric(): Speed {
@@ -48,7 +48,7 @@ class Distance(
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m"
-            MeasurementSystem.IMPERIAL -> "f"
+            MeasurementSystem.IMPERIAL -> "ft"
         }
 
     override fun toMetric(): Distance {
@@ -83,7 +83,7 @@ class Altitude(
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m"
-            MeasurementSystem.IMPERIAL -> "f"
+            MeasurementSystem.IMPERIAL -> "ft"
         }
 
     override fun toMetric(): Altitude {
