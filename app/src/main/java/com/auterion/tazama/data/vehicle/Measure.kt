@@ -83,6 +83,15 @@ class Distance(
             return 0
         }
     }
+
+    override fun equals(other: Any?) =
+        other is Distance && other.measurementSystem == measurementSystem && other.value == value
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + measurementSystem.hashCode()
+        return result
+    }
 }
 
 class Altitude(
@@ -104,7 +113,10 @@ class Altitude(
 
     override fun toImperial(): Altitude {
         return when (measurementSystem) {
-            MeasurementSystem.METRIC -> Altitude(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
+            MeasurementSystem.METRIC -> Altitude(
+                value * METER_TO_FEET,
+                MeasurementSystem.IMPERIAL
+            )
             MeasurementSystem.IMPERIAL -> this
         }
     }
