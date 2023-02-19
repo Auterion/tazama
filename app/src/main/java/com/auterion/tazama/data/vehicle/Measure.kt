@@ -1,6 +1,6 @@
 package com.auterion.tazama.data.vehicle
 
-const val METER_TO_FEET = 3.0
+const val METER_TO_FEET = 3.2808398950131
 
 abstract class Measure<T : Measure<T>>(val measurementSystem: MeasurementSystem = MeasurementSystem.METRIC) {
     fun toSystem(system: MeasurementSystem): T {
