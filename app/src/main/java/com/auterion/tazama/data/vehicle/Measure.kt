@@ -1,5 +1,8 @@
 package com.auterion.tazama.data.vehicle
 
+import kotlin.math.abs
+import kotlin.math.round
+
 const val METER_TO_FEET = 3.2808398950131
 
 abstract class Measure<T : Measure<T>>(val measurementSystem: MeasurementSystem = MeasurementSystem.METRIC) {
@@ -17,9 +20,10 @@ abstract class Measure<T : Measure<T>>(val measurementSystem: MeasurementSystem 
 }
 
 class Speed(
-    val value: Double = 0.0,
+    value: Double = 0.0,
     measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
 ) : Measure<Speed>(measurementSystem) {
+    val value = round(value * 1000) / 1000
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m/s"
@@ -48,12 +52,15 @@ class Speed(
         result = 31 * result + measurementSystem.hashCode()
         return result
     }
+
+    override fun toString() = "Speed: $value $unit"
 }
 
 class Distance(
-    val value: Double = 0.0,
+    value: Double = 0.0,
     measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
 ) : Measure<Distance>(measurementSystem) {
+    val value = round(value * 1000) / 1000
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m"
@@ -92,12 +99,15 @@ class Distance(
         result = 31 * result + measurementSystem.hashCode()
         return result
     }
+
+    override fun toString() = "Distance: $value $unit"
 }
 
 class Altitude(
-    val value: Double = 0.0,
+    value: Double = 0.0,
     measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
 ) : Measure<Altitude>(measurementSystem) {
+    val value = round(value * 1000) / 1000
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m"
@@ -124,4 +134,18 @@ class Altitude(
     operator fun minus(other: Altitude): Altitude {
         return Altitude(this.value - other.value)
     }
+
+    override fun equals(other: Any?): Boolean {
+        return other is Altitude
+                && other.measurementSystem == measurementSystem
+                && (abs(other.value - value) < 0.0001)
+    }
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + measurementSystem.hashCode()
+        return result
+    }
+
+    override fun toString() = "Altitude: $value $unit"
 }

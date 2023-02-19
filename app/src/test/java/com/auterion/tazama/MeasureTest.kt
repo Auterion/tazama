@@ -1,5 +1,6 @@
 package com.auterion.tazama
 
+import com.auterion.tazama.data.vehicle.Altitude
 import com.auterion.tazama.data.vehicle.Distance
 import com.auterion.tazama.data.vehicle.Measure.MeasurementSystem.IMPERIAL
 import com.auterion.tazama.data.vehicle.Measure.MeasurementSystem.METRIC
@@ -30,7 +31,7 @@ class MeasureTest {
 
         val speedImperial = speedMetric.toImperial()
 
-        assertEquals(138.5827, speedImperial.value, 0.0001)
+        assertEquals(138.583, speedImperial.value, 0.0001)
     }
 
     @Test
@@ -44,7 +45,7 @@ class MeasureTest {
 
         val speedMetric = speedImperial.toMetric()
 
-        assertEquals(36.75888, speedMetric.value, 0.0001)
+        assertEquals(36.759, speedMetric.value, 0.0001)
     }
 
     @Test
@@ -124,7 +125,7 @@ class MeasureTest {
 
         val distanceImperial = distanceMetric.toImperial()
 
-        assertEquals(138.5827, distanceImperial.value, 0.0001)
+        assertEquals(138.583, distanceImperial.value, 0.0001)
     }
 
     @Test
@@ -138,7 +139,7 @@ class MeasureTest {
 
         val distanceMetric = distanceImperial.toMetric()
 
-        assertEquals(36.75888, distanceMetric.value, 0.0001)
+        assertEquals(36.759, distanceMetric.value, 0.0001)
     }
 
     @Test
@@ -195,5 +196,111 @@ class MeasureTest {
 
         assertNotEquals(distanceMetric1.hashCode(), distanceImperial1.hashCode())
         assertNotEquals(distanceMetric1.hashCode(), distanceImperial3.hashCode())
+    }
+
+    @Test
+    fun altitude_defaultsToZero() {
+        assertEquals(0.0, Altitude().value, 0.0)
+    }
+
+    @Test
+    fun altitude_isCorrect() {
+        assertEquals(24.0, Altitude(24.0).value, 0.0)
+    }
+
+    @Test
+    fun altitude_defaultsToMetric() {
+        assertEquals(METRIC, Altitude().measurementSystem)
+    }
+
+    @Test
+    fun altitude_convertsToImperial() {
+        val altitudeMetric = Altitude(42.24)
+
+        val altitudeImperial = altitudeMetric.toImperial()
+
+        assertEquals(138.583, altitudeImperial.value, 0.0001)
+    }
+
+    @Test
+    fun altitude_constructsAsImperial() {
+        assertEquals(IMPERIAL, Altitude(measurementSystem = IMPERIAL).measurementSystem)
+    }
+
+    @Test
+    fun altitude_convertsToMetric() {
+        val altitudeImperial = Altitude(120.6, IMPERIAL)
+        val altitudeExpected = Altitude(36.759, METRIC)
+
+        val altitudeMetric = altitudeImperial.toMetric()
+
+        assertEquals(altitudeExpected, altitudeMetric)
+    }
+
+    @Test
+    fun altitude_convertsToImperialAndBack() {
+        val altitudeMetric = Altitude(12.3)
+
+        val altitudeImperial = altitudeMetric.toImperial()
+        val altitudeMetricBack = altitudeImperial.toMetric()
+
+        assertEquals(altitudeMetric, altitudeMetricBack)
+    }
+
+    @Test
+    fun altitude_unitIsCorrectInMetric() {
+        assertEquals("m", Altitude().unit)
+    }
+
+    @Test
+    fun altitude_unitIsCorrectInImperial() {
+        assertEquals("ft", Altitude(measurementSystem = IMPERIAL).unit)
+    }
+
+    @Test
+    fun altitude_equalsOperatorIsCorrect() {
+        val altitudeMetric1 = Altitude(23.2)
+        val altitudeMetric2 = Altitude(23.2)
+        val altitudeMetric3 = Altitude(43.1)
+        assertEquals(altitudeMetric1, altitudeMetric2)
+        assertNotEquals(altitudeMetric1, altitudeMetric3)
+
+        val altitudeImperial1 = Altitude(43.1, IMPERIAL)
+        val altitudeImperial2 = Altitude(43.1, IMPERIAL)
+        val altitudeImperial3 = Altitude(23.2, IMPERIAL)
+        assertEquals(altitudeImperial1, altitudeImperial2)
+        assertNotEquals(altitudeImperial1, altitudeImperial3)
+
+        assertNotEquals(altitudeMetric1, altitudeImperial1)
+        assertNotEquals(altitudeMetric1, altitudeImperial3)
+    }
+
+    @Test
+    fun altitude_hashcodeIsCorrect() {
+        val altitudeMetric1 = Altitude(23.2)
+        val altitudeMetric2 = Altitude(23.2)
+        val altitudeMetric3 = Altitude(43.1)
+        assertEquals(altitudeMetric1.hashCode(), altitudeMetric2.hashCode())
+        assertNotEquals(altitudeMetric1.hashCode(), altitudeMetric3.hashCode())
+
+        val altitudeImperial1 = Altitude(43.1, IMPERIAL)
+        val altitudeImperial2 = Altitude(43.1, IMPERIAL)
+        val altitudeImperial3 = Altitude(23.2, IMPERIAL)
+        assertEquals(altitudeImperial1.hashCode(), altitudeImperial2.hashCode())
+        assertNotEquals(altitudeImperial1.hashCode(), altitudeImperial3.hashCode())
+
+        assertNotEquals(altitudeMetric1.hashCode(), altitudeImperial1.hashCode())
+        assertNotEquals(altitudeMetric1.hashCode(), altitudeImperial3.hashCode())
+    }
+
+    @Test
+    fun altitude_minusOperatorIsCorrect() {
+        val altitudeLeft = Altitude(40.2)
+        val altitudeRight = Altitude(18.4)
+        val altitudeExpected = Altitude(21.8)
+
+        val altitudeDiff = altitudeLeft - altitudeRight
+
+        assertEquals(altitudeExpected, altitudeDiff)
     }
 }
