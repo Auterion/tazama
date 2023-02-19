@@ -39,6 +39,15 @@ class Speed(
             MeasurementSystem.IMPERIAL -> this
         }
     }
+
+    override fun equals(other: Any?) =
+        other is Speed && other.measurementSystem == measurementSystem && other.value == value
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + measurementSystem.hashCode()
+        return result
+    }
 }
 
 class Distance(
