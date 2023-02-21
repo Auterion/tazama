@@ -162,6 +162,16 @@ class MeasureTest {
     }
 
     @Test
+    fun distance_compareToIsCorrect() {
+        assertTrue(Distance(22.0) < Distance(24.2))
+        assertTrue(Distance(12.0) > Distance(3.8))
+        assertTrue(Distance(13.2) > Distance(-42.8))
+
+        assertFalse(Distance(0.0) < Distance(0.0))
+        assertFalse(Distance(0.0) > Distance(0.0))
+    }
+
+    @Test
     fun distance_equalsOperatorIsCorrect() {
         val distanceMetric1 = Distance(23.2)
         val distanceMetric2 = Distance(23.2)
