@@ -1,6 +1,9 @@
 package com.auterion.tazama.data.vehicle
 
-const val METER_TO_FEET = 3.0
+import kotlin.math.abs
+import kotlin.math.round
+
+const val METER_TO_FEET = 3.2808398950131
 
 abstract class Measure<T : Measure<T>>(val measurementSystem: MeasurementSystem = MeasurementSystem.METRIC) {
     fun toSystem(system: MeasurementSystem): T {
@@ -17,13 +20,14 @@ abstract class Measure<T : Measure<T>>(val measurementSystem: MeasurementSystem 
 }
 
 class Speed(
-    val value: Double = 0.0,
+    value: Double = 0.0,
     measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
 ) : Measure<Speed>(measurementSystem) {
+    val value = round(value * 1000) / 1000
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m/s"
-            MeasurementSystem.IMPERIAL -> "f/s"
+            MeasurementSystem.IMPERIAL -> "ft/s"
         }
 
     override fun toMetric(): Speed {
@@ -39,16 +43,28 @@ class Speed(
             MeasurementSystem.IMPERIAL -> this
         }
     }
+
+    override fun equals(other: Any?) =
+        other is Speed && other.measurementSystem == measurementSystem && other.value == value
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + measurementSystem.hashCode()
+        return result
+    }
+
+    override fun toString() = "Speed: $value $unit"
 }
 
 class Distance(
-    val value: Double = 0.0,
+    value: Double = 0.0,
     measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
 ) : Measure<Distance>(measurementSystem) {
+    val value = round(value * 1000) / 1000
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m"
-            MeasurementSystem.IMPERIAL -> "f"
+            MeasurementSystem.IMPERIAL -> "ft"
         }
 
     override fun toMetric(): Distance {
@@ -74,16 +90,28 @@ class Distance(
             return 0
         }
     }
+
+    override fun equals(other: Any?) =
+        other is Distance && other.measurementSystem == measurementSystem && other.value == value
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + measurementSystem.hashCode()
+        return result
+    }
+
+    override fun toString() = "Distance: $value $unit"
 }
 
 class Altitude(
-    val value: Double = 0.0,
+    value: Double = 0.0,
     measurementSystem: MeasurementSystem = MeasurementSystem.METRIC
 ) : Measure<Altitude>(measurementSystem) {
+    val value = round(value * 1000) / 1000
     val unit: String
         get() = when (measurementSystem) {
             MeasurementSystem.METRIC -> "m"
-            MeasurementSystem.IMPERIAL -> "f"
+            MeasurementSystem.IMPERIAL -> "ft"
         }
 
     override fun toMetric(): Altitude {
@@ -95,12 +123,33 @@ class Altitude(
 
     override fun toImperial(): Altitude {
         return when (measurementSystem) {
-            MeasurementSystem.METRIC -> Altitude(value * METER_TO_FEET, MeasurementSystem.IMPERIAL)
+            MeasurementSystem.METRIC -> Altitude(
+                value * METER_TO_FEET,
+                MeasurementSystem.IMPERIAL
+            )
             MeasurementSystem.IMPERIAL -> this
         }
     }
 
     operator fun minus(other: Altitude): Altitude {
+        if (other.measurementSystem != measurementSystem) {
+            throw RuntimeException("Incompatible measurement system!")
+        }
+
         return Altitude(this.value - other.value)
     }
+
+    override fun equals(other: Any?): Boolean {
+        return other is Altitude
+                && other.measurementSystem == measurementSystem
+                && (abs(other.value - value) < 0.0001)
+    }
+
+    override fun hashCode(): Int {
+        var result = value.hashCode()
+        result = 31 * result + measurementSystem.hashCode()
+        return result
+    }
+
+    override fun toString() = "Altitude: $value $unit"
 }
