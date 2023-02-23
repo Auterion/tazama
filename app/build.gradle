@@ -48,6 +48,16 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    testOptions {
+        unitTests.all {
+            testLogging {
+                outputs.upToDateWhen { false }
+                events "passed", "failed", "skipped", "standardError"
+                showCauses true
+                showExceptions true
+            }
+        }
+    }
 }
 
 dependencies {
