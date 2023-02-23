@@ -1,6 +1,7 @@
 package com.auterion.tazama.data.vehicle
 
 import androidx.lifecycle.ViewModel
+import com.auterion.tazama.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.util.FlowHolder
 import com.auterion.tazama.util.distinctUntil
 import com.auterion.tazama.util.windowed
@@ -74,7 +75,4 @@ class VehicleViewModel @Inject constructor(
         }
     }
     val videoStreamInfo = vehicleRepository.vehicle.camera.videoStreamInfo
-}
-
-data class TelemetryDisplayNumber(val value: Double? = null, val unit: String = "") {
 }

@@ -32,11 +32,9 @@ fun WindowDragger(
             .size(30.dp)
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
-                    onDragAmount(
-                        dragAmount.copy(
-                            x = dragAmount.x / density, y = dragAmount.y / density
-                        )
-                    )
+                    val offsetX = dragAmount.x / density
+                    val offsetY = dragAmount.y / density
+                    onDragAmount(dragAmount.copy(x = offsetX, y = offsetY))
                 }
             }
     ) {
