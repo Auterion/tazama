@@ -24,7 +24,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.R
 import com.auterion.tazama.data.vehicle.Degrees
 import com.auterion.tazama.data.vehicle.PositionAbsolute
-import com.auterion.tazama.data.vehicle.TelemetryDisplayNumber
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
@@ -106,7 +105,6 @@ fun MapView(
                 .zIndex(mapZValue)
                 .align(if (isLandScape) Alignment.TopStart else Alignment.BottomCenter)
                 .padding(if (mainViewModel.mapIsMainScreen || !isLandScape) 0.dp else 15.dp)
-            //.clip(RoundedCornerShape(10.dp))
         ) {
             if (!isLandScape) {
                 TelemetryInfo(
@@ -133,7 +131,7 @@ fun MapView(
                         position = LatLng(position.lat.value, position.lon.value),
                         title = "Vehicle",
                         iconResourceId = R.drawable.plane,
-                        rotation = attitude.value?.let { it.yaw.toDegrees() } ?: Degrees(),
+                        rotation = attitude.value?.yaw?.toDegrees() ?: Degrees(),
                     )
                 }
 

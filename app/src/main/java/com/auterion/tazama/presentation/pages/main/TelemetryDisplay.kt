@@ -21,8 +21,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.auterion.tazama.R
-import com.auterion.tazama.data.vehicle.TelemetryDisplayNumber
 import java.text.DecimalFormat
+
+data class TelemetryDisplayNumber(val value: Double? = null, val unit: String = "")
 
 @Composable
 fun TelemetryInfo(
