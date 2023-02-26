@@ -47,12 +47,6 @@ fun MapView(
     val mapType = settingsViewModel.currentMapType.collectAsState()
 
     val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
-    //val cameraPositionState = rememberCameraPositionState {
-    //    vehiclePosition.value?.let {
-    //        position = CameraPosition.fromLatLngZoom(LatLng(it.lat.value, it.lon.value), 10f)
-    //    }
-    //}
-
     val cameraPositionState = mainViewModel.cameraPositionState
 
     val props =
