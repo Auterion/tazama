@@ -6,12 +6,22 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.auterion.tazama.data.vehicle.PositionAbsolute
 import com.auterion.tazama.data.vehicle.VideoStreamInfo
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.min
@@ -20,7 +30,7 @@ import kotlin.math.min
 class MainViewModel @Inject constructor(
     val player: ExoPlayer
 ) : ViewModel() {
-    var videoStreamInfo: StateFlow<VideoStreamInfo?>? = null
+    private var videoStreamInfo: StateFlow<VideoStreamInfo?>? = null
 
     private val _videoSize = MutableStateFlow(Size(0.0F, 0.0F))
     val videoSize = _videoSize.asStateFlow()
@@ -30,6 +40,7 @@ class MainViewModel @Inject constructor(
     private val _mapSize = MutableStateFlow(Size(0.0F, 0.0F))
     val mapSize = _mapSize.asStateFlow()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val mapZValue = snapshotFlow { _mapIsMainScreen.value }.mapLatest {
         if (it) {
             0.0F
@@ -40,6 +51,7 @@ class MainViewModel @Inject constructor(
 
     private val screenSize = mutableStateOf(Size(0.0F, 0.0F))
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val isLandScape = snapshotFlow { screenSize }.mapLatest {
         isLandScape()
     }
@@ -51,6 +63,11 @@ class MainViewModel @Inject constructor(
     private val _mapIsMainScreen = mutableStateOf(true)
     val mapIsMainScreen
         get() = _mapIsMainScreen.value
+
+    private val _cameraPositionState = mutableStateOf(CameraPositionState())
+    val cameraPositionState
+        get() = _cameraPositionState.value
+
 
     fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
         if (videoStreamInfo != null) {
@@ -92,18 +109,18 @@ class MainViewModel @Inject constructor(
         return screenSize.value.width > screenSize.value.height
     }
 
-    private fun secondaryScreenWidthToHeightRatio(): Float {
-        return if (isLandScape()) {
-            if (_mapIsMainScreen.value) _videoSize.value.width / _videoSize.value.height
-            else _mapSize.value.width / _mapSize.value.height
-        } else {
-            _videoSize.value.width / _mapSize.value.height
-        }
-    }
-
-    private fun widthIsLimiting(): Boolean {
-        val screenWidthToHeightRatio = screenSize.value.width / screenSize.value.height
-        return screenWidthToHeightRatio < secondaryScreenWidthToHeightRatio()
+    fun centerOnPosition(position: PositionAbsolute) {
+        _cameraPositionState.value = CameraPositionState(
+            position = CameraPosition(
+                LatLng(
+                    position.lat.value,
+                    position.lon.value
+                ),
+                cameraPositionState.position.zoom,
+                cameraPositionState.position.tilt,
+                cameraPositionState.position.bearing
+            )
+        )
     }
 
     fun onUiEvent(event: ScreenEvent) {
@@ -175,6 +192,9 @@ class MainViewModel @Inject constructor(
                     swapMapAndVideo()
                 }
             }
+
+            is ScreenEvent.CenterVehicle -> {
+            }
         }
     }
 }
@@ -185,4 +205,5 @@ sealed class ScreenEvent {
     data class MapWindowDrag(val drag: Offset) : ScreenEvent()
     object VideoTapped : ScreenEvent()
     object MapTapped : ScreenEvent()
+    object CenterVehicle : ScreenEvent()
 }
