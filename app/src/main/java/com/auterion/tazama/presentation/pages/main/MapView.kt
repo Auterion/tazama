@@ -30,9 +30,12 @@ import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Polyline
 
 @Composable
 fun MapView(
@@ -44,11 +47,13 @@ fun MapView(
     val mapType = settingsViewModel.currentMapType.collectAsState()
 
     val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
-    val cameraPositionState = rememberCameraPositionState {
-        vehiclePosition.value?.let {
-            position = CameraPosition.fromLatLngZoom(LatLng(it.lat.value, it.lon.value), 10f)
-        }
-    }
+    //val cameraPositionState = rememberCameraPositionState {
+    //    vehiclePosition.value?.let {
+    //        position = CameraPosition.fromLatLngZoom(LatLng(it.lat.value, it.lon.value), 10f)
+    //    }
+    //}
+
+    val cameraPositionState = mainViewModel.cameraPositionState
 
     val props =
         MapProperties(
