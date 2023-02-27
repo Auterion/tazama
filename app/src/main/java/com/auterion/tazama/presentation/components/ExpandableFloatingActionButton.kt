@@ -123,7 +123,7 @@ fun ExpandableFloatingActionButton(
     }
 }
 
-val expanedItemsData = listOf(
+val expandedItemsData = listOf(
     ExpandedItemData(
         iconId = R.drawable.baseline_settings_24,
         label = "Settings",

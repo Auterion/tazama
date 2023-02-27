@@ -80,9 +80,7 @@ fun Main() {
 
                         when (item.action) {
                             is ExpandedItemAction.ActionCenterOnVehicle -> {
-                                if (vehiclePosition.value != null) mainViewModel.centerOnPosition(
-                                    vehiclePosition.value!!
-                                )
+                                vehiclePosition.value?.let { mainViewModel.centerOnPosition(it) }
                             }
 
                             is ExpandedItemAction.ActionNavigate -> {
