@@ -3,17 +3,10 @@ package com.auterion.tazama.data.vehicle
 import androidx.lifecycle.ViewModel
 import com.auterion.tazama.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.util.FlowHolder
-import com.auterion.tazama.util.distinctUntil
-import com.auterion.tazama.util.windowed
-import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-
-private val pathPointsMinDistance = Distance(1.0)
-private const val pathPointsMax = 5000
 
 @HiltViewModel
 class VehicleViewModel @Inject constructor(
@@ -37,11 +30,7 @@ class VehicleViewModel @Inject constructor(
             }
         }
 
-    val vehiclePath = vehicleRepository.vehicle.telemetry.position
-        .filterNotNull()
-        .distinctUntil(pathPointsMinDistance)
-        .map { LatLng(it.lat.value, it.lon.value) }
-        .windowed(pathPointsMax)
+    val vehiclePath = VehiclePath(vehicleRepository.vehicle.telemetry.position)
 
     val heightAboveHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->

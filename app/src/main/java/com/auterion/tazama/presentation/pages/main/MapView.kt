@@ -83,7 +83,7 @@ fun MapView(
         vehicleViewModel.heightAboveHome.collectAsState(TelemetryDisplayNumber())
     val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(TelemetryDisplayNumber())
     val heading = vehicleViewModel.vehicleHeading.collectAsState(TelemetryDisplayNumber())
-    val vehiclePath = vehicleViewModel.vehiclePath.collectAsState(emptyList())
+    val vehiclePath = vehicleViewModel.vehiclePath.path.collectAsState(emptyList())
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLandScape) {
