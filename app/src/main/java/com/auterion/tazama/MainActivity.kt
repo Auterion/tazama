@@ -95,6 +95,10 @@ fun Main() {
                                     restoreState = true
                                 }
                             }
+
+                            ExpandedItemAction.ActionClearFlightPath -> {
+                                vehicleViewModel.resetFlightPath()
+                            }
                         }
                     }
                 )

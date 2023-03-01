@@ -75,4 +75,7 @@ class VehicleViewModel @Inject constructor(
         }
     }
     val videoStreamInfo = vehicleRepository.vehicle.camera.videoStreamInfo
+
+    fun resetFlightPath() {
+    }
 }
