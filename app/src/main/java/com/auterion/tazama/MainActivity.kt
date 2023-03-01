@@ -25,7 +25,7 @@ import com.auterion.tazama.navigation.Navigation
 import com.auterion.tazama.presentation.components.ExpandableFloatingActionButton
 import com.auterion.tazama.presentation.components.ExpandableFloatingactionButtonState
 import com.auterion.tazama.presentation.components.ExpandedItemAction
-import com.auterion.tazama.presentation.components.expanedItemsData
+import com.auterion.tazama.presentation.components.expandedItemsData
 import com.auterion.tazama.presentation.pages.main.MainViewModel
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.auterion.tazama.ui.theme.TazamaTheme
@@ -75,7 +75,7 @@ fun Main() {
                     onButtonStateChanged = {
                         floatingButtonState = it
                     },
-                    items = expanedItemsData,
+                    items = expandedItemsData,
                     onItemClicked = { item ->
 
                         when (item.action) {
