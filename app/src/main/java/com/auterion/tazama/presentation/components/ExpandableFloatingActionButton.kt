@@ -46,6 +46,7 @@ data class ExpandedItemData(
 sealed class ExpandedItemAction {
     data class ActionNavigate(val route: String) : ExpandedItemAction()
     object ActionCenterOnVehicle : ExpandedItemAction()
+    object ActionClearFlightPath : ExpandedItemAction()
 }
 
 @Composable
@@ -132,6 +133,11 @@ val expanedItemsData = listOf(
         iconId = R.drawable.drone,
         label = "Center Vehicle",
         action = ExpandedItemAction.ActionCenterOnVehicle
+    ),
+    ExpandedItemData(
+        iconId = R.drawable.diagonal_arrow,
+        label = "Clear Flight Path",
+        action = ExpandedItemAction.ActionClearFlightPath
     )
 )
 
