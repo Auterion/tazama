@@ -18,7 +18,7 @@ fun VehicleMapMarker(
     context: Context,
     position: LatLng,
     title: String,
-    rotation: com.auterion.tazama.libvehicle.Degrees = com.auterion.tazama.libvehicle.Degrees(0.0),
+    rotation: Degrees = Degrees(0.0),
     @DrawableRes iconResourceId: Int
 ) {
     val iconSize = 150

@@ -8,22 +8,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
-import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.data.vehicle.VehicleViewModel
+import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.navigation.MapDestination
 import com.auterion.tazama.navigation.Navigation
 import com.auterion.tazama.presentation.components.ExpandableFloatingActionButton
-import com.auterion.tazama.presentation.components.ExpandableFloatingactionButtonState
+import com.auterion.tazama.presentation.components.ExpandableFloatingActionButtonState
 import com.auterion.tazama.presentation.components.ExpandedItemAction
 import com.auterion.tazama.presentation.components.expandedItemsData
 import com.auterion.tazama.presentation.pages.main.MainViewModel
@@ -58,14 +53,14 @@ fun Main() {
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
 
     var floatingButtonState by remember {
-        mutableStateOf(ExpandableFloatingactionButtonState.Collapsed)
+        mutableStateOf(ExpandableFloatingActionButtonState.Collapsed)
     }
 
     val currentRoute =
         navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
 
     val vehiclePosition =
-        vehicleViewModel.vehiclePosition.collectAsState(initial = com.auterion.tazama.libvehicle.PositionAbsolute())
+        vehicleViewModel.vehiclePosition.collectAsState(initial = PositionAbsolute())
 
     Scaffold(
         floatingActionButton = {
@@ -113,6 +108,3 @@ fun Main() {
         )
     }
 }
-
-
-

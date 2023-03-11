@@ -1,6 +1,8 @@
 package com.auterion.tazama.data.vehicle
 
 import androidx.lifecycle.ViewModel
+import com.auterion.tazama.libvehicle.Distance
+import com.auterion.tazama.libvehicle.Speed
 import com.auterion.tazama.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.util.FlowHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,9 +21,7 @@ class VehicleViewModel @Inject constructor(
     val horizontalDistanceToHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->
             when (dist) {
-                null -> TelemetryDisplayNumber(unit = com.auterion.tazama.libvehicle.Distance(
-                    measurementSystem = measureSystem
-                ).unit)
+                null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
                 else -> {
                     val distMapped = dist.horizontal.toSystem(measureSystem)
                     TelemetryDisplayNumber(
@@ -37,9 +37,7 @@ class VehicleViewModel @Inject constructor(
     val heightAboveHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->
             when (dist) {
-                null -> TelemetryDisplayNumber(unit = com.auterion.tazama.libvehicle.Distance(
-                    measurementSystem = measureSystem
-                ).unit)
+                null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
                 else -> {
                     val distMapped = dist.toSystem(measureSystem).vertical
                     TelemetryDisplayNumber(
@@ -52,9 +50,7 @@ class VehicleViewModel @Inject constructor(
     val groundSpeed = vehicleRepository.vehicle.telemetry.groundSpeed
         .combine(measureSystem.flow) { speed, measureSystem ->
             when (speed) {
-                null -> TelemetryDisplayNumber(unit = com.auterion.tazama.libvehicle.Speed(
-                    measurementSystem = measureSystem
-                ).unit)
+                null -> TelemetryDisplayNumber(unit = Speed(measurementSystem = measureSystem).unit)
                 else -> {
                     val speedMapped = speed.toSystem(measureSystem)
                     TelemetryDisplayNumber(speedMapped.value, speedMapped.unit)

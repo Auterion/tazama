@@ -1,5 +1,7 @@
 package com.auterion.tazama.data.vehicle
 
+import com.auterion.tazama.libvehicle.Vehicle
+import com.auterion.tazama.libvehicle.VehicleImpl
 import com.auterion.tazama.libvehicle.service.VehicleService
 import com.auterion.tazama.libvehicle.service.dummy.DummyService
 import com.auterion.tazama.libvehicle.service.mavsdk.MavsdkService
@@ -19,8 +21,8 @@ class VehicleRepository @Inject constructor(
 ) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.IO
 
-    private val vehicleImpl = com.auterion.tazama.libvehicle.VehicleImpl()
-    val vehicle: com.auterion.tazama.libvehicle.Vehicle = vehicleImpl
+    private val vehicleImpl = VehicleImpl()
+    val vehicle: Vehicle = vehicleImpl
 
     private var lastVehicleType: VehicleType? = null
     private var vehicleService: VehicleService = DummyService(vehicleImpl)

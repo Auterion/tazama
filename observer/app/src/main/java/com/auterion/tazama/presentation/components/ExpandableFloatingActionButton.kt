@@ -5,15 +5,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -32,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.auterion.tazama.R
 import com.auterion.tazama.navigation.SettingsDestination
 
-enum class ExpandableFloatingactionButtonState {
+enum class ExpandableFloatingActionButtonState {
     Expanded,
     Collapsed
 }
@@ -72,20 +64,20 @@ fun ExpandedItem(
 
 @Composable
 fun ExpandableFloatingActionButton(
-    buttonState: ExpandableFloatingactionButtonState,
-    onButtonStateChanged: (ExpandableFloatingactionButtonState) -> Unit,
+    buttonState: ExpandableFloatingActionButtonState,
+    onButtonStateChanged: (ExpandableFloatingActionButtonState) -> Unit,
     items: List<ExpandedItemData>,
     onItemClicked: (ExpandedItemData) -> Unit
 ) {
     val transition = updateTransition(targetState = buttonState, label = "transition")
     val rotate by transition.animateFloat(label = "rotate") {
         when (it) {
-            ExpandableFloatingactionButtonState.Expanded -> 315.0f
-            ExpandableFloatingactionButtonState.Collapsed -> 0f
+            ExpandableFloatingActionButtonState.Expanded -> 315.0f
+            ExpandableFloatingActionButtonState.Collapsed -> 0f
         }
     }
     Column(horizontalAlignment = Alignment.End) {
-        if (transition.currentState == ExpandableFloatingactionButtonState.Expanded) {
+        if (transition.currentState == ExpandableFloatingActionButtonState.Expanded) {
             items.forEach {
                 Row {
                     Text(
@@ -97,7 +89,7 @@ fun ExpandableFloatingActionButton(
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     ExpandedItem(item = it, onItemClicked = {
-                        onButtonStateChanged(ExpandableFloatingactionButtonState.Collapsed)
+                        onButtonStateChanged(ExpandableFloatingActionButtonState.Collapsed)
                         onItemClicked(it)
                     })
                 }
@@ -108,8 +100,8 @@ fun ExpandableFloatingActionButton(
             onClick = {
                 onButtonStateChanged(
                     when (transition.currentState) {
-                        ExpandableFloatingactionButtonState.Expanded -> ExpandableFloatingactionButtonState.Collapsed
-                        ExpandableFloatingactionButtonState.Collapsed -> ExpandableFloatingactionButtonState.Expanded
+                        ExpandableFloatingActionButtonState.Expanded -> ExpandableFloatingActionButtonState.Collapsed
+                        ExpandableFloatingActionButtonState.Collapsed -> ExpandableFloatingActionButtonState.Expanded
                     }
                 )
             },
@@ -140,4 +132,3 @@ val expandedItemsData = listOf(
         action = ExpandedItemAction.ActionClearFlightPath
     )
 )
-

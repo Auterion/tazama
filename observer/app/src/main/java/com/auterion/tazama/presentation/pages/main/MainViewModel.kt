@@ -16,12 +16,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.min
@@ -30,7 +25,7 @@ import kotlin.math.min
 class MainViewModel @Inject constructor(
     val player: ExoPlayer
 ) : ViewModel() {
-    private var videoStreamInfo: StateFlow<com.auterion.tazama.libvehicle.VideoStreamInfo?>? = null
+    private var videoStreamInfo: StateFlow<VideoStreamInfo?>? = null
 
     private val _videoSize = MutableStateFlow(Size(0.0F, 0.0F))
     val videoSize = _videoSize.asStateFlow()
@@ -69,7 +64,7 @@ class MainViewModel @Inject constructor(
         get() = _cameraPositionState.value
 
 
-    fun setVideoStreamInfoFlow(flow: StateFlow<com.auterion.tazama.libvehicle.VideoStreamInfo?>) {
+    fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
         if (videoStreamInfo != null) {
             return
         }
@@ -109,7 +104,7 @@ class MainViewModel @Inject constructor(
         return screenSize.value.width > screenSize.value.height
     }
 
-    fun centerOnPosition(position: com.auterion.tazama.libvehicle.PositionAbsolute) {
+    fun centerOnPosition(position: PositionAbsolute) {
         _cameraPositionState.value = CameraPositionState(
             position = CameraPosition(
                 LatLng(
