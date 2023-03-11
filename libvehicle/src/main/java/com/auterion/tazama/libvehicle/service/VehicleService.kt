@@ -1,4 +1,4 @@
-package com.auterion.tazama.data.vehicle.service
+package com.auterion.tazama.libvehicle.service
 
 interface VehicleService {
     fun connect()

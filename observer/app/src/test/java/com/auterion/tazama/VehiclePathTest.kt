@@ -15,7 +15,7 @@ import org.junit.Test
 class VehiclePathTest {
     @Test
     fun vehiclePath_initToEmptyList() = runTest {
-        val position = MutableSharedFlow<PositionAbsolute>()
+        val position = MutableSharedFlow<com.auterion.tazama.libvehicle.PositionAbsolute>()
         val vehiclePath = VehiclePath(position)
 
         assertEquals(0, vehiclePath.path.value.size)
@@ -24,9 +24,9 @@ class VehiclePathTest {
     @Test
     fun vehiclePath_emitsOneElement() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
-        val position = MutableSharedFlow<PositionAbsolute>()
+        val position = MutableSharedFlow<com.auterion.tazama.libvehicle.PositionAbsolute>()
         val vehiclePath = VehiclePath(position, ioDispatcher = testDispatcher)
-        launch { position.emit(PositionAbsolute()) }
+        launch { position.emit(com.auterion.tazama.libvehicle.PositionAbsolute()) }
         advanceUntilIdle()
 
         val firstElem = vehiclePath.path.value
@@ -38,28 +38,29 @@ class VehiclePathTest {
     @Test
     fun vehiclePath_honorsMinDistance() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
-        val position = MutableSharedFlow<PositionAbsolute>()
-        val position1 = PositionAbsolute(
-            Degrees(45.97623755731381),
-            Degrees(7.658748816478356),
-            Altitude()
+        val position = MutableSharedFlow<com.auterion.tazama.libvehicle.PositionAbsolute>()
+        val position1 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97623755731381),
+            com.auterion.tazama.libvehicle.Degrees(7.658748816478356),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position2 = PositionAbsolute(
-            Degrees(45.97653855167026),
-            Degrees(7.658812707223693),
-            Altitude()
+        val position2 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97653855167026),
+            com.auterion.tazama.libvehicle.Degrees(7.658812707223693),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position3 = PositionAbsolute(
-            Degrees(45.97594160439559),
-            Degrees(7.660162518053666),
-            Altitude()
+        val position3 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97594160439559),
+            com.auterion.tazama.libvehicle.Degrees(7.660162518053666),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position4 = PositionAbsolute(
-            Degrees(46.001554625338855),
-            Degrees(7.730810855763431),
-            Altitude()
+        val position4 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(46.001554625338855),
+            com.auterion.tazama.libvehicle.Degrees(7.730810855763431),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val vehiclePath = VehiclePath(position, Distance(1000.0), ioDispatcher = testDispatcher)
+        val vehiclePath = VehiclePath(position,
+            com.auterion.tazama.libvehicle.Distance(1000.0), ioDispatcher = testDispatcher)
         launch {
             position.emit(position1)
             position.emit(position2)
@@ -80,28 +81,29 @@ class VehiclePathTest {
     @Test
     fun vehiclePath_honorsMaxPathLength() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
-        val position = MutableSharedFlow<PositionAbsolute>()
-        val position1 = PositionAbsolute(
-            Degrees(45.97623755731381),
-            Degrees(7.658748816478356),
-            Altitude()
+        val position = MutableSharedFlow<com.auterion.tazama.libvehicle.PositionAbsolute>()
+        val position1 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97623755731381),
+            com.auterion.tazama.libvehicle.Degrees(7.658748816478356),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position2 = PositionAbsolute(
-            Degrees(45.97653855167026),
-            Degrees(7.658812707223693),
-            Altitude()
+        val position2 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97653855167026),
+            com.auterion.tazama.libvehicle.Degrees(7.658812707223693),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position3 = PositionAbsolute(
-            Degrees(45.97594160439559),
-            Degrees(7.660162518053666),
-            Altitude()
+        val position3 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97594160439559),
+            com.auterion.tazama.libvehicle.Degrees(7.660162518053666),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position4 = PositionAbsolute(
-            Degrees(46.001554625338855),
-            Degrees(7.730810855763431),
-            Altitude()
+        val position4 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(46.001554625338855),
+            com.auterion.tazama.libvehicle.Degrees(7.730810855763431),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val vehiclePath = VehiclePath(position, Distance(1.0), 2, testDispatcher)
+        val vehiclePath = VehiclePath(position,
+            com.auterion.tazama.libvehicle.Distance(1.0), 2, testDispatcher)
         launch {
             position.emit(position1)
             position.emit(position2)
@@ -122,28 +124,29 @@ class VehiclePathTest {
     @Test
     fun vehiclePath_clearWorks() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
-        val position = MutableSharedFlow<PositionAbsolute>()
-        val position1 = PositionAbsolute(
-            Degrees(45.97623755731381),
-            Degrees(7.658748816478356),
-            Altitude()
+        val position = MutableSharedFlow<com.auterion.tazama.libvehicle.PositionAbsolute>()
+        val position1 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97623755731381),
+            com.auterion.tazama.libvehicle.Degrees(7.658748816478356),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position2 = PositionAbsolute(
-            Degrees(45.97653855167026),
-            Degrees(7.658812707223693),
-            Altitude()
+        val position2 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97653855167026),
+            com.auterion.tazama.libvehicle.Degrees(7.658812707223693),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position3 = PositionAbsolute(
-            Degrees(45.97594160439559),
-            Degrees(7.660162518053666),
-            Altitude()
+        val position3 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97594160439559),
+            com.auterion.tazama.libvehicle.Degrees(7.660162518053666),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position4 = PositionAbsolute(
-            Degrees(46.001554625338855),
-            Degrees(7.730810855763431),
-            Altitude()
+        val position4 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(46.001554625338855),
+            com.auterion.tazama.libvehicle.Degrees(7.730810855763431),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val vehiclePath = VehiclePath(position, Distance(1.0), 10, testDispatcher)
+        val vehiclePath = VehiclePath(position,
+            com.auterion.tazama.libvehicle.Distance(1.0), 10, testDispatcher)
         launch {
             position.emit(position1)
             position.emit(position2)

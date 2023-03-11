@@ -1,4 +1,4 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libvehicle
 
 class VehicleImpl : Vehicle, VehicleWriter {
     override val telemetry: Telemetry = TelemetryImpl()

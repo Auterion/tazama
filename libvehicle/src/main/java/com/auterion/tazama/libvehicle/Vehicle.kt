@@ -1,4 +1,4 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libvehicle
 
 /**
  * Represents a vehicle for a consumer. That is, one will be able to subscribe to streams of

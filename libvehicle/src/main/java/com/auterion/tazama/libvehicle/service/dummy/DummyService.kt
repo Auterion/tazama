@@ -1,16 +1,13 @@
-package com.auterion.tazama.data.vehicle.service.dummy
+package com.auterion.tazama.libvehicle.service.dummy
 
-import com.auterion.tazama.data.vehicle.*
-import com.auterion.tazama.data.vehicle.service.VehicleService
+import com.auterion.tazama.libvehicle.*
+import com.auterion.tazama.libvehicle.service.VehicleService
 import kotlinx.coroutines.*
 import java.util.concurrent.CopyOnWriteArrayList
-import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
-class DummyService @Inject constructor(
-    private val vehicleWriter: VehicleWriter
-) : VehicleService, CoroutineScope {
+class DummyService(private val vehicleWriter: VehicleWriter) : VehicleService, CoroutineScope {
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.IO
 
     private val emitJobs = CopyOnWriteArrayList<Job>()
@@ -46,7 +43,11 @@ class DummyService @Inject constructor(
 
         println("Emitting dummy velocity")
         vehicleWriter.telemetryWriter.velocityWriter.value =
-            VelocityNed(Speed(1.0), Speed(0.0), Speed(0.0))
+            VelocityNed(
+                Speed(1.0),
+                Speed(0.0),
+                Speed(0.0)
+            )
 
         delay(1000)
         emitVelocity()
@@ -57,7 +58,8 @@ class DummyService @Inject constructor(
             return
         }
 
-        vehicleWriter.telemetryWriter.groundSpeedWriter.value = Speed(1.0)
+        vehicleWriter.telemetryWriter.groundSpeedWriter.value =
+            Speed(1.0)
         delay(1000)
         emitGroundSpeed()
     }
@@ -69,7 +71,11 @@ class DummyService @Inject constructor(
 
         println("Emitting dummy attitude")
         vehicleWriter.telemetryWriter.attitudeWriter.value =
-            Euler(Radian(0.0), Radian(0.0), Radian(0.0))
+            Euler(
+                Radian(0.0),
+                Radian(0.0),
+                Radian(0.0)
+            )
 
         delay(1000)
         emitAttitude()

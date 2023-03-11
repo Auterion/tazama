@@ -6,8 +6,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.auterion.tazama.data.vehicle.PositionAbsolute
-import com.auterion.tazama.data.vehicle.VideoStreamInfo
+import com.auterion.tazama.libvehicle.PositionAbsolute
+import com.auterion.tazama.libvehicle.VideoStreamInfo
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.rtsp.RtspMediaSource
@@ -30,7 +30,7 @@ import kotlin.math.min
 class MainViewModel @Inject constructor(
     val player: ExoPlayer
 ) : ViewModel() {
-    private var videoStreamInfo: StateFlow<VideoStreamInfo?>? = null
+    private var videoStreamInfo: StateFlow<com.auterion.tazama.libvehicle.VideoStreamInfo?>? = null
 
     private val _videoSize = MutableStateFlow(Size(0.0F, 0.0F))
     val videoSize = _videoSize.asStateFlow()
@@ -69,7 +69,7 @@ class MainViewModel @Inject constructor(
         get() = _cameraPositionState.value
 
 
-    fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
+    fun setVideoStreamInfoFlow(flow: StateFlow<com.auterion.tazama.libvehicle.VideoStreamInfo?>) {
         if (videoStreamInfo != null) {
             return
         }
@@ -109,7 +109,7 @@ class MainViewModel @Inject constructor(
         return screenSize.value.width > screenSize.value.height
     }
 
-    fun centerOnPosition(position: PositionAbsolute) {
+    fun centerOnPosition(position: com.auterion.tazama.libvehicle.PositionAbsolute) {
         _cameraPositionState.value = CameraPositionState(
             position = CameraPosition(
                 LatLng(

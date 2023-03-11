@@ -1,9 +1,9 @@
 package com.auterion.tazama
 
-import com.auterion.tazama.data.vehicle.Altitude
-import com.auterion.tazama.data.vehicle.Degrees
-import com.auterion.tazama.data.vehicle.Distance
-import com.auterion.tazama.data.vehicle.PositionAbsolute
+import com.auterion.tazama.libvehicle.Altitude
+import com.auterion.tazama.libvehicle.Degrees
+import com.auterion.tazama.libvehicle.Distance
+import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.util.distinctUntil
 import com.auterion.tazama.util.windowed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,10 +16,10 @@ import org.junit.Test
 class FlowExtensionsTest {
     @Test
     fun distinctUntil_emitsFirstElement() = runTest {
-        val position = PositionAbsolute()
+        val position = com.auterion.tazama.libvehicle.PositionAbsolute()
         val flow = flowOf(position)
 
-        val collected = flow.distinctUntil(Distance(0.0)).toList()
+        val collected = flow.distinctUntil(com.auterion.tazama.libvehicle.Distance(0.0)).toList()
 
         assertEquals(1, collected.size)
         assertEquals(position, collected.first())
@@ -27,24 +27,24 @@ class FlowExtensionsTest {
 
     @Test
     fun distinctUntil_emitsElementsIfDistBigEnough() = runTest {
-        val position1 = PositionAbsolute(
-            Degrees(45.97623755731381),
-            Degrees(7.658748816478356),
-            Altitude()
+        val position1 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97623755731381),
+            com.auterion.tazama.libvehicle.Degrees(7.658748816478356),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position2 = PositionAbsolute(
-            Degrees(45.97653855167026),
-            Degrees(7.658812707223693),
-            Altitude()
+        val position2 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97653855167026),
+            com.auterion.tazama.libvehicle.Degrees(7.658812707223693),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position3 = PositionAbsolute(
-            Degrees(45.97594160439559),
-            Degrees(7.660162518053666),
-            Altitude()
+        val position3 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97594160439559),
+            com.auterion.tazama.libvehicle.Degrees(7.660162518053666),
+            com.auterion.tazama.libvehicle.Altitude()
         )
         val flow = flowOf(position1, position2, position3)
 
-        val collected = flow.distinctUntil(Distance(10.0)).toList()
+        val collected = flow.distinctUntil(com.auterion.tazama.libvehicle.Distance(10.0)).toList()
 
         assertEquals(3, collected.size)
         assertEquals(listOf(position1, position2, position3), collected)
@@ -52,29 +52,29 @@ class FlowExtensionsTest {
 
     @Test
     fun distinctUntil_skipsElementsIfDistTooSmall() = runTest {
-        val position1 = PositionAbsolute(
-            Degrees(45.97623755731381),
-            Degrees(7.658748816478356),
-            Altitude()
+        val position1 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97623755731381),
+            com.auterion.tazama.libvehicle.Degrees(7.658748816478356),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position2 = PositionAbsolute(
-            Degrees(45.97653855167026),
-            Degrees(7.658812707223693),
-            Altitude()
+        val position2 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97653855167026),
+            com.auterion.tazama.libvehicle.Degrees(7.658812707223693),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position3 = PositionAbsolute(
-            Degrees(45.97594160439559),
-            Degrees(7.660162518053666),
-            Altitude()
+        val position3 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(45.97594160439559),
+            com.auterion.tazama.libvehicle.Degrees(7.660162518053666),
+            com.auterion.tazama.libvehicle.Altitude()
         )
-        val position4 = PositionAbsolute(
-            Degrees(46.001554625338855),
-            Degrees(7.730810855763431),
-            Altitude()
+        val position4 = com.auterion.tazama.libvehicle.PositionAbsolute(
+            com.auterion.tazama.libvehicle.Degrees(46.001554625338855),
+            com.auterion.tazama.libvehicle.Degrees(7.730810855763431),
+            com.auterion.tazama.libvehicle.Altitude()
         )
         val flow = flowOf(position1, position2, position3, position4)
 
-        val collected = flow.distinctUntil(Distance(1000.0)).toList()
+        val collected = flow.distinctUntil(com.auterion.tazama.libvehicle.Distance(1000.0)).toList()
 
         assertEquals(2, collected.size)
         assertEquals(listOf(position1, position4), collected)

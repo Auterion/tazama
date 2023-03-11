@@ -22,8 +22,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.R
-import com.auterion.tazama.data.vehicle.Degrees
-import com.auterion.tazama.data.vehicle.PositionAbsolute
+import com.auterion.tazama.libvehicle.Degrees
+import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
@@ -46,7 +46,7 @@ fun MapView(
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val mapType = settingsViewModel.currentMapType.collectAsState()
 
-    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
+    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(com.auterion.tazama.libvehicle.PositionAbsolute())
     val cameraPositionState = mainViewModel.cameraPositionState
 
     val props =
@@ -130,7 +130,7 @@ fun MapView(
                         position = LatLng(position.lat.value, position.lon.value),
                         title = "Vehicle",
                         iconResourceId = R.drawable.plane,
-                        rotation = attitude.value?.yaw?.toDegrees() ?: Degrees(),
+                        rotation = attitude.value?.yaw?.toDegrees() ?: com.auterion.tazama.libvehicle.Degrees(),
                     )
                 }
 

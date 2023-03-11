@@ -8,8 +8,10 @@ import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
 
 class VehiclePath(
-    private val position: Flow<PositionAbsolute?>,
-    private val minDistance: Distance = Distance(1.0),
+    private val position: Flow<com.auterion.tazama.libvehicle.PositionAbsolute?>,
+    private val minDistance: com.auterion.tazama.libvehicle.Distance = com.auterion.tazama.libvehicle.Distance(
+        1.0
+    ),
     private val pathMaxLength: Int = 5000,
     ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : CoroutineScope {

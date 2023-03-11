@@ -6,7 +6,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.core.content.ContextCompat
-import com.auterion.tazama.data.vehicle.Degrees
+import com.auterion.tazama.libvehicle.Degrees
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -18,7 +18,7 @@ fun VehicleMapMarker(
     context: Context,
     position: LatLng,
     title: String,
-    rotation: Degrees = Degrees(0.0),
+    rotation: com.auterion.tazama.libvehicle.Degrees = com.auterion.tazama.libvehicle.Degrees(0.0),
     @DrawableRes iconResourceId: Int
 ) {
     val iconSize = 150

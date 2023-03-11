@@ -1,4 +1,4 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libvehicle
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

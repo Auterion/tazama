@@ -1,4 +1,4 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libvehicle
 
 import kotlin.math.abs
 import kotlin.math.round

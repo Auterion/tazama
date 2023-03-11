@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
-import com.auterion.tazama.data.vehicle.PositionAbsolute
+import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.navigation.MapDestination
 import com.auterion.tazama.navigation.Navigation
@@ -65,7 +65,7 @@ fun Main() {
         navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
 
     val vehiclePosition =
-        vehicleViewModel.vehiclePosition.collectAsState(initial = PositionAbsolute())
+        vehicleViewModel.vehiclePosition.collectAsState(initial = com.auterion.tazama.libvehicle.PositionAbsolute())
 
     Scaffold(
         floatingActionButton = {

@@ -1,22 +1,20 @@
-package com.auterion.tazama.data.vehicle.service.mavsdk
+package com.auterion.tazama.libvehicle.service.mavsdk
 
-import com.auterion.tazama.data.vehicle.*
-import com.auterion.tazama.data.vehicle.service.VehicleService
-import com.auterion.tazama.util.GeoUtils
+import com.auterion.tazama.libvehicle.*
+import com.auterion.tazama.libvehicle.service.VehicleService
+import com.auterion.tazama.libvehicle.util.GeoUtils
 import io.mavsdk.MavsdkEventQueue
 import io.mavsdk.System
 import io.mavsdk.mavsdkserver.MavsdkServer
+import io.mavsdk.telemetry.Telemetry
 import io.reactivex.Flowable
 import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.CopyOnWriteArrayList
-import javax.inject.Inject
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class MavsdkService @Inject constructor(
-    private val vehicleWriter: VehicleWriter
-) : VehicleService {
+class MavsdkService(private val vehicleWriter: VehicleWriter) : VehicleService {
     private lateinit var drone: System
     private val mavsdkServer = MavsdkServer()
     private val disposables = CopyOnWriteArrayList<Disposable>()
@@ -29,7 +27,10 @@ class MavsdkService @Inject constructor(
         }
     }
 
-    private fun linkTelemetry(from: io.mavsdk.telemetry.Telemetry, to: TelemetryWriter) {
+    private fun linkTelemetry(
+        from: Telemetry,
+        to: TelemetryWriter
+    ) {
         linkPosition(from.position, to.positionWriter)
         linkVelocity(from.velocityNed, to.velocityWriter)
         linkAttitude(from.attitudeEuler, to.attitudeWriter)
@@ -39,7 +40,7 @@ class MavsdkService @Inject constructor(
     }
 
     private fun linkPosition(
-        from: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
+        from: Flowable<Telemetry.Position>,
         to: MutableStateFlow<PositionAbsolute?>
     ) {
         val positionDisposable = from.subscribe({ position ->
@@ -55,7 +56,7 @@ class MavsdkService @Inject constructor(
     }
 
     private fun linkVelocity(
-        from: Flowable<io.mavsdk.telemetry.Telemetry.VelocityNed>,
+        from: Flowable<Telemetry.VelocityNed>,
         to: MutableStateFlow<VelocityNed?>
     ) {
         val velocityDisposable = from.subscribe({
@@ -70,7 +71,7 @@ class MavsdkService @Inject constructor(
     }
 
     private fun linkAttitude(
-        from: Flowable<io.mavsdk.telemetry.Telemetry.EulerAngle>,
+        from: Flowable<Telemetry.EulerAngle>,
         to: MutableStateFlow<Euler?>
     ) {
         val headingDisposable = from.subscribe({
@@ -85,7 +86,7 @@ class MavsdkService @Inject constructor(
     }
 
     private fun linkHomePosition(
-        from: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
+        from: Flowable<Telemetry.Position>,
         to: MutableStateFlow<HomePosition?>
     ) {
         val homeDisposable = from.subscribe({
@@ -100,8 +101,8 @@ class MavsdkService @Inject constructor(
     }
 
     private fun linkDistanceToHome(
-        fromPos: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
-        fromHome: Flowable<io.mavsdk.telemetry.Telemetry.Position>,
+        fromPos: Flowable<Telemetry.Position>,
+        fromHome: Flowable<Telemetry.Position>,
         to: MutableStateFlow<HomeDistance?>
     ) {
         val distanceToHomeDisposable = Flowable.combineLatest(fromPos, fromHome) { position, home ->
@@ -121,17 +122,24 @@ class MavsdkService @Inject constructor(
     }
 
     private fun linkGroundSpeed(
-        from: Flowable<io.mavsdk.telemetry.Telemetry.VelocityNed>,
+        from: Flowable<Telemetry.VelocityNed>,
         to: MutableStateFlow<Speed?>
     ) {
         val groundSpeedDisposable = from.subscribe({ velocity ->
-            to.value = Speed(sqrt(velocity.northMS.pow(2) + velocity.eastMS.pow(2)).toDouble())
+            to.value = Speed(
+                sqrt(
+                    velocity.northMS.pow(2) + velocity.eastMS.pow(2)
+                ).toDouble()
+            )
         }, {})
 
         disposables.add(groundSpeedDisposable)
     }
 
-    private fun linkCamera(from: io.mavsdk.camera.Camera, to: CameraWriter) {
+    private fun linkCamera(
+        from: io.mavsdk.camera.Camera,
+        to: CameraWriter
+    ) {
         linkVideoStreamInfo(from.videoStreamInfo, to.videoStreamInfoWriter)
     }
 

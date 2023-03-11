@@ -19,7 +19,9 @@ class VehicleViewModel @Inject constructor(
     val horizontalDistanceToHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->
             when (dist) {
-                null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
+                null -> TelemetryDisplayNumber(unit = com.auterion.tazama.libvehicle.Distance(
+                    measurementSystem = measureSystem
+                ).unit)
                 else -> {
                     val distMapped = dist.horizontal.toSystem(measureSystem)
                     TelemetryDisplayNumber(
@@ -35,7 +37,9 @@ class VehicleViewModel @Inject constructor(
     val heightAboveHome = vehicleRepository.vehicle.telemetry.distanceToHome
         .combine(measureSystem.flow) { dist, measureSystem ->
             when (dist) {
-                null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
+                null -> TelemetryDisplayNumber(unit = com.auterion.tazama.libvehicle.Distance(
+                    measurementSystem = measureSystem
+                ).unit)
                 else -> {
                     val distMapped = dist.toSystem(measureSystem).vertical
                     TelemetryDisplayNumber(
@@ -48,7 +52,9 @@ class VehicleViewModel @Inject constructor(
     val groundSpeed = vehicleRepository.vehicle.telemetry.groundSpeed
         .combine(measureSystem.flow) { speed, measureSystem ->
             when (speed) {
-                null -> TelemetryDisplayNumber(unit = Speed(measurementSystem = measureSystem).unit)
+                null -> TelemetryDisplayNumber(unit = com.auterion.tazama.libvehicle.Speed(
+                    measurementSystem = measureSystem
+                ).unit)
                 else -> {
                     val speedMapped = speed.toSystem(measureSystem)
                     TelemetryDisplayNumber(speedMapped.value, speedMapped.unit)

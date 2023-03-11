@@ -1,8 +1,8 @@
 package com.auterion.tazama.data.vehicle
 
-import com.auterion.tazama.data.vehicle.service.VehicleService
-import com.auterion.tazama.data.vehicle.service.dummy.DummyService
-import com.auterion.tazama.data.vehicle.service.mavsdk.MavsdkService
+import com.auterion.tazama.libvehicle.service.VehicleService
+import com.auterion.tazama.libvehicle.service.dummy.DummyService
+import com.auterion.tazama.libvehicle.service.mavsdk.MavsdkService
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.VehicleType
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.VehicleType.FAKE
@@ -19,8 +19,8 @@ class VehicleRepository @Inject constructor(
 ) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.IO
 
-    private val vehicleImpl = VehicleImpl()
-    val vehicle: Vehicle = vehicleImpl
+    private val vehicleImpl = com.auterion.tazama.libvehicle.VehicleImpl()
+    val vehicle: com.auterion.tazama.libvehicle.Vehicle = vehicleImpl
 
     private var lastVehicleType: VehicleType? = null
     private var vehicleService: VehicleService = DummyService(vehicleImpl)

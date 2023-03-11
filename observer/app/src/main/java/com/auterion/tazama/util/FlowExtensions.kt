@@ -1,7 +1,8 @@
 package com.auterion.tazama.util
 
-import com.auterion.tazama.data.vehicle.Distance
-import com.auterion.tazama.data.vehicle.PositionAbsolute
+import com.auterion.tazama.libvehicle.Distance
+import com.auterion.tazama.libvehicle.PositionAbsolute
+import com.auterion.tazama.libvehicle.util.GeoUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
