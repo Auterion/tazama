@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: |
             echo "MAPS_API_KEY=none" >> local.properties
-            ./observer/gradlew assembleDebug
+            cd observer && ./gradlew assembleDebug
 
   test_observer:
     name: Test Tazama Observer
@@ -33,5 +33,18 @@ jobs:
       - name: Test
         run: |
             echo "MAPS_API_KEY=none" >> local.properties
-            ./observer/gradlew test
+            cd observer && ./gradlew test
+
+  libvehicle:
+    name: Build and test libvehicle
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+            cd libvehicle
+            ./gradlew build
+            ./gradlew test
 
