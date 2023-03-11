@@ -20,8 +20,9 @@ jobs:
           submodules: recursive
       - name: Build
         run: |
+            cd observer
             echo "MAPS_API_KEY=none" >> local.properties
-            cd observer && ./gradlew assembleDebug
+            ./gradlew assembleDebug
 
   test_observer:
     name: Test Tazama Observer
@@ -32,8 +33,9 @@ jobs:
           submodules: recursive
       - name: Test
         run: |
+            cd observer
             echo "MAPS_API_KEY=none" >> local.properties
-            cd observer && ./gradlew test
+            ./gradlew test
 
   libvehicle:
     name: Build and test libvehicle
