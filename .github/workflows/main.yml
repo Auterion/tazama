@@ -11,8 +11,8 @@ on:
     types: [created]
 
 jobs:
-  tazama_debug:
-    name: Assemble Tazama (debug)
+  observer_debug:
+    name: Assemble Tazama Observer (debug)
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -21,10 +21,10 @@ jobs:
       - name: Build
         run: |
             echo "MAPS_API_KEY=none" >> local.properties
-            ./gradlew assembleDebug
+            ./observer/gradlew assembleDebug
 
-  test_tazama:
-    name: Test Tazama
+  test_observer:
+    name: Test Tazama Observer
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -33,5 +33,5 @@ jobs:
       - name: Test
         run: |
             echo "MAPS_API_KEY=none" >> local.properties
-            ./gradlew test
+            ./observer/gradlew test
 
