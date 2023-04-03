@@ -37,6 +37,19 @@ jobs:
             echo "MAPS_API_KEY=none" >> local.properties
             ./gradlew test
 
+  libui:
+    name: Build and test libui
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+            cd libui
+            ./gradlew build
+            ./gradlew test
+
   libvehicle:
     name: Build and test libvehicle
     runs-on: ubuntu-20.04
