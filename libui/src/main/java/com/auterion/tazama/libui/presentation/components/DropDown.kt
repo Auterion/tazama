@@ -1,4 +1,4 @@
-package com.auterion.tazama.presentation.components
+package com.auterion.tazama.libui.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

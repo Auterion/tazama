@@ -1,4 +1,4 @@
-package com.auterion.tazama.presentation.pages.main
+package com.auterion.tazama.libui.presentation.pages.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.auterion.tazama.R
+import com.auterion.tazama.libui.R
 import java.text.DecimalFormat
 
 data class TelemetryDisplayNumber(val value: Double? = null, val unit: String = "")

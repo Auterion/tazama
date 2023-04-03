@@ -17,3 +17,4 @@ rootProject.name = "tazama"
 include ':app'
 
 includeBuild '../libvehicle'
+includeBuild '../libui'

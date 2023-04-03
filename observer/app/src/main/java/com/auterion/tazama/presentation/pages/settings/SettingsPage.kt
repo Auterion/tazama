@@ -8,7 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.auterion.tazama.presentation.components.DropDown
+import com.auterion.tazama.libui.presentation.components.DropDown
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.MapType
 
 @Composable

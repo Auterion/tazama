@@ -1,4 +1,4 @@
-package com.auterion.tazama.presentation.pages.main
+package com.auterion.tazama.libui.presentation.pages.main
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.auterion.tazama.R
+import com.auterion.tazama.libui.R
 
 @Composable
 fun WindowDragger(
