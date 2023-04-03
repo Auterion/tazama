@@ -1,4 +1,4 @@
-package com.auterion.tazama.presentation.components
+package com.auterion.tazama.libui.presentation.components
 
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
@@ -21,8 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.auterion.tazama.R
-import com.auterion.tazama.navigation.SettingsDestination
 
 enum class ExpandableFloatingActionButtonState {
     Expanded,
@@ -114,21 +112,3 @@ fun ExpandableFloatingActionButton(
         }
     }
 }
-
-val expandedItemsData = listOf(
-    ExpandedItemData(
-        iconId = R.drawable.baseline_settings_24,
-        label = "Settings",
-        action = ExpandedItemAction.ActionNavigate(SettingsDestination.route)
-    ),
-    ExpandedItemData(
-        iconId = R.drawable.drone,
-        label = "Center Vehicle",
-        action = ExpandedItemAction.ActionCenterOnVehicle
-    ),
-    ExpandedItemData(
-        iconId = R.drawable.diagonal_arrow,
-        label = "Clear Flight Path",
-        action = ExpandedItemAction.ActionClearFlightPath
-    )
-)

@@ -1,9 +1,9 @@
 package com.auterion.tazama.data.vehicle
 
 import androidx.lifecycle.ViewModel
+import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.libvehicle.Distance
 import com.auterion.tazama.libvehicle.Speed
-import com.auterion.tazama.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.util.FlowHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
