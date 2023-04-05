@@ -8,7 +8,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.presentation.components.DropDown
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.MapType
 
@@ -29,7 +28,6 @@ fun SettingsPage(settingsViewModel: SettingsViewModel) {
             }
         )
 
-        val settingsViewModel = hiltViewModel<SettingsViewModel>()
         val items = MapType.values().map { value -> value.toString() }
         val currentItem = settingsViewModel.currentMapType.collectAsState()
         val measureSystem = settingsViewModel.measureSystem.collectAsState()
