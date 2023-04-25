@@ -10,6 +10,8 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.plugins.annotation.Circle
 import kotlinx.coroutines.awaitCancellation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 internal suspend inline fun disposingComposition(factory: () -> Composition) {
@@ -32,6 +34,16 @@ suspend fun MapView.newComposition(
         MapApplier(map, this, style), parent
     ).apply {
         setContent(content)
+    }
+}
+
+suspend fun MapboxMap.awaitStyle() = suspendCoroutine {
+    continuation ->
+    val key = "2z0TwvuXjwgOpvle5GYY"
+    Helper.validateKey(key)
+    val styleUrl = "https://api.maptiler.com/maps/satellite/style.json?key=${key}";
+    setStyle(styleUrl) { style ->
+        continuation.resume(style)
     }
 }
 

@@ -49,26 +49,12 @@ fun MapLibre(
     var circle: Circle? = remember { null }
 
     val currentContent by rememberUpdatedState(content)
-
-    var style: Style? = remember { null }
-
-
     val parentComposition = rememberCompositionContext()
 
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { map })
     LaunchedEffect(Unit) {
-        val libreMap = map.awaitMap()
-        Helper.validateKey(key)
-        val styleUrl = "https://api.maptiler.com/maps/satellite/style.json?key=${key}";
-        libreMap.setStyle(styleUrl) { style1 ->
-            style = style1
-
-        }
-
-
         disposingComposition {
-            delay(2000)
-            map.newComposition(parentComposition, style = libreMap.style!!) {
+            map.newComposition(parentComposition, style = map.awaitMap().awaitStyle()) {
                 CompositionLocalProvider() {
                     currentContent?.invoke()
                 }
