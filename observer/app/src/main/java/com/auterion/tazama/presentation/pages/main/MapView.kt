@@ -16,25 +16,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.auterion.tazama.R
 import com.auterion.tazama.data.vehicle.VehicleViewModel
-import com.auterion.tazama.libui.presentation.components.VehicleMapMarker
+import com.auterion.tazama.libui.presentation.components.maplibre.Circle
+import com.auterion.tazama.libui.presentation.components.maplibre.MapLibre
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryInfo
 import com.auterion.tazama.libui.presentation.pages.main.WindowDragger
-import com.auterion.tazama.libvehicle.Degrees
 import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 
 @Composable
 fun MapView(
@@ -116,6 +115,14 @@ fun MapView(
                     heading = heading.value,
                 )
             }
+
+            MapLibre(modifier = Modifier.fillMaxSize()) {
+                Circle(com.mapbox.mapboxsdk.geometry.LatLng(vehiclePosition.value?.lat?.value!!, vehiclePosition.value?.lon?.value!!),
+                    draggable = true,
+                    "Red",
+                )
+            }
+/*
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
@@ -135,6 +142,7 @@ fun MapView(
 
                 Polyline(points = vehiclePath.value, color = Color.Red)
             }
+*/
 
             if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
                 WindowDragger(onDragAmount = {
