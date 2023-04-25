@@ -24,6 +24,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.auterion.tazama.R
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.libui.presentation.components.VehicleMapMarker
+import com.auterion.tazama.libui.presentation.components.maplibre.MapLibre
+import com.auterion.tazama.libui.presentation.components.maplibre.Circle
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryInfo
 import com.auterion.tazama.libui.presentation.pages.main.WindowDragger
@@ -116,6 +118,12 @@ fun MapView(
                     heading = heading.value,
                 )
             }
+
+            MapLibre(modifier = Modifier.fillMaxSize()) {
+                Circle()
+                Circle()
+            }
+/*
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
@@ -135,6 +143,7 @@ fun MapView(
 
                 Polyline(points = vehiclePath.value, color = Color.Red)
             }
+*/
 
             if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
                 WindowDragger(onDragAmount = {
