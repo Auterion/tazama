@@ -1,4 +1,5 @@
-package com.auterion.tazama.libui.presentation.components.maplibre
+package org.maplibre.compose
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.currentComposer
@@ -8,7 +9,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions
 
 @Composable
 @MapLibreComposable
-fun Circle(center : LatLng, draggable: Boolean, color : String) {
+fun Circle(center: LatLng, draggable: Boolean, color: String) {
     val mapApplier = currentComposer.applier as? MapApplier
 
     ComposeNode<CircleNode, MapApplier>(factory = {
@@ -32,7 +33,5 @@ fun Circle(center : LatLng, draggable: Boolean, color : String) {
             circle.circleColor = color
             circleManager.update(circle)
         }
-    }) {
-
-    }
+    }) {}
 }

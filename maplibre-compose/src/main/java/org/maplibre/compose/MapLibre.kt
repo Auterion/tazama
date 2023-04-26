@@ -1,4 +1,4 @@
-package com.auterion.tazama.libui.presentation.components.maplibre
+package org.maplibre.compose
 
 
 import androidx.compose.runtime.AbstractApplier
@@ -38,8 +38,7 @@ suspend fun MapView.newComposition(
     }
 }
 
-suspend fun MapboxMap.awaitStyle() = suspendCoroutine {
-    continuation ->
+suspend fun MapboxMap.awaitStyle() = suspendCoroutine { continuation ->
     val key = "2z0TwvuXjwgOpvle5GYY"
     Helper.validateKey(key)
     val styleUrl = "https://api.maptiler.com/maps/satellite/style.json?key=${key}";

@@ -1,24 +1,13 @@
-package com.auterion.tazama.libui.presentation.components.maplibre
+package org.maplibre.compose
 
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposableTargetMarker
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCompositionContext
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.viewinterop.AndroidView
-import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.plugins.annotation.Circle
-import com.mapbox.mapboxsdk.plugins.annotation.Symbol
-import kotlinx.coroutines.delay
 
 @Retention(AnnotationRetention.BINARY)
 @ComposableTargetMarker(description = "Maplibre Composable")
