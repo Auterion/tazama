@@ -2,16 +2,13 @@ package com.auterion.tazama.libui.presentation.components.maplibre
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.currentComposer
-import com.auterion.tazama.libui.presentation.components.maplibre.CircleNode
-import com.auterion.tazama.libui.presentation.components.maplibre.MapApplier
-import com.auterion.tazama.libui.presentation.components.maplibre.MapLibreComposable
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions
 
 @Composable
 @MapLibreComposable
-fun Circle() {
+fun Circle(center : LatLng, draggable: Boolean, color : String) {
     val mapApplier = currentComposer.applier as? MapApplier
 
     ComposeNode<CircleNode, MapApplier>(factory = {
@@ -20,13 +17,22 @@ fun Circle() {
 
         val circleOptions =
             CircleOptions().withCircleRadius(30.0f)
-                .withLatLng(LatLng(-6.8, 39.2)).withDraggable(true)
+                .withLatLng(center).withDraggable(draggable)
 
         val circle = circleManager.create(circleOptions)
-        CircleNode(circle) {
+        CircleNode(circleManager, circle) {
 
         }
-    }, update = {}) {
+    }, update = {
+        set(center) {
+            circle.latLng = center
+            circleManager.update(circle)
+        }
+        set(color) {
+            circle.circleColor = color
+            circleManager.update(circle)
+        }
+    }) {
 
     }
 }

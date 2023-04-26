@@ -9,6 +9,7 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.plugins.annotation.Circle
+import com.mapbox.mapboxsdk.plugins.annotation.CircleManager
 import kotlinx.coroutines.awaitCancellation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -78,7 +79,6 @@ internal class MapApplier(
     }
 
     override fun onClear() {
-        TODO("Not yet implemented")
     }
 
     override fun remove(index: Int, count: Int) {
@@ -88,6 +88,7 @@ internal class MapApplier(
 }
 
 internal class CircleNode(
+    val circleManager: CircleManager,
     val circle: Circle,
     var onCircleClick: (Circle) -> Unit
 ) : MapNode {

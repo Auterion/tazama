@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
     AnnotationTarget.TYPE,
     AnnotationTarget.TYPE_PARAMETER,
 )
-public annotation class MapLibreComposable
+annotation class MapLibreComposable
 
 @Composable
 fun MapLibre(
@@ -43,10 +43,6 @@ fun MapLibre(
 
     LocalContext.current
     val map = rememberMapViewWithLifecycle()
-
-    val key = "2z0TwvuXjwgOpvle5GYY"
-    var symbol: Symbol? = remember { null }
-    var circle: Circle? = remember { null }
 
     val currentContent by rememberUpdatedState(content)
     val parentComposition = rememberCompositionContext()
