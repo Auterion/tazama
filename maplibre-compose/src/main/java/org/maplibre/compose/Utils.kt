@@ -1,4 +1,4 @@
-package com.auterion.tazama.libui.presentation.components.maplibre
+package org.maplibre.compose
 
 
 import android.content.Context
