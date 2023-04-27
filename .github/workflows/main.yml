@@ -63,3 +63,16 @@ jobs:
             ./gradlew build
             ./gradlew test
 
+  maplibre-compose:
+    name: Build and test maplibre-compose
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+            cd maplibre-compose
+            ./gradlew build
+            ./gradlew test
+
