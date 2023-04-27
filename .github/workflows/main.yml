@@ -37,6 +37,30 @@ jobs:
             echo "MAPS_API_KEY=none" >> local.properties
             ./gradlew test
 
+  survey_debug:
+    name: Assemble Tazama Survey (debug)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Build
+        run: |
+            cd survey
+            ./gradlew assembleDebug
+
+  test_survey:
+    name: Test Tazama Survey
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Test
+        run: |
+            cd survey
+            ./gradlew test
+
   libui:
     name: Build and test libui
     runs-on: ubuntu-20.04
