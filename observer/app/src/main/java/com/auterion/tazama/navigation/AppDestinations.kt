@@ -1,6 +1,6 @@
 package com.auterion.tazama.navigation
 
-import com.auterion.tazama.R
+import com.auterion.tazama.observer.R
 
 interface NavDestination {
     val route: String

@@ -2,7 +2,7 @@ package com.auterion.tazama.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.auterion.tazama.R
+import com.auterion.tazama.observer.R
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
