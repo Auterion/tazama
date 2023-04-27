@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace 'com.auterion.tazama'
+    namespace 'com.auterion.tazama.observer'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.auterion.tazama"
+        applicationId "com.auterion.tazama.observer"
         minSdk 26
 
         targetSdk 33

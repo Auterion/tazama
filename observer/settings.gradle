@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "tazama"
+rootProject.name = "tazama-observer"
 include ':app'
 
 includeBuild '../libvehicle'

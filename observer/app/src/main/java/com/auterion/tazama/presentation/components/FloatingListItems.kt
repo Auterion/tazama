@@ -1,9 +1,9 @@
 package com.auterion.tazama.presentation.components
 
-import com.auterion.tazama.R
 import com.auterion.tazama.libui.presentation.components.ExpandedItemAction
 import com.auterion.tazama.libui.presentation.components.ExpandedItemData
 import com.auterion.tazama.navigation.SettingsDestination
+import com.auterion.tazama.observer.R
 
 val expandedItemsData = listOf(
     ExpandedItemData(
