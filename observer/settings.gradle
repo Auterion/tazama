@@ -18,4 +18,4 @@ include ':app'
 
 includeBuild '../libvehicle'
 includeBuild '../libui'
-includeBuild '../maplibre-compose'
+
