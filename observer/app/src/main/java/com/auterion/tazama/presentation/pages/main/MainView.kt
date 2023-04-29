@@ -37,7 +37,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 
 @Composable
-fun MapView(
+fun MainView(
     mainViewModel: MainViewModel,
     vehicleViewModel: VehicleViewModel,
     player: ExoPlayer
