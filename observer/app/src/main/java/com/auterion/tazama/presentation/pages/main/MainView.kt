@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,19 +44,6 @@ fun MainView(
     player: ExoPlayer
 ) {
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
-    val mapType = settingsViewModel.currentMapType.collectAsState()
-
-    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
-    val cameraPositionState = mainViewModel.cameraPositionState
-
-    val props =
-        MapProperties(
-            mapType = when (mapType.value) {
-                SettingsViewModel.MapType.SATELLITE -> MapType.SATELLITE
-                SettingsViewModel.MapType.NORMAL -> MapType.NORMAL
-                SettingsViewModel.MapType.HYBRID -> MapType.HYBRID
-            }
-        )
 
     val screenSize =
         Size(
@@ -65,36 +53,23 @@ fun MainView(
 
     LaunchedEffect(key1 = screenSize) {
         mainViewModel.onUiEvent(
-            ScreenEvent.ScreenSizeChanged(
-                screenSize
-            )
+            ScreenEvent.ScreenSizeChanged(screenSize)
         )
     }
 
     val mSize = mainViewModel.mapSize.collectAsState()
     val vSize = mainViewModel.videoSize.collectAsState()
-    val mapZValue = mainViewModel.mapZValue.collectAsState(0.0F).value
     val isLandScape = mainViewModel.isLandScape.collectAsState(false).value
-    val attitude = vehicleViewModel.vehicleAttitude.collectAsState()
-    val distToHome =
-        vehicleViewModel.horizontalDistanceToHome.collectAsState(TelemetryDisplayNumber())
-    val heightAboveHome =
-        vehicleViewModel.heightAboveHome.collectAsState(TelemetryDisplayNumber())
-    val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(TelemetryDisplayNumber())
-    val heading = vehicleViewModel.vehicleHeading.collectAsState(TelemetryDisplayNumber())
-    val vehiclePath = vehicleViewModel.vehiclePath.path.collectAsState(emptyList())
+    val mapZValue = mainViewModel.mapZValue.collectAsState(0.0F).value
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (isLandScape) {
-            TelemetryInfo(
+            TelemetryComposable(
                 modifier = Modifier
                     .zIndex(mapZValue + 1)
                     .align(Alignment.TopEnd)
                     .padding(10.dp),
-                distFromHome = distToHome.value,
-                height = heightAboveHome.value,
-                speed = groundSpeed.value,
-                heading = heading.value,
+                vehicleViewModel
             )
         }
         Box(
@@ -105,36 +80,15 @@ fun MainView(
                 .padding(if (mainViewModel.mapIsMainScreen || !isLandScape) 0.dp else 15.dp)
         ) {
             if (!isLandScape) {
-                TelemetryInfo(
+                TelemetryComposable(
                     modifier = Modifier
                         .zIndex(mapZValue + 1)
                         .align(Alignment.TopEnd)
                         .padding(10.dp),
-                    distFromHome = distToHome.value,
-                    height = heightAboveHome.value,
-                    speed = groundSpeed.value,
-                    heading = heading.value,
+                    vehicleViewModel
                 )
             }
-            GoogleMap(
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState,
-                properties = props,
-                uiSettings = MapUiSettings(zoomControlsEnabled = false),
-                onMapClick = { mainViewModel.onUiEvent(ScreenEvent.MapTapped) }
-            ) {
-                vehiclePosition.value?.let { position ->
-                    VehicleMapMarker(
-                        context = LocalContext.current,
-                        position = LatLng(position.lat.value, position.lon.value),
-                        title = "Vehicle",
-                        iconResourceId = R.drawable.plane,
-                        rotation = attitude.value?.yaw?.toDegrees() ?: Degrees(),
-                    )
-                }
-
-                Polyline(points = vehiclePath.value, color = Color.Red)
-            }
+            MapComposable(mainViewModel, settingsViewModel, vehicleViewModel)
 
             if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
                 WindowDragger(onDragAmount = {
@@ -152,16 +106,7 @@ fun MainView(
             .clickable {
                 mainViewModel.onUiEvent(ScreenEvent.VideoTapped)
             }) {
-            AndroidView(
-                modifier = Modifier
-                    .size(width = vSize.value.width.dp, vSize.value.height.dp),
-                factory = {
-                    StyledPlayerView(it).apply {
-                        this.player = player
-                        useController = false
-                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-                    }
-                })
+            VideoComposable(vSize)
 
             if (mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
                 WindowDragger(
@@ -176,4 +121,79 @@ fun MainView(
             }
         }
     }
+}
+
+@Composable
+private fun TelemetryComposable(
+    modifier: Modifier = Modifier,
+    vehicleViewModel: VehicleViewModel,
+) {
+    val distToHome =
+        vehicleViewModel.horizontalDistanceToHome.collectAsState(TelemetryDisplayNumber())
+    val heightAboveHome = vehicleViewModel.heightAboveHome.collectAsState(TelemetryDisplayNumber())
+    val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(TelemetryDisplayNumber())
+    val heading = vehicleViewModel.vehicleHeading.collectAsState(TelemetryDisplayNumber())
+
+    TelemetryInfo(
+        modifier = modifier,
+        distFromHome = distToHome.value,
+        height = heightAboveHome.value,
+        speed = groundSpeed.value,
+        heading = heading.value,
+    )
+}
+
+@Composable
+private fun MapComposable(
+    mainViewModel: MainViewModel,
+    settingsViewModel: SettingsViewModel,
+    vehicleViewModel: VehicleViewModel,
+) {
+    val mapType = settingsViewModel.currentMapType.collectAsState()
+    val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
+    val vehicleAttitude = vehicleViewModel.vehicleAttitude.collectAsState()
+    val vehiclePath = vehicleViewModel.vehiclePath.path.collectAsState(emptyList())
+    val cameraPositionState = mainViewModel.cameraPositionState
+
+    val props =
+        MapProperties(
+            mapType = when (mapType.value) {
+                SettingsViewModel.MapType.SATELLITE -> MapType.SATELLITE
+                SettingsViewModel.MapType.NORMAL -> MapType.NORMAL
+                SettingsViewModel.MapType.HYBRID -> MapType.HYBRID
+            }
+        )
+
+    GoogleMap(
+        modifier = Modifier.fillMaxSize(),
+        cameraPositionState = cameraPositionState,
+        properties = props,
+        uiSettings = MapUiSettings(zoomControlsEnabled = false),
+        onMapClick = { mainViewModel.onUiEvent(ScreenEvent.MapTapped) },
+    ) {
+        vehiclePosition.value?.let { position ->
+            VehicleMapMarker(
+                context = LocalContext.current,
+                position = LatLng(position.lat.value, position.lon.value),
+                title = "Vehicle",
+                iconResourceId = R.drawable.plane,
+                rotation = vehicleAttitude.value?.yaw?.toDegrees() ?: Degrees(),
+            )
+        }
+
+        Polyline(points = vehiclePath.value, color = Color.Red)
+    }
+}
+
+@Composable
+private fun VideoComposable(size: State<Size>) {
+    AndroidView(
+        modifier = Modifier.size(width = size.value.width.dp, size.value.height.dp),
+        factory = {
+            StyledPlayerView(it).apply {
+                this.player = player
+                useController = false
+                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+            }
+        })
 }
