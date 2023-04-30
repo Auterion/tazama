@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -21,14 +23,19 @@ import androidx.compose.ui.unit.dp
 import com.auterion.tazama.libui.R
 
 @Composable
-fun WindowDragger(
+fun Handle(
+    modifier: Modifier,
+    color: Color,
+    border: BorderStroke,
     onDragAmount: (Offset) -> Unit,
-    modifier: Modifier
+    content: (@Composable () -> Unit)? = null,
 ) {
+    val currentContent by rememberUpdatedState(content)
+
     Surface(
-        color = MaterialTheme.colors.secondary,
-        border = BorderStroke(width = 1.dp, color = Color.White),
-        modifier = modifier
+        color = color,
+        border = border,
+        modifier = Modifier
             .size(30.dp)
             .pointerInput(Unit) {
                 detectDragGestures { _, dragAmount ->
@@ -37,7 +44,20 @@ fun WindowDragger(
                     onDragAmount(dragAmount.copy(x = offsetX, y = offsetY))
                 }
             }
+            .then(modifier)
     ) {
+        currentContent?.invoke()
+    }
+}
+
+@Composable
+fun WindowDragger(
+    modifier: Modifier,
+    color: Color = MaterialTheme.colors.secondary,
+    border: BorderStroke = BorderStroke(width = 1.dp, color = Color.White),
+    onDragAmount: (Offset) -> Unit,
+) {
+    Handle(modifier, color, border, onDragAmount) {
         Image(
             painter = painterResource(id = R.drawable.baseline_open_in_full_24),
             contentDescription = "null",
