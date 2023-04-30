@@ -2,14 +2,10 @@ package com.auterion.tazama.presentation.pages.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,8 +39,6 @@ fun MainView(
     vehicleViewModel: VehicleViewModel,
     player: ExoPlayer
 ) {
-    val settingsViewModel = hiltViewModel<SettingsViewModel>()
-
     val screenSize =
         Size(
             LocalConfiguration.current.screenWidthDp.toFloat(),
@@ -57,13 +51,14 @@ fun MainView(
         )
     }
 
-    val mSize = mainViewModel.mapSize.collectAsState()
-    val vSize = mainViewModel.videoSize.collectAsState()
     val isLandScape = mainViewModel.isLandScape.collectAsState(false).value
-    val mapZValue = mainViewModel.mapZValue.collectAsState(0.0F).value
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (isLandScape) {
+    if (isLandScape) {
+        val mSize = mainViewModel.mapSize.collectAsState()
+        val vSize = mainViewModel.videoSize.collectAsState()
+        val mapZValue = mainViewModel.mapZValue.collectAsState(0.0F).value
+
+        Box(modifier = Modifier.fillMaxSize()) {
             TelemetryComposable(
                 modifier = Modifier
                     .zIndex(mapZValue + 1)
@@ -71,52 +66,70 @@ fun MainView(
                     .padding(10.dp),
                 vehicleViewModel
             )
+            Box(
+                modifier = Modifier
+                    .size(mSize.value.width.dp, mSize.value.height.dp)
+                    .zIndex(mapZValue)
+                    .align(Alignment.TopStart)
+                    .padding(if (mainViewModel.mapIsMainScreen) 0.dp else 15.dp)
+            ) {
+                val settingsViewModel = hiltViewModel<SettingsViewModel>()
+                MapComposable(mainViewModel, settingsViewModel, vehicleViewModel)
+
+                if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
+                    WindowDragger(onDragAmount = {
+                        mainViewModel.onUiEvent(ScreenEvent.MapWindowDrag(it))
+                    }, modifier = Modifier.align(Alignment.BottomEnd))
+                }
+            }
+
+            Box(modifier = Modifier
+                .background(color = Color.Transparent)
+                .size(vSize.value.width.dp, vSize.value.height.dp)
+                .align(Alignment.TopStart)
+                .padding(if (!mainViewModel.mapIsMainScreen) 0.dp else 15.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .clickable {
+                    mainViewModel.onUiEvent(ScreenEvent.VideoTapped)
+                }) {
+                VideoComposable(
+                    modifier = Modifier.size(
+                        width = vSize.value.width.dp,
+                        height = vSize.value.height.dp,
+                    )
+                )
+
+                if (mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
+                    WindowDragger(
+                        onDragAmount =
+                        {
+                            mainViewModel.onUiEvent(
+                                ScreenEvent.VideoWindowDrag(it)
+                            )
+                        },
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    )
+                }
+            }
         }
-        Box(
-            modifier = Modifier
-                .size(mSize.value.width.dp, mSize.value.height.dp)
-                .zIndex(mapZValue)
-                .align(if (isLandScape) Alignment.TopStart else Alignment.BottomCenter)
-                .padding(if (mainViewModel.mapIsMainScreen || !isLandScape) 0.dp else 15.dp)
-        ) {
-            if (!isLandScape) {
+    } else {
+        Column(modifier = Modifier.fillMaxSize()) {
+            val vSize = mainViewModel.videoSize.collectAsState()
+            VideoComposable(
+                modifier = Modifier.size(
+                    width = vSize.value.width.dp,
+                    height = vSize.value.height.dp,
+                )
+            )
+            Box {
+                val settingsViewModel = hiltViewModel<SettingsViewModel>()
+                MapComposable(mainViewModel, settingsViewModel, vehicleViewModel)
+
                 TelemetryComposable(
                     modifier = Modifier
-                        .zIndex(mapZValue + 1)
                         .align(Alignment.TopEnd)
                         .padding(10.dp),
                     vehicleViewModel
-                )
-            }
-            MapComposable(mainViewModel, settingsViewModel, vehicleViewModel)
-
-            if (!mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
-                WindowDragger(onDragAmount = {
-                    mainViewModel.onUiEvent(ScreenEvent.MapWindowDrag(it))
-                }, modifier = Modifier.align(Alignment.BottomEnd))
-            }
-        }
-
-        Box(modifier = Modifier
-            .background(color = Color.Transparent)
-            .size(vSize.value.width.dp, vSize.value.height.dp)
-            .align(Alignment.TopStart)
-            .padding(if (!mainViewModel.mapIsMainScreen || !isLandScape) 0.dp else 15.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .clickable {
-                mainViewModel.onUiEvent(ScreenEvent.VideoTapped)
-            }) {
-            VideoComposable(vSize)
-
-            if (mainViewModel.mapIsMainScreen && mainViewModel.showDragIndicators) {
-                WindowDragger(
-                    onDragAmount =
-                    {
-                        mainViewModel.onUiEvent(
-                            ScreenEvent.VideoWindowDrag(it)
-                        )
-                    },
-                    modifier = Modifier.align(Alignment.BottomEnd)
                 )
             }
         }
@@ -186,9 +199,9 @@ private fun MapComposable(
 }
 
 @Composable
-private fun VideoComposable(size: State<Size>) {
+private fun VideoComposable(modifier: Modifier = Modifier) {
     AndroidView(
-        modifier = Modifier.size(width = size.value.width.dp, size.value.height.dp),
+        modifier = modifier,
         factory = {
             StyledPlayerView(it).apply {
                 this.player = player
