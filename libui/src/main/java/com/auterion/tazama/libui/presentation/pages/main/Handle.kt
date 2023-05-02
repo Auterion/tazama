@@ -6,14 +6,12 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -55,6 +53,7 @@ fun WindowDragger(
     modifier: Modifier,
     color: Color = MaterialTheme.colors.secondary,
     border: BorderStroke = BorderStroke(width = 1.dp, color = Color.White),
+    rotation: Float = 90.0F,
     onDragAmount: (Offset) -> Unit,
 ) {
     Handle(modifier, color, border, onDragAmount) {
@@ -62,10 +61,9 @@ fun WindowDragger(
             painter = painterResource(id = R.drawable.baseline_open_in_full_24),
             contentDescription = "null",
             modifier = Modifier
-                .rotate(90.0f)
+                .rotate(rotation)
                 .fillMaxSize()
                 .padding(5.dp)
-                .clip(RoundedCornerShape(5.dp))
         )
     }
 }

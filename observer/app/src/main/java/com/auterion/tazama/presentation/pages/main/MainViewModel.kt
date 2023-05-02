@@ -134,20 +134,15 @@ class MainViewModel @Inject constructor(
                         desiredVideoHeight
                     )
                 } else {
-                    _showDragIndicators.value = false
                     _videoSize.value = Size(
                         screenSize.value.width,
                         screenSize.value.width * videoWidthToHeightRatio
-                    )
-                    _mapSize.value = Size(
-                        screenSize.value.width,
-                        screenSize.value.height - _videoSize.value.height
                     )
                 }
             }
 
             is ScreenEvent.VideoWindowDrag -> {
-                if (_mapIsMainScreen.value && isLandScape()) {
+                if (_mapIsMainScreen.value) {
                     val newVideoWidth = _videoSize.value.width + event.drag.x
                     val newVideoHeight = newVideoWidth * videoWidthToHeightRatio
 
@@ -163,13 +158,11 @@ class MainViewModel @Inject constructor(
             }
 
             is ScreenEvent.MapWindowDrag -> {
-                if (!_mapIsMainScreen.value && isLandScape()) {
+                if (!_mapIsMainScreen.value) {
                     val newMapWidth = _mapSize.value.width + event.drag.x
                     val newMapHeight = newMapWidth * videoWidthToHeightRatio
                     val limit = min(screenSize.value.width, screenSize.value.height)
-                    if (isLandScape() && newMapHeight < limit ||
-                        !isLandScape() && newMapWidth < limit
-                    ) {
+                    if (newMapHeight < limit) {
                         _mapSize.value =
                             Size(newMapWidth, newMapWidth * videoWidthToHeightRatio)
                     }
@@ -177,13 +170,13 @@ class MainViewModel @Inject constructor(
             }
 
             is ScreenEvent.MapTapped -> {
-                if (isLandScape() && !_mapIsMainScreen.value) {
+                if (!_mapIsMainScreen.value) {
                     swapMapAndVideo()
                 }
             }
 
             is ScreenEvent.VideoTapped -> {
-                if (isLandScape() && _mapIsMainScreen.value) {
+                if (_mapIsMainScreen.value) {
                     swapMapAndVideo()
                 }
             }
