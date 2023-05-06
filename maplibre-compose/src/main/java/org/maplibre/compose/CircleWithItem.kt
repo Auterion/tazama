@@ -1,26 +1,33 @@
-package com.auterion.tazama.survey.ui.components
+package org.maplibre.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.auterion.tazama.survey.R
 import com.mapbox.mapboxsdk.geometry.LatLng
-import org.maplibre.compose.Circle
-import org.maplibre.compose.Symbol
 
 @Composable
-fun CircleWithItem(center: LatLng,
-                   radius: Float,
-                   draggable: Boolean,
-                   color: String,
-                   borderColor: String = "Black",
-                   borderWidth: Float = 0.0f,
-                   onCenterChanged : (LatLng) -> Unit = {}
-                   ) {
+fun UpdateCenter(coord: LatLng, centerUpdated: (LatLng) -> Unit) {
+    centerUpdated(coord)
+}
+
+@Composable
+fun CircleWithItem(
+    center: LatLng,
+    radius: Float,
+    draggable: Boolean,
+    color: String,
+    borderColor: String = "Black",
+    borderWidth: Float = 0.0f,
+    imageId: Int = -1,
+    imageSize: Float = 0.0f,
+    onCenterChanged: (LatLng) -> Unit = {}
+) {
 
     var draggableCenterState = remember {
         mutableStateOf(center)
     }
+
+    UpdateCenter(coord = center, centerUpdated = { draggableCenterState.value = it })
 
     // invisible circle, this is draggable
     Circle(center = draggableCenterState.value,
@@ -31,8 +38,7 @@ fun CircleWithItem(center: LatLng,
         borderWidth = 0.0f,
         onCenterDragged = {
             onCenterChanged(it)
-        }
-        , onDragFinished = {
+        }, onDragFinished = {
             draggableCenterState.value = center
         }
     )
@@ -45,8 +51,17 @@ fun CircleWithItem(center: LatLng,
         borderColor = borderColor,
         borderWidth = borderWidth,
         onCenterDragged = {
+
         }
     )
 
-    Circle(center = center, radius = radius, draggable = false, color = "Gray", onCenterDragged = {})
+    if (imageId >= 0) {
+        Symbol(
+            center = center,
+            color = "Black",
+            draggable = false,
+            imageId = imageId,
+            size = imageSize
+        )
+    }
 }
