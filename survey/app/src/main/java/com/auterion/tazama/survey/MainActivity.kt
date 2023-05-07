@@ -10,8 +10,6 @@ import com.auterion.tazama.survey.ui.theme.TazamasurveyTheme
 import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.maplibre.compose.MapLibre
-import org.maplibre.compose.SurveyPolygon
-import org.maplibre.compose.Vertice
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
