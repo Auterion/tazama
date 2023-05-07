@@ -4,18 +4,15 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -47,18 +44,6 @@ fun MainView(
     vehicleViewModel: VehicleViewModel,
     player: ExoPlayer
 ) {
-    val screenSize =
-        Size(
-            LocalConfiguration.current.screenWidthDp.toFloat(),
-            LocalConfiguration.current.screenHeightDp.toFloat()
-        )
-
-    LaunchedEffect(key1 = screenSize) {
-        mainViewModel.onUiEvent(
-            ScreenEvent.ScreenSizeChanged(screenSize)
-        )
-    }
-
     val orientation = Orientation.observeOrientation()
 
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -91,14 +76,10 @@ fun MainView(
             )
         }
     } else {
-        println("SPARTA - is PORTRAIT")
         Column(modifier = Modifier.fillMaxSize()) {
-            val vSize = mainViewModel.videoSize.collectAsState()
             VideoComposable(
-                modifier = Modifier.size(
-                    width = vSize.value.width.dp,
-                    height = vSize.value.height.dp,
-                )
+                modifier = Modifier.aspectRatio(16F / 9F)
+
             )
             Box {
                 TelemetryComposable(
