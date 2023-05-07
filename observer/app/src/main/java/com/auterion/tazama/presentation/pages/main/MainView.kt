@@ -142,7 +142,11 @@ private fun MapComposable(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
         properties = props,
-        uiSettings = MapUiSettings(zoomControlsEnabled = false),
+        uiSettings = MapUiSettings(
+            zoomControlsEnabled = false,
+            compassEnabled = false,
+            rotationGesturesEnabled = false,
+        ),
     ) {
         vehiclePosition.value?.let { position ->
             VehicleMapMarker(
