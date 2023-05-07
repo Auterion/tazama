@@ -29,6 +29,8 @@ class MainActivity : ComponentActivity() {
                                 index,
                                 vertice
                             )
+                        }, onVerticeInsert = { index, location ->
+                            survey.insertVertice(index, location)
                         })
                 }
             }
@@ -59,6 +61,13 @@ class Survey() {
         val newList: MutableList<Vertice> = vertices.value.toMutableList()
         newList[index] = vertice
         this.vertices.value = newList
+    }
+
+    fun insertVertice(index: Int, location: LatLng) {
+
+        val newList: MutableList<Vertice> = vertices.value.toMutableList()
+        newList.add(index + 1, vertices.value.first().copy(location = location))
+        vertices.value = newList
     }
 
 }
