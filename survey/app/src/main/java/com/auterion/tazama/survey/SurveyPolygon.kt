@@ -37,7 +37,7 @@ fun SurveyPolygon(
         ),
         fillColor = "Green",
         opacity = 0.3f,
-        draggable = true,
+        isDraggable = true,
         onVerticesChanged = {
             onVerticesChanged(it.first().mapIndexed { index, latLng ->
                 vertices[index].copy(location = latLng)
@@ -53,7 +53,7 @@ fun SurveyPolygon(
         CircleWithItem(
             center = vertice.location,
             radius = vertice.radius,
-            draggable = vertice.draggable,
+            isDraggable = vertice.draggable,
             color = vertice.color,
             onCenterChanged = { latLng ->
                 onVerticeAtIndexChanged(index, vertice.copy(location = latLng))
@@ -80,13 +80,13 @@ private fun VerticeInserter(vertices: List<Vertice>, onVerticeInsert: (Int, LatL
         CircleWithItem(
             center = latLng,
             radius = vertices.first().radius,
-            draggable = true,
+            isDraggable = true,
             color = vertices.first().color,
             onCenterChanged = {
                 onVerticeInsert(index, it)
             },
             imageId = R.drawable.plus,
-            imageSize = 0.5f,
+            itemSize = 0.5f,
 
             text = null
         )
