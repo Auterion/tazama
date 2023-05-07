@@ -11,11 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -31,6 +26,7 @@ import com.auterion.tazama.libui.presentation.components.VehicleMapMarker
 import com.auterion.tazama.libui.presentation.pages.main.SwappableView
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryInfo
+import com.auterion.tazama.libui.presentation.util.Orientation
 import com.auterion.tazama.libvehicle.Degrees
 import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.observer.R
@@ -63,18 +59,10 @@ fun MainView(
         )
     }
 
-    // TODO: refactor that
-    var orientation by remember { mutableStateOf(Configuration.ORIENTATION_PORTRAIT) }
-    val configuration = LocalConfiguration.current
-
-    // If our configuration changes then this will launch a new coroutine scope for it
-    LaunchedEffect(configuration) {
-        // Save any changes to the orientation value on the configuration object
-        snapshotFlow { configuration.orientation }
-            .collect { orientation = it }
-    }
+    val orientation = Orientation.observeOrientation()
 
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        println("SPARTA - is LANDSCAPE")
         Box(modifier = Modifier.fillMaxSize()) {
             TelemetryComposable(
                 modifier = Modifier
@@ -103,6 +91,7 @@ fun MainView(
             )
         }
     } else {
+        println("SPARTA - is PORTRAIT")
         Column(modifier = Modifier.fillMaxSize()) {
             val vSize = mainViewModel.videoSize.collectAsState()
             VideoComposable(
