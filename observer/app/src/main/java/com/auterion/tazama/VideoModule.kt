@@ -1,8 +1,8 @@
 package com.auterion.tazama
 
 import android.app.Application
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.ExoPlayer
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.ExoPlayer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +15,7 @@ object VideoPlayerModule {
 
     @Provides
     @ViewModelScoped
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     fun provideVideoPlayer(app: Application): ExoPlayer {
         val customLoadControl = DefaultLoadControl.Builder()
             .setBufferDurationsMs(0, 0, 0, 0)

@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.libui.presentation.components.VehicleMapMarker
 import com.auterion.tazama.libui.presentation.pages.main.SwappableView
@@ -28,9 +31,6 @@ import com.auterion.tazama.libvehicle.Degrees
 import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.observer.R
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -47,7 +47,6 @@ fun MainView(
     val orientation = Orientation.observeOrientation()
 
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        println("SPARTA - is LANDSCAPE")
         Box(modifier = Modifier.fillMaxSize()) {
             TelemetryComposable(
                 modifier = Modifier
@@ -66,7 +65,7 @@ fun MainView(
                     Box(
                         modifier = Modifier.background(color = Color.Transparent)
                     ) {
-                        VideoComposable()
+                        VideoComposable(player)
                     }
                 },
                 view2 = {
@@ -77,10 +76,7 @@ fun MainView(
         }
     } else {
         Column(modifier = Modifier.fillMaxSize()) {
-            VideoComposable(
-                modifier = Modifier.aspectRatio(16F / 9F)
-
-            )
+            VideoComposable(player, Modifier.aspectRatio(16F / 9F))
             Box {
                 TelemetryComposable(
                     modifier = Modifier
@@ -104,7 +100,8 @@ private fun TelemetryComposable(
 ) {
     val distToHome =
         vehicleViewModel.horizontalDistanceToHome.collectAsState(TelemetryDisplayNumber())
-    val heightAboveHome = vehicleViewModel.heightAboveHome.collectAsState(TelemetryDisplayNumber())
+    val heightAboveHome =
+        vehicleViewModel.heightAboveHome.collectAsState(TelemetryDisplayNumber())
     val groundSpeed = vehicleViewModel.groundSpeed.collectAsState(TelemetryDisplayNumber())
     val heading = vehicleViewModel.vehicleHeading.collectAsState(TelemetryDisplayNumber())
 
@@ -163,11 +160,12 @@ private fun MapComposable(
 }
 
 @Composable
-private fun VideoComposable(modifier: Modifier = Modifier) {
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+private fun VideoComposable(player: ExoPlayer, modifier: Modifier = Modifier) {
     AndroidView(
         modifier = modifier,
         factory = {
-            StyledPlayerView(it).apply {
+            PlayerView(it).apply {
                 this.player = player
                 useController = false
                 resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL

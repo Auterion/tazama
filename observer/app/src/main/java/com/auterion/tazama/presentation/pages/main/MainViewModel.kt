@@ -3,11 +3,11 @@ package com.auterion.tazama.presentation.pages.main
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.rtsp.RtspMediaSource
 import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.libvehicle.VideoStreamInfo
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.source.rtsp.RtspMediaSource
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
@@ -28,6 +28,7 @@ class MainViewModel @Inject constructor(
     val cameraPositionState
         get() = _cameraPositionState.value
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
         if (videoStreamInfo != null) {
             return
