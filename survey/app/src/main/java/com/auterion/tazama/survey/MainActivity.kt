@@ -25,20 +25,14 @@ class MainActivity : ComponentActivity() {
                 MapLibre(modifier = Modifier.fillMaxSize()) {
                     SurveyPolygon(
                         vertices.value.toMutableList(),
-                        onVerticesChanged = { survey.handleVerticeChanged(it) },
-                        onVerticeAtIndexChanged = { index, latlng ->
-                            survey.handleVerticeChanged(vertices.value.mapIndexed { mapIndex, vertice ->
-                                if (mapIndex == index) {
-                                    latlng
-                                } else {
-                                    vertice.location
-                                }
-                            }.toMutableList())
-
+                        onVerticesChanged = { survey.handleVerticesChanged(it) },
+                        onVerticeAtIndexChanged = { index, vertice ->
+                            survey.handleVerticeChanged(
+                                index,
+                                vertice
+                            )
                         })
                 }
-
-
             }
         }
     }
@@ -57,13 +51,15 @@ class Survey() {
         vertices.value = newList
     }
 
-    fun handleVerticeChanged(vertices: MutableList<LatLng>) {
-        val newList: MutableList<Vertice> = mutableListOf()
+    fun handleVerticesChanged(vertices: MutableList<Vertice>) {
+        val newList: MutableList<Vertice> = vertices
+        this.vertices.value = newList
+    }
 
-        vertices.forEachIndexed { index, latLng ->
-            newList.add(this.vertices.value.elementAt(index).copy(location = latLng))
-        }
+    fun handleVerticeChanged(index: Int, vertice: Vertice) {
 
+        val newList: MutableList<Vertice> = vertices.value.toMutableList()
+        newList[index] = vertice
         this.vertices.value = newList
     }
 
