@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -58,6 +60,7 @@ fun MainView(
             SwappableView(
                 overlayModifier = Modifier
                     .padding(horizontal = 10.dp, vertical = 5.125.dp)
+                    .clip(RoundedCornerShape(5.dp))
                     .defaultMinSize(minWidth = 200.dp, minHeight = 112.5.dp),
                 overlayAlignment = Alignment.TopStart,
                 overlayAspectRatio = 16F / 9F,
