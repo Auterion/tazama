@@ -1,9 +1,6 @@
 package com.auterion.tazama.presentation.pages.main
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.auterion.tazama.libvehicle.PositionAbsolute
@@ -15,11 +12,11 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.min
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -27,33 +24,9 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
     private var videoStreamInfo: StateFlow<VideoStreamInfo?>? = null
 
-    private val _videoSize = MutableStateFlow(Size(0.0F, 0.0F))
-    val videoSize = _videoSize.asStateFlow()
-
-    private val videoWidthToHeightRatio: Float = 9.0f / 16.0f
-
-    private val _mapSize = MutableStateFlow(Size(0.0F, 0.0F))
-    val mapSize = _mapSize.asStateFlow()
-
-    private val screenSize = mutableStateOf(Size(0.0F, 0.0F))
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val isLandScape = snapshotFlow { screenSize }.mapLatest {
-        isLandScape()
-    }
-
-    private val _showDragIndicators = mutableStateOf(false)
-    val showDragIndicators
-        get() = _showDragIndicators.value
-
-    private val _mapIsMainScreen = mutableStateOf(true)
-    val mapIsMainScreen
-        get() = _mapIsMainScreen.value
-
     private val _cameraPositionState = mutableStateOf(CameraPositionState())
     val cameraPositionState
         get() = _cameraPositionState.value
-
 
     fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
         if (videoStreamInfo != null) {
@@ -78,23 +51,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun swapMapAndVideo() {
-        _mapIsMainScreen.value = !_mapIsMainScreen.value
-
-        if (_mapIsMainScreen.value) {
-            _videoSize.value =
-                Size(_mapSize.value.width, videoWidthToHeightRatio * _mapSize.value.width)
-            _mapSize.value = screenSize.value
-        } else {
-            _mapSize.value = _videoSize.value
-            _videoSize.value = screenSize.value
-        }
-    }
-
-    private fun isLandScape(): Boolean {
-        return screenSize.value.width > screenSize.value.height
-    }
-
     fun centerOnPosition(position: PositionAbsolute) {
         _cameraPositionState.value = CameraPositionState(
             position = CameraPosition(
@@ -108,81 +64,4 @@ class MainViewModel @Inject constructor(
             )
         )
     }
-
-    fun onUiEvent(event: ScreenEvent) {
-        when (event) {
-            is ScreenEvent.ScreenSizeChanged -> {
-                screenSize.value = event.size
-                _mapIsMainScreen.value = true
-                if (isLandScape()) {
-                    _mapSize.value = screenSize.value
-                    _showDragIndicators.value = true
-                    _mapSize.value = screenSize.value
-                    val desiredVideoHeight = _mapSize.value.height * 0.5f
-
-                    _videoSize.value = Size(
-                        desiredVideoHeight / videoWidthToHeightRatio,
-                        desiredVideoHeight
-                    )
-                } else {
-                    _videoSize.value = Size(
-                        screenSize.value.width,
-                        screenSize.value.width * videoWidthToHeightRatio
-                    )
-                }
-            }
-
-            is ScreenEvent.VideoWindowDrag -> {
-                if (_mapIsMainScreen.value) {
-                    val newVideoWidth = _videoSize.value.width + event.drag.x
-                    val newVideoHeight = newVideoWidth * videoWidthToHeightRatio
-
-                    val limit = min(screenSize.value.width, screenSize.value.height)
-
-                    if (newVideoHeight < limit ||
-                        newVideoWidth < limit
-                    ) {
-                        _videoSize.value =
-                            Size(newVideoWidth, newVideoHeight)
-                    }
-                }
-            }
-
-            is ScreenEvent.MapWindowDrag -> {
-                if (!_mapIsMainScreen.value) {
-                    val newMapWidth = _mapSize.value.width + event.drag.x
-                    val newMapHeight = newMapWidth * videoWidthToHeightRatio
-                    val limit = min(screenSize.value.width, screenSize.value.height)
-                    if (newMapHeight < limit) {
-                        _mapSize.value =
-                            Size(newMapWidth, newMapWidth * videoWidthToHeightRatio)
-                    }
-                }
-            }
-
-            is ScreenEvent.MapTapped -> {
-                if (!_mapIsMainScreen.value) {
-                    swapMapAndVideo()
-                }
-            }
-
-            is ScreenEvent.VideoTapped -> {
-                if (_mapIsMainScreen.value) {
-                    swapMapAndVideo()
-                }
-            }
-
-            is ScreenEvent.CenterVehicle -> {
-            }
-        }
-    }
-}
-
-sealed class ScreenEvent {
-    data class ScreenSizeChanged(val size: Size) : ScreenEvent()
-    data class VideoWindowDrag(val drag: Offset) : ScreenEvent()
-    data class MapWindowDrag(val drag: Offset) : ScreenEvent()
-    object VideoTapped : ScreenEvent()
-    object MapTapped : ScreenEvent()
-    object CenterVehicle : ScreenEvent()
 }

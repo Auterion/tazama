@@ -143,7 +143,6 @@ private fun MapComposable(
         cameraPositionState = cameraPositionState,
         properties = props,
         uiSettings = MapUiSettings(zoomControlsEnabled = false),
-        onMapClick = { mainViewModel.onUiEvent(ScreenEvent.MapTapped) },
     ) {
         vehiclePosition.value?.let { position ->
             VehicleMapMarker(
