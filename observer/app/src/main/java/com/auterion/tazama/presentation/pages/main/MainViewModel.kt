@@ -35,15 +35,6 @@ class MainViewModel @Inject constructor(
     private val _mapSize = MutableStateFlow(Size(0.0F, 0.0F))
     val mapSize = _mapSize.asStateFlow()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val mapZValue = snapshotFlow { _mapIsMainScreen.value }.mapLatest {
-        if (it) {
-            0.0F
-        } else {
-            1.0F
-        }
-    }
-
     private val screenSize = mutableStateOf(Size(0.0F, 0.0F))
 
     @OptIn(ExperimentalCoroutinesApi::class)
