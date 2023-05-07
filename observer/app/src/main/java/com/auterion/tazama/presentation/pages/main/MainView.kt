@@ -75,12 +75,10 @@ fun MainView(
     }
 
     if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        val mapZValue = mainViewModel.mapZValue.collectAsState(0.0F).value
-
         Box(modifier = Modifier.fillMaxSize()) {
             TelemetryComposable(
                 modifier = Modifier
-                    .zIndex(mapZValue + 1)
+                    .zIndex(1F)
                     .align(Alignment.TopEnd)
                     .padding(horizontal = 10.dp, vertical = 5.125.dp),
                 vehicleViewModel
@@ -116,10 +114,14 @@ fun MainView(
             Box {
                 TelemetryComposable(
                     modifier = Modifier
+                        .zIndex(1F)
                         .align(Alignment.TopEnd)
                         .padding(10.dp),
                     vehicleViewModel
                 )
+
+                val settingsViewModel = hiltViewModel<SettingsViewModel>()
+                MapComposable(mainViewModel, settingsViewModel, vehicleViewModel)
             }
         }
     }
