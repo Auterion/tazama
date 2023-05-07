@@ -1,8 +1,11 @@
-package org.maplibre.compose
+package com.auterion.tazama.survey
 
 import androidx.compose.runtime.Composable
 import com.mapbox.mapboxsdk.geometry.LatLng
-
+import org.maplibre.compose.CircleWithItem
+import org.maplibre.compose.MapLibreComposable
+import org.maplibre.compose.PolyLine
+import org.maplibre.compose.Polygon
 
 data class Vertice(
     val location: LatLng,
