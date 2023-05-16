@@ -31,6 +31,9 @@ class MainActivity : ComponentActivity() {
                                 index,
                                 vertice
                             )
+                        },
+                        onDeleteVertice = {
+                            survey.deleteVertice(it)
                         }
                     )
                 }
@@ -86,7 +89,7 @@ class Survey() {
                     location = LatLng(),
                     radius = 8.0f,
                     draggable = true,
-                    color = "Red",
+                    color = "Gray",
                     VerticeRole.INSERTER,
                     sequence
                 )
@@ -96,7 +99,7 @@ class Survey() {
                     location = LatLng(),
                     radius = 8.0f,
                     draggable = true,
-                    color = "Red",
+                    color = "Gray",
                     VerticeRole.INSERTER,
                     sequence + 2
                 )
@@ -111,5 +114,26 @@ class Survey() {
         }
         _verticeFlow.value = vertices
 
+    }
+
+    fun deleteVertice(sequence: Int) {
+        val end = vertices.size
+        vertices.removeIf { it.sequence == sequence }
+
+        var previousToRemove = sequence - 1
+
+        if (previousToRemove < 0) {
+            vertices.removeIf { it.sequence == end - 1 }
+        } else {
+            vertices.removeIf { it.sequence == previousToRemove }
+        }
+
+        repeat(vertices.size) {
+            if (vertices[it].sequence > sequence) {
+                vertices[it] = vertices[it].copy(sequence = vertices[it].sequence - 1)
+            }
+        }
+
+        _verticeFlow.value = vertices
     }
 }
