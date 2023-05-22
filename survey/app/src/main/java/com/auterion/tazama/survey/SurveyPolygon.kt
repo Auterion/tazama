@@ -9,39 +9,37 @@ import androidx.core.graphics.minus
 import androidx.core.graphics.plus
 import com.mapbox.mapboxsdk.geometry.LatLng
 import org.maplibre.compose.CircleWithItem
-import org.maplibre.compose.CoordFromPixel
-import org.maplibre.compose.CoordToPixelMaper
+import org.maplibre.compose.CoordToPixelMapper
 import org.maplibre.compose.MapLibreComposable
-import org.maplibre.compose.PixelFromCoord
 import org.maplibre.compose.PixelToCoordMapper
 import org.maplibre.compose.PolyLine
 import org.maplibre.compose.Polygon
-import org.maplibre.compose.ScreenDistanceBetween
+import org.maplibre.compose.screenDistanceBetween
+import org.maplibre.compose.coordFromPixel
+import org.maplibre.compose.pixelFromCoord
 
-enum class VerticeRole {
+enum class VertexRole {
     DRAGGER, INSERTER
 }
 
-data class Vertice(
+data class Vertex(
     val id: Int,
     val location: LatLng,
     val radius: Float,
     val draggable: Boolean = false,
     val color: String = "Black",
-    val role: VerticeRole = VerticeRole.DRAGGER,
+    val role: VertexRole = VertexRole.DRAGGER,
     val sequence: Int,
 )
 
-
 @Composable
 fun InsertPointsCalculator(coords: List<LatLng>, onChange: (List<LatLng>) -> Unit) {
-    val pixelCoordinates = remember {
-        mutableStateOf(mutableListOf(PointF()))
-    }
-    CoordToPixelMaper(
-        coordinates = coords.toMutableList(),
-        onChange = { pixelCoordinates.value = it.toMutableList() })
+    val pixelCoordinates = remember { mutableStateOf(mutableListOf(PointF())) }
 
+    CoordToPixelMapper(
+        coordinates = coords.toMutableList(),
+        onChange = { pixelCoordinates.value = it.toMutableList() }
+    )
 
     val points = mutableListOf<PointF>()
 
@@ -59,63 +57,59 @@ fun InsertPointsCalculator(coords: List<LatLng>, onChange: (List<LatLng>) -> Uni
     }
 
     PixelToCoordMapper(points = points, onChange = { onChange(it) })
-
 }
 
 @MapLibreComposable
 @Composable
 fun SurveyPolygon(
-    vertices: MutableList<Vertice>,
+    vertices: MutableList<Vertex>,
     onVerticesTranslated: (MutableList<LatLng>) -> Unit,
-    onVerticeAtIndexChanged: (Int, LatLng) -> Unit,
-    onDeleteVertice: (Int) -> Unit
+    onVertexWithIdChanged: (Int, LatLng) -> Unit,
+    onDeleteVertex: (Int) -> Unit
 ) {
-
-    val pointsForPolyline: MutableList<LatLng> =
-        vertices.sortedBy { it.sequence }.filter { it.role == VerticeRole.DRAGGER }
-            .map { it.location }.toMutableList()
+    val pointsForPolyline: MutableList<LatLng> = vertices
+        .sortedBy { it.sequence }
+        .filter { it.role == VertexRole.DRAGGER }
+        .map { it.location }.toMutableList()
 
     pointsForPolyline.add(vertices.first { it.sequence == 0 }.location)
 
-
-    val draggedId = remember {
-        mutableStateOf<Int?>(null)
-    }
+    val draggedId = remember { mutableStateOf<Int?>(null) }
 
     Polygon(
-        vertices = mutableListOf(
-            vertices.sortedBy { it.sequence }.filter { it.role == VerticeRole.DRAGGER }
-                .map { it.location }.toMutableList()
+        vertices = mutableListOf(vertices
+            .sortedBy { it.sequence }
+            .filter { it.role == VertexRole.DRAGGER }
+            .map { it.location }.toMutableList()
         ),
         fillColor = "Green",
         opacity = 0.3f,
         isDraggable = true,
-        onVerticesChanged = {
-            onVerticesTranslated(it.first())
+        onVerticesChanged = { onVerticesTranslated(it.first()) }
+    )
 
-        })
     PolyLine(
         points = pointsForPolyline,
         color = "Black",
         lineWidth = 2.0f
     )
 
-    vertices.forEachIndexed { index, vertice ->
-        key(vertice.id) {
+    vertices.forEachIndexed { index, vertex ->
+        key(vertex.id) {
             CircleWithItem(
-                center = when (vertice.role) {
-                    VerticeRole.DRAGGER -> vertice.location
-                    VerticeRole.INSERTER -> DraggerCoordinateForId(
-                        id = vertice.id,
+                center = when (vertex.role) {
+                    VertexRole.DRAGGER -> vertex.location
+                    VertexRole.INSERTER -> inserterCoordinateForId(
+                        id = vertex.id,
                         vertices = vertices
                     )
                 },
-                radius = VerticeAtListIndex(index = index, vertices = vertices).radius,
-                isDraggable = vertice.draggable,
-                color = vertice.color,
+                radius = vertices[index].radius,
+                isDraggable = vertex.draggable,
+                color = vertex.color,
                 onCenterChanged = { latLng ->
-                    draggedId.value = vertice.id
-                    onVerticeAtIndexChanged(vertice.id, latLng)
+                    draggedId.value = vertex.id
+                    onVertexWithIdChanged(vertex.id, latLng)
 
                 },
                 onDragStopped = { draggedId.value = null },
@@ -123,76 +117,62 @@ fun SurveyPolygon(
                     VerticeRole.DRAGGER -> null
                     VerticeRole.INSERTER -> R.drawable.plus
                 },*/
-                itemSize = 0.5f
+                itemSize = 0.5f,
             )
         }
     }
 
-    VerticeDeleter(
+    VertexDeleter(
         vertices = vertices,
         draggedId = draggedId.value,
-        onDeleteVertice = onDeleteVertice
+        onDeleteVertex = onDeleteVertex
     )
 }
 
 @Composable
-fun VerticeAtListIndex(index: Int, vertices: MutableList<Vertice>): Vertice {
-    return vertices[index]
-}
-
-@Composable
-fun DraggerCoordinateForId(id: Int, vertices: MutableList<Vertice>): LatLng {
-
+fun inserterCoordinateForId(id: Int, vertices: MutableList<Vertex>): LatLng {
     val sequence = vertices.find { it.id == id }?.sequence?.let { sequence ->
-
         val sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
         val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
 
-        val pixelPreve =
-            PixelFromCoord(coord = vertices.first { it.sequence == sequencePrev }.location)
-        val pixelNext =
-            PixelFromCoord(coord = vertices.first { it.sequence == sequenceNext }.location)
+        val pixelPrev = pixelFromCoord(vertices.first { it.sequence == sequencePrev }.location)
+        val pixelNext = pixelFromCoord(vertices.first { it.sequence == sequenceNext }.location)
 
-        val pixelDragger =
-            pixelPreve + (pixelNext - pixelPreve).apply { x = x * 0.5f; y = y * 0.5f }
+        val pixelDragger = pixelPrev + (pixelNext - pixelPrev).apply { x *= 0.5f; y *= 0.5f }
 
-        return CoordFromPixel(point = pixelDragger)
+        return coordFromPixel(point = pixelDragger)
     }
+
     return LatLng()
 }
 
 @Composable
-fun VerticeDeleter(
-    vertices: MutableList<Vertice>,
+fun VertexDeleter(
+    vertices: MutableList<Vertex>,
     draggedId: Int?,
-    onDeleteVertice: (sequence: Int) -> Unit
+    onDeleteVertex: (sequence: Int) -> Unit
 ) {
-
-    val distance = remember {
-        mutableStateOf(500.0f)
-    }
+    val distance = remember { mutableStateOf(Float.POSITIVE_INFINITY) }
 
     val sequenceBefore = remember {
         mutableStateOf(-1)
     }
 
     draggedId?.let { draggedId ->
-
-        vertices.firstOrNull { it.id == draggedId }?.let { vertice ->
-
-            sequenceBefore.value = vertice.sequence
-            val previousSequence = (vertice.sequence - 2).WrapToListIndex(vertices.size)
-            val nextSequence = (vertice.sequence + 2).WrapToListIndex(vertices.size)
+        vertices.firstOrNull { it.id == draggedId }?.let { vertex ->
+            sequenceBefore.value = vertex.sequence
+            val previousSequence = (vertex.sequence - 2).WrapToListIndex(vertices.size)
+            val nextSequence = (vertex.sequence + 2).WrapToListIndex(vertices.size)
 
             val distToNext =
-                ScreenDistanceBetween(
-                    a = vertices.first { it.sequence == vertice.sequence }.location,
+                screenDistanceBetween(
+                    a = vertices.first { it.sequence == vertex.sequence }.location,
                     b = vertices.first { it.sequence == nextSequence }.location
                 )
 
             val distToPrev =
-                ScreenDistanceBetween(
-                    a = vertices.first { it.sequence == vertice.sequence }.location,
+                screenDistanceBetween(
+                    a = vertices.first { it.sequence == vertex.sequence }.location,
                     b = vertices.first { it.sequence == previousSequence }.location
                 )
 
@@ -221,6 +201,6 @@ fun VerticeDeleter(
 
     if (draggedId == null && distance.value < 100.0f) {
         distance.value = Float.POSITIVE_INFINITY
-        onDeleteVertice(sequenceBefore.value)
+        onDeleteVertex(sequenceBefore.value)
     }
 }
