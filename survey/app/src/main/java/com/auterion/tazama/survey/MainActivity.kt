@@ -26,13 +26,13 @@ class MainActivity : ComponentActivity() {
                     SurveyPolygon(
                         vertices.value.toMutableList(),
                         onVerticesTranslated = { survey.handleVerticesTranslated(it) },
-                        onVerticeAtIndexChanged = { index, vertice ->
+                        onVertexAtIndexChanged = { index, vertex ->
                             survey.handleVerticeChanged(
                                 index,
-                                vertice
+                                vertex
                             )
                         },
-                        onDeleteVertice = {
+                        onDeleteVertex = {
                             survey.deleteVertice(it)
                         }
                     )
@@ -43,59 +43,59 @@ class MainActivity : ComponentActivity() {
 }
 
 class Survey() {
-    private var vertices = mutableStateListOf<Vertice>()
+    private var vertices = mutableStateListOf<Vertex>()
     private var _verticeFlow = MutableStateFlow(vertices)
     val verticeFlow = _verticeFlow.asStateFlow()
 
     var verticeId = 8
 
     init {
-        vertices = mutableStateListOf<Vertice>()
-        vertices.add(Vertice(id = 0, LatLng(4.8, 46.0), 8.0f, true, "Gray", sequence = 0))
+        vertices = mutableStateListOf<Vertex>()
+        vertices.add(Vertex(id = 0, LatLng(4.8, 46.0), 8.0f, true, "Gray", sequence = 0))
         vertices.add(
-            Vertice(
+            Vertex(
                 id = 1,
                 LatLng(4.8, 46.0),
                 4.0f,
                 true,
                 "Gray",
-                VerticeRole.INSERTER,
+                VertexRole.INSERTER,
                 1
             )
         )
-        vertices.add(Vertice(id = 2, LatLng(4.8, 46.2), 8.0f, true, "Gray", sequence = 2))
+        vertices.add(Vertex(id = 2, LatLng(4.8, 46.2), 8.0f, true, "Gray", sequence = 2))
         vertices.add(
-            Vertice(
+            Vertex(
                 id = 3,
                 LatLng(4.8, 46.0),
                 4.0f,
                 true,
                 "Gray",
-                VerticeRole.INSERTER,
+                VertexRole.INSERTER,
                 3
             )
         )
-        vertices.add(Vertice(id = 4, LatLng(4.6, 46.2), 8.0f, true, "Gray", sequence = 4))
+        vertices.add(Vertex(id = 4, LatLng(4.6, 46.2), 8.0f, true, "Gray", sequence = 4))
         vertices.add(
-            Vertice(
+            Vertex(
                 id = 5,
                 LatLng(4.8, 46.0),
                 4.0f,
                 true,
                 "Gray",
-                VerticeRole.INSERTER,
+                VertexRole.INSERTER,
                 5
             )
         )
-        vertices.add(Vertice(id = 6, LatLng(4.6, 46.0), 8.0f, true, "Gray", sequence = 6))
+        vertices.add(Vertex(id = 6, LatLng(4.6, 46.0), 8.0f, true, "Gray", sequence = 6))
         vertices.add(
-            Vertice(
+            Vertex(
                 id = 7,
                 LatLng(4.8, 46.0),
                 4.0f,
                 true,
                 "Gray",
-                VerticeRole.INSERTER,
+                VertexRole.INSERTER,
                 7
             )
         )
@@ -106,7 +106,7 @@ class Survey() {
     fun handleVerticesTranslated(coords: MutableList<LatLng>) {
         println("vertices translated")
         repeat(vertices.size) {
-            if (vertices[it].role == VerticeRole.DRAGGER) {
+            if (vertices[it].role == VertexRole.DRAGGER) {
                 vertices[it] = vertices[it].copy(location = coords[vertices[it].sequence / 2])
             }
         }
@@ -120,25 +120,25 @@ class Survey() {
         val changedVertice = vertices.first { it.id == id }
         val index = vertices.indexOfFirst { it.id == id }
 
-        if (changedVertice.role == VerticeRole.DRAGGER) {
+        if (changedVertice.role == VertexRole.DRAGGER) {
             vertices[index] = changedVertice.copy(location = latLng)
         } else {
             val sequence = changedVertice.sequence
             vertices[index] = changedVertice.copy(
                 location = latLng,
-                role = VerticeRole.DRAGGER,
+                role = VertexRole.DRAGGER,
                 sequence = sequence + 1,
                 radius = 8.0f
             )
 
             vertices.add(
-                Vertice(
+                Vertex(
                     id = verticeId,
                     location = LatLng(),
                     radius = 4.0f,
                     draggable = true,
                     color = "Gray",
-                    VerticeRole.INSERTER,
+                    VertexRole.INSERTER,
                     sequence
                 )
             )
@@ -146,13 +146,13 @@ class Survey() {
             verticeId += 1
 
             vertices.add(
-                Vertice(
+                Vertex(
                     id = verticeId,
                     location = LatLng(),
                     radius = 4.0f,
                     draggable = true,
                     color = "Gray",
-                    VerticeRole.INSERTER,
+                    VertexRole.INSERTER,
                     sequence + 2
                 )
             )
@@ -187,7 +187,7 @@ class Survey() {
             index = vertices.indexOfFirst { it.sequence == sequence }
 
             vertices[index] = vertexToChange.copy(
-                role = VerticeRole.INSERTER,
+                role = VertexRole.INSERTER,
                 radius = 5.0f,
                 sequence = sequencePrev
             )
