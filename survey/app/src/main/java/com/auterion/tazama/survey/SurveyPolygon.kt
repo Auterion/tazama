@@ -77,22 +77,10 @@ fun SurveyPolygon(
 
     pointsForPolyline.add(vertices.first { it.sequence == 0 }.location)
 
-    val inserterCoords = remember {
-        mutableStateOf(mutableListOf(LatLng()))
-    }
-
 
     val draggedId = remember {
         mutableStateOf<Int?>(null)
     }
-
-
-    InsertPointsCalculator(coords = vertices.sortedBy { it.sequence }
-        .filter { it.role == VerticeRole.DRAGGER }
-        .map {
-            it.location
-        }, onChange = { inserterCoords.value = it.toMutableList() }
-    )
 
     Polygon(
         vertices = mutableListOf(
@@ -113,13 +101,11 @@ fun SurveyPolygon(
     )
 
     vertices.forEachIndexed { index, vertice ->
-        println("recomposing")
-
         key(vertice.id) {
             CircleWithItem(
                 center = when (vertice.role) {
                     VerticeRole.DRAGGER -> vertice.location
-                    VerticeRole.INSERTER -> DraggerCoordinateForSequence(
+                    VerticeRole.INSERTER -> DraggerCoordinateForId(
                         id = vertice.id,
                         vertices = vertices
                     )
@@ -128,8 +114,6 @@ fun SurveyPolygon(
                 isDraggable = vertice.draggable,
                 color = vertice.color,
                 onCenterChanged = { latLng ->
-                    //println("hello ${vertice.id}")
-                    //println("dragged sequence ${vertice.sequence}")
                     draggedId.value = vertice.id
                     onVerticeAtIndexChanged(vertice.id, latLng)
 
@@ -142,8 +126,6 @@ fun SurveyPolygon(
                 itemSize = 0.5f
             )
         }
-        //}
-
     }
 
     VerticeDeleter(
@@ -151,8 +133,6 @@ fun SurveyPolygon(
         draggedId = draggedId.value,
         onDeleteVertice = onDeleteVertice
     )
-
-
 }
 
 @Composable
@@ -161,30 +141,24 @@ fun VerticeAtListIndex(index: Int, vertices: MutableList<Vertice>): Vertice {
 }
 
 @Composable
-fun DraggerCoordinateForSequence(id: Int, vertices: MutableList<Vertice>): LatLng {
+fun DraggerCoordinateForId(id: Int, vertices: MutableList<Vertice>): LatLng {
 
-    val sequence = vertices.find { it.id == id }?.sequence!!
+    val sequence = vertices.find { it.id == id }?.sequence?.let { sequence ->
 
-    var sequencePrev = sequence - 1
-    if (sequencePrev < 0) {
-        sequencePrev = vertices.size - 1
+        val sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
+        val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
+
+        val pixelPreve =
+            PixelFromCoord(coord = vertices.first { it.sequence == sequencePrev }.location)
+        val pixelNext =
+            PixelFromCoord(coord = vertices.first { it.sequence == sequenceNext }.location)
+
+        val pixelDragger =
+            pixelPreve + (pixelNext - pixelPreve).apply { x = x * 0.5f; y = y * 0.5f }
+
+        return CoordFromPixel(point = pixelDragger)
     }
-
-    var sequenceNext = sequence + 1
-    if (sequenceNext > vertices.size - 1) {
-        sequenceNext = 0
-    }
-
-    //println("previous sequence $sequencePrev ")
-
-    val pixelPreve = PixelFromCoord(coord = vertices.first { it.sequence == sequencePrev }.location)
-    //println("sequence next $sequenceNext")
-    val pixelNext = PixelFromCoord(coord = vertices.first { it.sequence == sequenceNext }.location)
-
-    val pixelDragger = pixelPreve + (pixelNext - pixelPreve).apply { x = x * 0.5f; y = y * 0.5f }
-
-    return CoordFromPixel(point = pixelDragger)
-
+    return LatLng()
 }
 
 @Composable
@@ -202,59 +176,51 @@ fun VerticeDeleter(
         mutableStateOf(-1)
     }
 
-    if (draggedId != null) {
+    draggedId?.let { draggedId ->
 
-        val currentSequence = vertices.firstOrNull { it.id == draggedId }?.sequence!!
+        vertices.firstOrNull { it.id == draggedId }?.let { vertice ->
 
-        sequenceBefore.value = currentSequence
-        var previousSequence = currentSequence - 2
-        if (previousSequence < 0) {
-            previousSequence = vertices.size + previousSequence
-        }
+            sequenceBefore.value = vertice.sequence
+            val previousSequence = (vertice.sequence - 2).WrapToListIndex(vertices.size)
+            val nextSequence = (vertice.sequence + 2).WrapToListIndex(vertices.size)
 
-        var nextSequence = currentSequence + 2
-        if (nextSequence > vertices.size - 1) {
-            nextSequence = nextSequence - vertices.size
-        }
+            val distToNext =
+                ScreenDistanceBetween(
+                    a = vertices.first { it.sequence == vertice.sequence }.location,
+                    b = vertices.first { it.sequence == nextSequence }.location
+                )
 
-        val distToNext =
-            ScreenDistanceBetween(
-                a = vertices.first { it.sequence == currentSequence }.location,
-                b = vertices.first { it.sequence == nextSequence }.location
-            )
+            val distToPrev =
+                ScreenDistanceBetween(
+                    a = vertices.first { it.sequence == vertice.sequence }.location,
+                    b = vertices.first { it.sequence == previousSequence }.location
+                )
 
-        val distToPrev =
-            ScreenDistanceBetween(
-                a = vertices.first { it.sequence == currentSequence }.location,
-                b = vertices.first { it.sequence == previousSequence }.location
-            )
+            var seqToRemove = 0
 
-        var seqToRemove = 0
+            if (distToNext < distToPrev) {
+                distance.value = distToNext
+                seqToRemove = nextSequence
 
-        if (distToNext < distToPrev) {
-            distance.value = distToNext
-            seqToRemove = nextSequence
+            } else {
+                distance.value = distToPrev
+                seqToRemove = previousSequence
+            }
 
-        } else {
-            distance.value = distToPrev
-            seqToRemove = previousSequence
-        }
-
-        if (distance.value < 100.0f) {
-            CircleWithItem(
-                center = vertices.first { it.sequence == seqToRemove }.location,
-                radius = 50.0f,
-                opacity = 0.5f,
-                isDraggable = false,
-                color = "Orange"
-            )
+            if (distance.value < 100.0f) {
+                CircleWithItem(
+                    center = vertices.first { it.sequence == seqToRemove }.location,
+                    radius = 50.0f,
+                    opacity = 0.5f,
+                    isDraggable = false,
+                    color = "Orange"
+                )
+            }
         }
     }
 
-
     if (draggedId == null && distance.value < 100.0f) {
-        println("deleting the vertice!!!!!!!")
-        distance.value = 500.0f
+        distance.value = Float.POSITIVE_INFINITY
         onDeleteVertice(sequenceBefore.value)
     }
 }

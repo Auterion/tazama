@@ -104,9 +104,10 @@ class Survey() {
     }
 
     fun handleVerticesTranslated(coords: MutableList<LatLng>) {
-        for (i in 0..vertices.size - 1) {
-            if (vertices[i].role == VerticeRole.DRAGGER) {
-                vertices[i] = vertices[i].copy(location = coords[vertices[i].sequence / 2])
+        println("vertices translated")
+        repeat(vertices.size) {
+            if (vertices[it].role == VerticeRole.DRAGGER) {
+                vertices[it] = vertices[it].copy(location = coords[vertices[it].sequence / 2])
             }
         }
 
@@ -114,6 +115,8 @@ class Survey() {
     }
 
     fun handleVerticeChanged(id: Int, latLng: LatLng) {
+        println("vertice with id $id changed")
+
         val changedVertice = vertices.first { it.id == id }
         val index = vertices.indexOfFirst { it.id == id }
 
@@ -140,7 +143,7 @@ class Survey() {
                 )
             )
 
-            verticeId = verticeId + 1
+            verticeId += 1
 
             vertices.add(
                 Vertice(
@@ -154,7 +157,7 @@ class Survey() {
                 )
             )
 
-            verticeId = verticeId + 1
+            verticeId += 1
 
             for (i in 0..vertices.size - 3) {
                 if (i != index && vertices[i].sequence > sequence) {
@@ -163,20 +166,11 @@ class Survey() {
             }
 
         }
-
-        println("\n\nlist modified or inserted")
-        vertices.forEachIndexed { index, it ->
-            println("index $index id ${it.id} sequence ${it.sequence} role ${it.role}")
-        }
-        println("\n\n")
-
         _verticeFlow.value = vertices
 
     }
 
     fun deleteVertice(sequence: Int) {
-
-        val seq_saved = sequence
 
         var index = vertices.indexOfFirst { it.sequence == sequence }
 
@@ -187,12 +181,10 @@ class Survey() {
             var sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
             val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
 
-            println("deleting sequence $sequence previous $sequencePrev next $sequenceNext")
-
             vertices.removeIf { it.sequence == sequencePrev }
             vertices.removeIf { it.sequence == sequenceNext }
 
-            index = vertices.indexOfFirst { it.sequence == seq_saved }
+            index = vertices.indexOfFirst { it.sequence == sequence }
 
             vertices[index] = vertexToChange.copy(
                 role = VerticeRole.INSERTER,
@@ -200,22 +192,14 @@ class Survey() {
                 sequence = sequencePrev
             )
 
-
-            for (i in 0..vertices.size - 1) {
-                if (vertices[i].sequence > sequence) {
-                    vertices[i] = vertices[i].copy(
-                        sequence = (vertices[i].sequence - 2).WrapToListIndex(vertices.size)
+            repeat(vertices.size) {
+                if (vertices[it].sequence > sequence) {
+                    vertices[it] = vertices[it].copy(
+                        sequence = (vertices[it].sequence - 2).WrapToListIndex(vertices.size)
                     )
                 }
             }
+            _verticeFlow.value = vertices
         }
-
-
-        vertices.forEachIndexed { index, vertice ->
-            println("index $index id ${vertice.id} sequence ${vertice.sequence} role ${vertice.role}")
-        }
-
-
-        _verticeFlow.value = vertices
     }
 }
