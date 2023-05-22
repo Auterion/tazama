@@ -3,23 +3,21 @@ package com.auterion.tazama.data.vehicle
 import androidx.lifecycle.ViewModel
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.libvehicle.Distance
+import com.auterion.tazama.libvehicle.Measure
 import com.auterion.tazama.libvehicle.Speed
-import com.auterion.tazama.util.FlowHolder
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-@HiltViewModel
-class VehicleViewModel @Inject constructor(
+class VehicleViewModel(
     vehicleRepository: VehicleRepository,
-    measureSystem: FlowHolder
+    measureSystem: Flow<Measure.MeasurementSystem>
 ) : ViewModel() {
     val vehiclePosition = vehicleRepository.vehicle.telemetry.position
-        .combine(measureSystem.flow) { pos, measureSystem -> pos?.toSystem(measureSystem) }
+        .combine(measureSystem) { pos, measureSystem -> pos?.toSystem(measureSystem) }
 
     val horizontalDistanceToHome = vehicleRepository.vehicle.telemetry.distanceToHome
-        .combine(measureSystem.flow) { dist, measureSystem ->
+        .combine(measureSystem) { dist, measureSystem ->
             when (dist) {
                 null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
                 else -> {
@@ -35,7 +33,7 @@ class VehicleViewModel @Inject constructor(
     val vehiclePath = VehiclePath(vehicleRepository.vehicle.telemetry.position)
 
     val heightAboveHome = vehicleRepository.vehicle.telemetry.distanceToHome
-        .combine(measureSystem.flow) { dist, measureSystem ->
+        .combine(measureSystem) { dist, measureSystem ->
             when (dist) {
                 null -> TelemetryDisplayNumber(unit = Distance(measurementSystem = measureSystem).unit)
                 else -> {
@@ -48,7 +46,7 @@ class VehicleViewModel @Inject constructor(
         }
 
     val groundSpeed = vehicleRepository.vehicle.telemetry.groundSpeed
-        .combine(measureSystem.flow) { speed, measureSystem ->
+        .combine(measureSystem) { speed, measureSystem ->
             when (speed) {
                 null -> TelemetryDisplayNumber(unit = Speed(measurementSystem = measureSystem).unit)
                 else -> {

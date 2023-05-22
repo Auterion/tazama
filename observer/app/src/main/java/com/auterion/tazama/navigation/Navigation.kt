@@ -14,16 +14,20 @@ import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 
 @Composable
 fun Navigation(
+    modifier: Modifier,
     navController: NavHostController,
     mainViewModel: MainViewModel,
     vehicleViewModel: VehicleViewModel,
     settingsViewModel: SettingsViewModel,
-    modifier: Modifier,
     player: ExoPlayer
 ) {
-    NavHost(navController = navController, startDestination = MapDestination.route) {
+    NavHost(
+        modifier = modifier,
+        navController = navController,
+        startDestination = MapDestination.route
+    ) {
         composable(MapDestination.route) {
-            MainView(mainViewModel, vehicleViewModel, player)
+            MainView(player, mainViewModel, vehicleViewModel, settingsViewModel)
         }
 
         composable(SettingsDestination.route) {

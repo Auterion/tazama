@@ -4,13 +4,10 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.auterion.tazama.util.Preferences
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(private val application: Application) : ViewModel() {
+class SettingsViewModel(private val application: Application) : ViewModel() {
     private fun getContext(): Context {
         return application.applicationContext
     }

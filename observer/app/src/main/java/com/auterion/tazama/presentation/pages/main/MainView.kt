@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
@@ -42,9 +41,10 @@ import com.google.maps.android.compose.Polyline
 
 @Composable
 fun MainView(
+    player: ExoPlayer,
     mainViewModel: MainViewModel,
     vehicleViewModel: VehicleViewModel,
-    player: ExoPlayer
+    settingsViewModel: SettingsViewModel,
 ) {
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -70,7 +70,6 @@ fun MainView(
                     }
                 },
                 view2 = {
-                    val settingsViewModel = hiltViewModel<SettingsViewModel>()
                     MapComposable(mainViewModel, settingsViewModel, vehicleViewModel)
                 },
             )
@@ -87,7 +86,6 @@ fun MainView(
                     vehicleViewModel
                 )
 
-                val settingsViewModel = hiltViewModel<SettingsViewModel>()
                 MapComposable(mainViewModel, settingsViewModel, vehicleViewModel)
             }
         }
