@@ -3,18 +3,44 @@ package com.auterion.tazama.libviewmodel.settings
 import android.content.Context
 import android.content.SharedPreferences
 import com.auterion.tazama.libviewmodel.R
+import com.auterion.tazama.libviewmodel.settings.Preferences.MapType
+import com.auterion.tazama.libviewmodel.settings.Preferences.MeasureSystem
+import com.auterion.tazama.libviewmodel.settings.Preferences.VehicleType
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-open class Preferences(private val context: Context) {
-    open val defaultVehicleType = VehicleType.FAKE
-    open val defaultMapType = MapType.SATELLITE
-    open val defaultMeasureSystem = MeasureSystem.METRIC
+interface Preferences {
+    enum class VehicleType { FAKE, MAVSDK }
+
+    val defaultVehicleType: VehicleType
+    fun getVehicleType(): VehicleType
+    fun getVehicleTypeFlow(): Flow<VehicleType>
+    fun setVehicleType(value: VehicleType)
+
+    enum class MapType { SATELLITE, NORMAL, HYBRID }
+
+    val defaultMapType: MapType
+    fun getMapType(): MapType
+    fun getMapTypeFlow(): Flow<MapType>
+    fun setMapType(value: MapType)
+
+    enum class MeasureSystem { METRIC, IMPERIAL }
+
+    val defaultMeasureSystem: MeasureSystem
+    fun getMeasureSystem(): MeasureSystem
+    fun getMeasureSystemFlow(): Flow<MeasureSystem>
+    fun setMeasureSystem(value: MeasureSystem)
+}
+
+open class PreferencesImpl(private val context: Context) : Preferences {
+    override val defaultVehicleType = VehicleType.FAKE
+    override val defaultMapType = MapType.SATELLITE
+    override val defaultMeasureSystem = MeasureSystem.METRIC
 
     private val sharedPrefs = getSharedPrefs(context)
 
-    fun getVehicleType(): VehicleType {
+    override fun getVehicleType(): VehicleType {
         sharedPrefs?.getString(
             context.getString(R.string.preference_key_vehicle_type),
             defaultVehicleType.toString()
@@ -23,14 +49,14 @@ open class Preferences(private val context: Context) {
         return defaultVehicleType
     }
 
-    fun setVehicleType(value: VehicleType) {
+    override fun setVehicleType(value: VehicleType) {
         sharedPrefs?.edit()?.putString(
             context.getString(R.string.preference_key_vehicle_type),
             value.toString()
         )?.apply()
     }
 
-    fun getVehicleTypeFlow(): Flow<VehicleType> {
+    override fun getVehicleTypeFlow(): Flow<VehicleType> {
         return callbackFlow {
             val vehicleKey = context.getString(R.string.preference_key_vehicle_type)
             val listener =
@@ -45,7 +71,7 @@ open class Preferences(private val context: Context) {
         }
     }
 
-    fun getMapType(): MapType {
+    override fun getMapType(): MapType {
         sharedPrefs?.getString(
             context.getString(R.string.preference_key_map_type),
             defaultMapType.toString()
@@ -54,14 +80,14 @@ open class Preferences(private val context: Context) {
         return defaultMapType
     }
 
-    fun setMapType(value: MapType) {
+    override fun setMapType(value: MapType) {
         sharedPrefs?.edit()?.putString(
             context.getString(R.string.preference_key_map_type),
             value.toString()
         )?.apply()
     }
 
-    fun getMapTypeFlow(): Flow<MapType> {
+    override fun getMapTypeFlow(): Flow<MapType> {
         return callbackFlow {
             val mapKey = context.getString(R.string.preference_key_map_type)
             val listener =
@@ -76,7 +102,7 @@ open class Preferences(private val context: Context) {
         }
     }
 
-    fun getMeasureSystem(): MeasureSystem {
+    override fun getMeasureSystem(): MeasureSystem {
         sharedPrefs?.getString(
             context.getString(R.string.preference_key_measure_system),
             defaultMeasureSystem.toString()
@@ -87,14 +113,14 @@ open class Preferences(private val context: Context) {
         return defaultMeasureSystem
     }
 
-    fun setMeasureSystem(value: MeasureSystem) {
+    override fun setMeasureSystem(value: MeasureSystem) {
         sharedPrefs?.edit()?.putString(
             context.getString(R.string.preference_key_measure_system),
             value.toString()
         )?.apply()
     }
 
-    fun getMeasureSystemFlow(): Flow<MeasureSystem> {
+    override fun getMeasureSystemFlow(): Flow<MeasureSystem> {
         return callbackFlow {
             val measureSystemKey = context.getString(R.string.preference_key_measure_system)
             val listener =
@@ -115,8 +141,4 @@ open class Preferences(private val context: Context) {
             Context.MODE_PRIVATE
         )
     }
-
-    enum class VehicleType { FAKE, MAVSDK }
-    enum class MapType { SATELLITE, NORMAL, HYBRID }
-    enum class MeasureSystem { METRIC, IMPERIAL }
 }
