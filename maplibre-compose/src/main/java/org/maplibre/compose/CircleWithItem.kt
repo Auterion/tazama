@@ -18,20 +18,20 @@ fun CircleWithItem(
     color: String,
     borderColor: String = "Black",
     borderWidth: Float = 0.0f,
+    opacity: Float = 1.0f,
     imageId: Int? = null,
     itemSize: Float = 0.0f,
     text: String? = null,
-    onCenterChanged: (LatLng) -> Unit = {}
+    onCenterChanged: (LatLng) -> Unit = {},
+    onDragStopped: () -> Unit = {},
 ) {
-
-    var draggableCenterState = remember {
-        mutableStateOf(center)
-    }
+    val draggableCenterState = remember { mutableStateOf(center) }
 
     UpdateCenter(coord = center, centerUpdated = { draggableCenterState.value = it })
 
-    // invisible circle, this is draggable
-    Circle(center = draggableCenterState.value,
+    // Invisible circle, this is the draggable
+    Circle(
+        center = draggableCenterState.value,
         radius = 30.0f,
         isDraggable = isDraggable,
         color = "Transparent",
@@ -39,21 +39,23 @@ fun CircleWithItem(
         borderWidth = 0.0f,
         onCenterDragged = {
             onCenterChanged(it)
-        }, onDragFinished = {
+        },
+        onDragFinished = {
             draggableCenterState.value = center
-        }
+            onDragStopped()
+        },
     )
 
-    // display circle, this is not dragged
-    Circle(center = center,
+    // Display circle
+    Circle(
+        center = center,
         radius = radius,
         isDraggable = false,
         color = color,
+        opacity = opacity,
         borderColor = borderColor,
         borderWidth = borderWidth,
-        onCenterDragged = {
-
-        }
+        onCenterDragged = {}
     )
 
     imageId?.let {
@@ -67,7 +69,6 @@ fun CircleWithItem(
     }
 
     text?.let {
-
         Symbol(
             center = center,
             color = "Black",

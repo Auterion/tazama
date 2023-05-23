@@ -4,10 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.currentComposer
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.plugins.annotation.Circle
-import com.mapbox.mapboxsdk.plugins.annotation.CircleManager
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions
-import com.mapbox.mapboxsdk.plugins.annotation.OnCircleDragListener
 
 @Composable
 @MapLibreComposable
@@ -16,48 +13,58 @@ fun Circle(
     radius: Float,
     isDraggable: Boolean,
     color: String,
+    opacity: Float = 1.0f,
     borderColor: String = "Black",
     borderWidth: Float = 0.0f,
+    zIndex: Int = 0,
     onCenterDragged: (LatLng) -> Unit,
     onDragFinished: (LatLng) -> Unit = {}
 ) {
-    val mapApplier = currentComposer.applier as? MapApplier
+    val mapApplier = currentComposer.applier as MapApplier
 
     ComposeNode<CircleNode, MapApplier>(factory = {
-        val circleManager =
-            CircleManager(mapApplier?.mapView!!, mapApplier?.map!!, mapApplier?.style!!)
+        val circleManager = mapApplier.circleManager
 
-        val circleOptions =
-            CircleOptions().withCircleRadius(radius)
-                .withLatLng(center).withDraggable(isDraggable).withCircleStrokeColor(borderColor)
-                .withCircleStrokeWidth(borderWidth)
+        val circleOptions = CircleOptions()
+            .withCircleRadius(radius)
+            .withLatLng(center)
+            .withDraggable(isDraggable)
+            .withCircleStrokeColor(borderColor)
+            .withCircleStrokeWidth(borderWidth)
+            .withCircleOpacity(opacity)
 
-        val circle = circleManager.create(circleOptions)
-        circleManager.addDragListener(object : OnCircleDragListener {
-            override fun onAnnotationDragStarted(annotation: Circle?) {
+        val circle =
+            if (zIndex > 0) mapApplier.topCircleManager.create(circleOptions)
+            else circleManager.create(circleOptions)
 
-            }
-
-            override fun onAnnotationDrag(annotation: Circle?) {
-                onCenterDragged(annotation?.latLng!!)
-            }
-
-            override fun onAnnotationDragFinished(annotation: Circle?) {
-                onDragFinished(annotation?.latLng!!)
-            }
-
-        })
-        CircleNode(circleManager, circle) {
-        }
+        CircleNode(
+            circleManager,
+            circle,
+            onCircleDragged = { onCenterDragged(it.latLng) },
+            onCircleDragStopped = { onDragFinished(it.latLng) },
+        )
     }, update = {
+        update(onCenterDragged) {
+            this.onCircleDragged = { onCenterDragged(it.latLng) }
+        }
+
+        update(onDragFinished) {
+            this.onCircleDragStopped = { onDragFinished(it.latLng) }
+        }
+
         set(center) {
             circle.latLng = center
             circleManager.update(circle)
         }
+
         set(color) {
             circle.circleColor = color
             circleManager.update(circle)
         }
-    }) {
-    }
+
+        set(radius) {
+            circle.circleRadius = radius
+            circleManager.update(circle)
+        }
+    })
 }

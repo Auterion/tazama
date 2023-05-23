@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.res.imageResource
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import com.mapbox.mapboxsdk.style.layers.Property.TEXT_ANCHOR_CENTER
 import com.mapbox.mapboxsdk.style.layers.Property.TEXT_JUSTIFY_CENTER
@@ -22,49 +21,47 @@ fun Symbol(
     imageId: Int? = null,
     text: String? = null
 ) {
+    val mapApplier = currentComposer.applier as MapApplier
 
-    val mapApplier = currentComposer.applier as? MapApplier
-
-    if (mapApplier?.style != null && imageId != null) {
-        mapApplier?.style!!.addImage(
+    imageId?.let {
+        mapApplier.style.addImage(
             "symbol",
-            ImageBitmap.imageResource(id = imageId)
-                .asAndroidBitmap()
+            ImageBitmap.imageResource(id = it).asAndroidBitmap()
         )
     }
+
     ComposeNode<SymbolNode, MapApplier>(factory = {
-        val symbolManager =
-            SymbolManager(mapApplier?.mapView!!, mapApplier?.map!!, mapApplier?.style!!)
-
-        var symbolOptions =
-            SymbolOptions().withDraggable(isDraggable).withLatLng(center)
-
+        var symbolOptions = SymbolOptions()
+            .withDraggable(isDraggable)
+            .withLatLng(center)
 
         imageId?.let {
-            symbolOptions =
-                symbolOptions.withIconImage("symbol").withIconColor(color).withIconSize(size)
+            symbolOptions = symbolOptions
+                .withIconImage("symbol")
+                .withIconColor(color)
+                .withIconSize(size)
         }
 
         text?.let {
-            symbolOptions =
-                symbolOptions.withTextField(text).withTextColor(color).withTextSize(size)
-                    .withTextJustify(TEXT_JUSTIFY_CENTER).withTextAnchor(
-                        TEXT_ANCHOR_CENTER
-                    )
+            symbolOptions = symbolOptions
+                .withTextField(text)
+                .withTextColor(color)
+                .withTextSize(size)
+                .withTextJustify(TEXT_JUSTIFY_CENTER)
+                .withTextAnchor(TEXT_ANCHOR_CENTER)
         }
 
-        val symbol = symbolManager.create(symbolOptions)
-        SymbolNode(symbolManager, symbol) {
-
-        }
+        val symbol = mapApplier.symbolManager.create(symbolOptions)
+        SymbolNode(mapApplier.symbolManager, symbol)
     }, update = {
         set(center) {
             symbol.latLng = center
             symbolManager.update(symbol)
         }
+
         set(text) {
             symbol.textField = text
             symbolManager.update(symbol)
         }
-    }) {}
+    })
 }
