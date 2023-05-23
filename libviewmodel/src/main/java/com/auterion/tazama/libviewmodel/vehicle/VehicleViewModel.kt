@@ -1,4 +1,4 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libviewmodel.vehicle
 
 import androidx.lifecycle.ViewModel
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber

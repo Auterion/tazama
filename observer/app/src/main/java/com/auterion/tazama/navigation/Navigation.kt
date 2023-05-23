@@ -6,11 +6,11 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.auterion.tazama.data.vehicle.VehicleViewModel
+import com.auterion.tazama.libviewmodel.settings.SettingsViewModel
+import com.auterion.tazama.libviewmodel.vehicle.VehicleViewModel
 import com.auterion.tazama.presentation.pages.main.MainView
 import com.auterion.tazama.presentation.pages.main.MainViewModel
 import com.auterion.tazama.presentation.pages.settings.SettingsPage
-import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 
 @Composable
 fun Navigation(

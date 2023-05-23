@@ -1,0 +1,5 @@
+rootProject.name = "libviewmodel"
+
+includeBuild '../libui'
+includeBuild '../libvehicle'
+

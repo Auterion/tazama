@@ -1,12 +1,12 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libviewmodel.vehicle
 
-import com.auterion.tazama.data.vehicle.VehicleType.FAKE
-import com.auterion.tazama.data.vehicle.VehicleType.MAVSDK
 import com.auterion.tazama.libvehicle.Vehicle
 import com.auterion.tazama.libvehicle.VehicleImpl
 import com.auterion.tazama.libvehicle.service.VehicleService
 import com.auterion.tazama.libvehicle.service.dummy.DummyService
 import com.auterion.tazama.libvehicle.service.mavsdk.MavsdkService
+import com.auterion.tazama.libviewmodel.vehicle.VehicleType.FAKE
+import com.auterion.tazama.libviewmodel.vehicle.VehicleType.MAVSDK
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

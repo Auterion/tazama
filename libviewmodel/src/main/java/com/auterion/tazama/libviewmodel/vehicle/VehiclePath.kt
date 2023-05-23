@@ -1,13 +1,22 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libviewmodel.vehicle
 
 import com.auterion.tazama.libvehicle.Distance
 import com.auterion.tazama.libvehicle.PositionAbsolute
-import com.auterion.tazama.util.distinctUntil
-import com.auterion.tazama.util.windowed
-import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import com.auterion.tazama.libviewmodel.util.distinctUntil
+import com.auterion.tazama.libviewmodel.util.windowed
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
+
+data class LatLng(val latitude: Double, val longitude: Double)
 
 class VehiclePath(
     private val position: Flow<PositionAbsolute?>,

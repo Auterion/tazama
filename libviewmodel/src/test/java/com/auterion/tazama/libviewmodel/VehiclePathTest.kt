@@ -1,11 +1,11 @@
-package com.auterion.tazama
+package com.auterion.tazama.libviewmodel
 
-import com.auterion.tazama.data.vehicle.*
 import com.auterion.tazama.libvehicle.Altitude
 import com.auterion.tazama.libvehicle.Degrees
 import com.auterion.tazama.libvehicle.Distance
 import com.auterion.tazama.libvehicle.PositionAbsolute
-import com.google.android.gms.maps.model.LatLng
+import com.auterion.tazama.libviewmodel.vehicle.LatLng
+import com.auterion.tazama.libviewmodel.vehicle.VehiclePath
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

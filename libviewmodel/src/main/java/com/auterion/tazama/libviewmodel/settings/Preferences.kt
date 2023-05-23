@@ -1,8 +1,8 @@
-package com.auterion.tazama.util
+package com.auterion.tazama.libviewmodel.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.auterion.tazama.observer.R
+import com.auterion.tazama.libviewmodel.R
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

@@ -1,9 +1,8 @@
-package com.auterion.tazama.presentation.pages.settings
+package com.auterion.tazama.libviewmodel.settings
 
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.auterion.tazama.util.Preferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -51,8 +50,8 @@ class SettingsViewModel(private val application: Application) : ViewModel() {
 
     private fun Preferences.VehicleType.toSettings(): VehicleType {
         return when (this) {
-            Preferences.VehicleType.FAKE -> VehicleType.FAKE
-            Preferences.VehicleType.MAVSDK -> VehicleType.MAVSDK
+            Preferences.VehicleType.FAKE -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType.FAKE
+            Preferences.VehicleType.MAVSDK -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType.MAVSDK
         }
     }
 
@@ -65,9 +64,9 @@ class SettingsViewModel(private val application: Application) : ViewModel() {
 
     private fun Preferences.MapType.toSettings(): MapType {
         return when (this) {
-            Preferences.MapType.SATELLITE -> MapType.SATELLITE
-            Preferences.MapType.NORMAL -> MapType.NORMAL
-            Preferences.MapType.HYBRID -> MapType.HYBRID
+            Preferences.MapType.SATELLITE -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MapType.SATELLITE
+            Preferences.MapType.NORMAL -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MapType.NORMAL
+            Preferences.MapType.HYBRID -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MapType.HYBRID
         }
     }
 
@@ -81,8 +80,8 @@ class SettingsViewModel(private val application: Application) : ViewModel() {
 
     private fun Preferences.MeasureSystem.toSettings(): MeasureSystem {
         return when (this) {
-            Preferences.MeasureSystem.METRIC -> MeasureSystem.METRIC
-            Preferences.MeasureSystem.IMPERIAL -> MeasureSystem.IMPERIAL
+            Preferences.MeasureSystem.METRIC -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MeasureSystem.METRIC
+            Preferences.MeasureSystem.IMPERIAL -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MeasureSystem.IMPERIAL
         }
     }
 

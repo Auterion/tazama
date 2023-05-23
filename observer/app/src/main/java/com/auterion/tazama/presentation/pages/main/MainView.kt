@@ -23,15 +23,16 @@ import androidx.compose.ui.zIndex
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.libui.presentation.pages.main.SwappableView
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryInfo
 import com.auterion.tazama.libvehicle.Degrees
 import com.auterion.tazama.libvehicle.PositionAbsolute
+import com.auterion.tazama.libviewmodel.settings.SettingsViewModel
+import com.auterion.tazama.libviewmodel.util.mapState
+import com.auterion.tazama.libviewmodel.vehicle.VehicleViewModel
 import com.auterion.tazama.observer.R
 import com.auterion.tazama.presentation.components.VehicleMapMarker
-import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -120,10 +121,12 @@ private fun MapComposable(
     vehicleViewModel: VehicleViewModel,
 ) {
     val mapType = settingsViewModel.currentMapType.collectAsState()
+    val cameraPositionState = mainViewModel.cameraPositionState
     val vehiclePosition = vehicleViewModel.vehiclePosition.collectAsState(PositionAbsolute())
     val vehicleAttitude = vehicleViewModel.vehicleAttitude.collectAsState()
-    val vehiclePath = vehicleViewModel.vehiclePath.path.collectAsState(emptyList())
-    val cameraPositionState = mainViewModel.cameraPositionState
+    val vehiclePath = vehicleViewModel.vehiclePath.path.mapState { path ->
+        path.map { latLng -> LatLng(latLng.latitude, latLng.longitude) }
+    }.collectAsState()
 
     val props =
         MapProperties(
