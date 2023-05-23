@@ -24,13 +24,13 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.auterion.tazama.data.vehicle.VehicleViewModel
-import com.auterion.tazama.libui.presentation.components.VehicleMapMarker
 import com.auterion.tazama.libui.presentation.pages.main.SwappableView
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryInfo
 import com.auterion.tazama.libvehicle.Degrees
 import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.observer.R
+import com.auterion.tazama.presentation.components.VehicleMapMarker
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
