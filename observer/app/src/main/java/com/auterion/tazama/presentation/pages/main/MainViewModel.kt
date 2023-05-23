@@ -11,32 +11,28 @@ import com.auterion.tazama.libvehicle.VideoStreamInfo
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
-    val player: ExoPlayer
+class MainViewModel(
+    val player: ExoPlayer,
+    private val videoStreamInfo: StateFlow<VideoStreamInfo?>,
 ) : ViewModel() {
-    private var videoStreamInfo: StateFlow<VideoStreamInfo?>? = null
-
     private val _cameraPositionState = mutableStateOf(CameraPositionState())
+
+    init {
+        connectVideoStreamInfoFlow(videoStreamInfo)
+    }
+
     val cameraPositionState
         get() = _cameraPositionState.value
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-    fun setVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
-        if (videoStreamInfo != null) {
-            return
-        }
-        videoStreamInfo = flow
-
+    fun connectVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
         viewModelScope.launch {
-            videoStreamInfo!!
+            videoStreamInfo
                 .filterNotNull()
                 .distinctUntilChanged { left, right -> left.uri == right.uri }
                 .collect {

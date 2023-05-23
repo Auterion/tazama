@@ -13,12 +13,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-class VehicleRepository @Inject constructor(
-    private val settingsViewModel: SettingsViewModel
-) : CoroutineScope {
+class VehicleRepository(private val settingsViewModel: SettingsViewModel) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.IO
 
     private val vehicleImpl = VehicleImpl()

@@ -1,5 +1,6 @@
 package com.auterion.tazama
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,15 +9,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
+import com.auterion.tazama.data.vehicle.VehicleRepository
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.libui.presentation.components.ExpandableFloatingActionButton
 import com.auterion.tazama.libui.presentation.components.ExpandableFloatingActionButtonState
 import com.auterion.tazama.libui.presentation.components.ExpandedItemAction
+import com.auterion.tazama.libvehicle.Measure
 import com.auterion.tazama.libvehicle.PositionAbsolute
 import com.auterion.tazama.navigation.MapDestination
 import com.auterion.tazama.navigation.Navigation
@@ -24,12 +33,19 @@ import com.auterion.tazama.presentation.components.expandedItemsData
 import com.auterion.tazama.presentation.pages.main.MainViewModel
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.auterion.tazama.ui.theme.TazamaTheme
-import dagger.hilt.android.AndroidEntryPoint
+import com.auterion.tazama.util.Preferences
+import kotlinx.coroutines.flow.map
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val player = provideVideoPlayer(application)
+        val settingsViewModel = SettingsViewModel(application)
+        val vehicleRepository = VehicleRepository(settingsViewModel)
+        val measureSystem = provideMeasureSystem()
+        val vehicleViewModel = VehicleViewModel(vehicleRepository, measureSystem)
+
         setContent {
             TazamaTheme {
                 // A surface container using the 'background' color from the theme
@@ -37,20 +53,36 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Main()
+                    Main(player, settingsViewModel, vehicleViewModel)
                 }
             }
+        }
+    }
+
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+    fun provideVideoPlayer(context: Context): ExoPlayer {
+        val customLoadControl = DefaultLoadControl.Builder()
+            .setBufferDurationsMs(0, 0, 0, 0)
+            .build()
+        return ExoPlayer.Builder(context).setLoadControl(customLoadControl).build()
+    }
+
+    private fun provideMeasureSystem() = Preferences.getMeasureSystemFlow(application).map {
+        when (it) {
+            Preferences.MeasureSystem.METRIC -> Measure.MeasurementSystem.METRIC
+            Preferences.MeasureSystem.IMPERIAL -> Measure.MeasurementSystem.IMPERIAL
         }
     }
 }
 
 @Composable
-fun Main() {
+fun Main(
+    player: ExoPlayer,
+    settingsViewModel: SettingsViewModel,
+    vehicleViewModel: VehicleViewModel
+) {
     val navController = rememberNavController()
-    val vehicleViewModel = hiltViewModel<VehicleViewModel>()
-    val mainViewModel = hiltViewModel<MainViewModel>()
-    mainViewModel.setVideoStreamInfoFlow(vehicleViewModel.videoStreamInfo)
-    val settingsViewModel = hiltViewModel<SettingsViewModel>()
+    val mainViewModel = MainViewModel(player, vehicleViewModel.videoStreamInfo)
 
     var floatingButtonState by remember {
         mutableStateOf(ExpandableFloatingActionButtonState.Collapsed)
@@ -99,12 +131,12 @@ fun Main() {
         },
     ) { innerPadding ->
         Navigation(
+            modifier = Modifier.padding(innerPadding),
             navController = navController,
             mainViewModel,
             vehicleViewModel,
             settingsViewModel,
-            modifier = Modifier.padding(innerPadding),
-            mainViewModel.player
+            player,
         )
     }
 }
