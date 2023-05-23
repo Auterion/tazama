@@ -13,90 +13,101 @@ on:
 jobs:
   observer_debug:
     name: Assemble Tazama Observer (debug)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Build
+        working-directory: ./observer
         run: |
-            cd observer
             touch local.properties
             ./gradlew assembleDebug
 
   test_observer:
     name: Test Tazama Observer
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Test
+        working-directory: ./observer
         run: |
-            cd observer
             touch local.properties
             ./gradlew test
 
   survey_debug:
     name: Assemble Tazama Survey (debug)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Build
-        run: |
-            cd survey
-            ./gradlew assembleDebug
+        working-directory: ./survey
+        run: ./gradlew assembleDebug
 
   test_survey:
     name: Test Tazama Survey
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Test
-        run: |
-            cd survey
-            ./gradlew test
+        working-directory: ./survey
+        run: ./gradlew test
 
   libui:
     name: Build and test libui
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Build
+        working-directory: ./libui
         run: |
-            cd libui
             ./gradlew build
             ./gradlew test
 
   libvehicle:
     name: Build and test libvehicle
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Build
+        working-directory: ./libvehicle
         run: |
-            cd libvehicle
+            ./gradlew build
+            ./gradlew test
+
+  libviewmodel:
+    name: Build and test libviewmodel
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Build
+        working-directory: ./libviewmodel
+        run: |
             ./gradlew build
             ./gradlew test
 
   maplibre-compose:
     name: Build and test maplibre-compose
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Build
+        working-directory: ./maplibre-compose
         run: |
-            cd maplibre-compose
             ./gradlew build
             ./gradlew test
 
