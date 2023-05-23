@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    val player: ExoPlayer,
-    private val videoStreamInfo: StateFlow<VideoStreamInfo?>,
+    private val player: ExoPlayer,
+    videoStreamInfo: StateFlow<VideoStreamInfo?>,
 ) : ViewModel() {
     private val _cameraPositionState = mutableStateOf(CameraPositionState())
 
@@ -32,8 +32,7 @@ class MainViewModel(
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     fun connectVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
         viewModelScope.launch {
-            videoStreamInfo
-                .filterNotNull()
+            flow.filterNotNull()
                 .distinctUntilChanged { left, right -> left.uri == right.uri }
                 .collect {
                     player.stop()

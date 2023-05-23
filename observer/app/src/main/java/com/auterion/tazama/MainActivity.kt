@@ -21,6 +21,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.auterion.tazama.data.vehicle.VehicleRepository
+import com.auterion.tazama.data.vehicle.VehicleType
 import com.auterion.tazama.data.vehicle.VehicleViewModel
 import com.auterion.tazama.libui.presentation.components.ExpandableFloatingActionButton
 import com.auterion.tazama.libui.presentation.components.ExpandableFloatingActionButtonState
@@ -34,6 +35,8 @@ import com.auterion.tazama.presentation.pages.main.MainViewModel
 import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
 import com.auterion.tazama.ui.theme.TazamaTheme
 import com.auterion.tazama.util.Preferences
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 class MainActivity : ComponentActivity() {
@@ -42,7 +45,8 @@ class MainActivity : ComponentActivity() {
 
         val player = provideVideoPlayer(application)
         val settingsViewModel = SettingsViewModel(application)
-        val vehicleRepository = VehicleRepository(settingsViewModel)
+        val vehicleType = provideVehicleType(settingsViewModel.vehicleType)
+        val vehicleRepository = VehicleRepository(vehicleType)
         val measureSystem = provideMeasureSystem()
         val vehicleViewModel = VehicleViewModel(vehicleRepository, measureSystem)
 
@@ -65,6 +69,15 @@ class MainActivity : ComponentActivity() {
             .setBufferDurationsMs(0, 0, 0, 0)
             .build()
         return ExoPlayer.Builder(context).setLoadControl(customLoadControl).build()
+    }
+
+    private fun provideVehicleType(vehicleType: StateFlow<SettingsViewModel.VehicleType>): Flow<VehicleType> {
+        return vehicleType.map {
+            when (it) {
+                SettingsViewModel.VehicleType.FAKE -> VehicleType.FAKE
+                SettingsViewModel.VehicleType.MAVSDK -> VehicleType.MAVSDK
+            }
+        }
     }
 
     private fun provideMeasureSystem() = Preferences.getMeasureSystemFlow(application).map {
