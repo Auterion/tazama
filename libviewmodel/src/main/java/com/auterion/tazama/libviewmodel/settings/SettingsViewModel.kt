@@ -3,10 +3,14 @@ package com.auterion.tazama.libviewmodel.settings
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.auterion.tazama.libvehicle.Measure
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SettingsViewModel(private val application: Application) : ViewModel() {
+open class SettingsViewModel(
+    private val application: Application,
+    private val preferences: Preferences
+) : ViewModel() {
     private fun getContext(): Context {
         return application.applicationContext
     }
@@ -15,11 +19,11 @@ class SettingsViewModel(private val application: Application) : ViewModel() {
     enum class VehicleType { FAKE, MAVSDK }
 
     private val _vehicleType =
-        MutableStateFlow(Preferences.getVehicleType(getContext()).toSettings())
+        MutableStateFlow(preferences.getVehicleType().toSettings())
     val vehicleType = _vehicleType.asStateFlow()
 
     fun setVehicleType(vehicleType: VehicleType) {
-        Preferences.setVehicleType(getContext(), vehicleType.toPrefs())
+        preferences.setVehicleType(vehicleType.toPrefs())
         _vehicleType.value = vehicleType
     }
 
@@ -27,31 +31,40 @@ class SettingsViewModel(private val application: Application) : ViewModel() {
     enum class MapType { SATELLITE, NORMAL, HYBRID }
 
     private var _currentMapType =
-        MutableStateFlow(Preferences.getMapType(getContext()).toSettings())
+        MutableStateFlow(preferences.getMapType().toSettings())
     val currentMapType = _currentMapType.asStateFlow()
 
     fun setSatelliteMap(mapType: MapType) {
-        Preferences.setMapType(getContext(), mapType.toPrefs())
+        preferences.setMapType(mapType.toPrefs())
         _currentMapType.value = mapType
     }
 
     // Measure System
-    enum class MeasureSystem { METRIC, IMPERIAL }
+    enum class MeasureSystem {
+        METRIC, IMPERIAL;
+
+        internal fun toMeasurement(): Measure.MeasurementSystem {
+            return when (this) {
+                METRIC -> Measure.MeasurementSystem.METRIC
+                IMPERIAL -> Measure.MeasurementSystem.IMPERIAL
+            }
+        }
+    }
 
     private val _measureSystem =
-        MutableStateFlow(Preferences.getMeasureSystem(getContext()).toSettings())
+        MutableStateFlow(preferences.getMeasureSystem().toSettings())
     val measureSystem = _measureSystem.asStateFlow()
 
     fun setMeasureSystem(measureSystem: MeasureSystem) {
         println(measureSystem.toString())
-        Preferences.setMeasureSystem(getContext(), measureSystem.toPrefs())
+        preferences.setMeasureSystem(measureSystem.toPrefs())
         _measureSystem.value = measureSystem
     }
 
     private fun Preferences.VehicleType.toSettings(): VehicleType {
         return when (this) {
-            Preferences.VehicleType.FAKE -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType.FAKE
-            Preferences.VehicleType.MAVSDK -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType.MAVSDK
+            Preferences.VehicleType.FAKE -> VehicleType.FAKE
+            Preferences.VehicleType.MAVSDK -> VehicleType.MAVSDK
         }
     }
 
@@ -64,9 +77,9 @@ class SettingsViewModel(private val application: Application) : ViewModel() {
 
     private fun Preferences.MapType.toSettings(): MapType {
         return when (this) {
-            Preferences.MapType.SATELLITE -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MapType.SATELLITE
-            Preferences.MapType.NORMAL -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MapType.NORMAL
-            Preferences.MapType.HYBRID -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MapType.HYBRID
+            Preferences.MapType.SATELLITE -> MapType.SATELLITE
+            Preferences.MapType.NORMAL -> MapType.NORMAL
+            Preferences.MapType.HYBRID -> MapType.HYBRID
         }
     }
 
@@ -80,8 +93,8 @@ class SettingsViewModel(private val application: Application) : ViewModel() {
 
     private fun Preferences.MeasureSystem.toSettings(): MeasureSystem {
         return when (this) {
-            Preferences.MeasureSystem.METRIC -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MeasureSystem.METRIC
-            Preferences.MeasureSystem.IMPERIAL -> com.auterion.tazama.libviewmodel.settings.SettingsViewModel.MeasureSystem.IMPERIAL
+            Preferences.MeasureSystem.METRIC -> MeasureSystem.METRIC
+            Preferences.MeasureSystem.IMPERIAL -> MeasureSystem.IMPERIAL
         }
     }
 

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
-class VehicleViewModel(
+open class VehicleViewModel(
     vehicleRepository: VehicleRepository,
     measureSystem: Flow<Measure.MeasurementSystem>
 ) : ViewModel() {

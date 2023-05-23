@@ -23,32 +23,24 @@ import androidx.navigation.compose.rememberNavController
 import com.auterion.tazama.libui.presentation.components.ExpandableFloatingActionButton
 import com.auterion.tazama.libui.presentation.components.ExpandableFloatingActionButtonState
 import com.auterion.tazama.libui.presentation.components.ExpandedItemAction
-import com.auterion.tazama.libvehicle.Measure
 import com.auterion.tazama.libvehicle.PositionAbsolute
-import com.auterion.tazama.libviewmodel.settings.Preferences
+import com.auterion.tazama.libviewmodel.TazamaBuilder
 import com.auterion.tazama.libviewmodel.settings.SettingsViewModel
-import com.auterion.tazama.libviewmodel.vehicle.VehicleRepository
-import com.auterion.tazama.libviewmodel.vehicle.VehicleType
 import com.auterion.tazama.libviewmodel.vehicle.VehicleViewModel
 import com.auterion.tazama.navigation.MapDestination
 import com.auterion.tazama.navigation.Navigation
 import com.auterion.tazama.presentation.components.expandedItemsData
 import com.auterion.tazama.presentation.pages.main.MainViewModel
 import com.auterion.tazama.ui.theme.TazamaTheme
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val player = provideVideoPlayer(application)
-        val settingsViewModel = SettingsViewModel(application)
-        val vehicleType = provideVehicleType(settingsViewModel.vehicleType)
-        val vehicleRepository = VehicleRepository(vehicleType)
-        val measureSystem = provideMeasureSystem()
-        val vehicleViewModel = VehicleViewModel(vehicleRepository, measureSystem)
+        val tazamaBuilder = TazamaBuilder(application)
+        val settingsViewModel = tazamaBuilder.settingsViewModel
+        val vehicleViewModel = tazamaBuilder.vehicleViewModel
 
         setContent {
             TazamaTheme {
@@ -69,22 +61,6 @@ class MainActivity : ComponentActivity() {
             .setBufferDurationsMs(0, 0, 0, 0)
             .build()
         return ExoPlayer.Builder(context).setLoadControl(customLoadControl).build()
-    }
-
-    private fun provideVehicleType(vehicleType: StateFlow<SettingsViewModel.VehicleType>): Flow<VehicleType> {
-        return vehicleType.map {
-            when (it) {
-                SettingsViewModel.VehicleType.FAKE -> VehicleType.FAKE
-                SettingsViewModel.VehicleType.MAVSDK -> VehicleType.MAVSDK
-            }
-        }
-    }
-
-    private fun provideMeasureSystem() = Preferences.getMeasureSystemFlow(application).map {
-        when (it) {
-            Preferences.MeasureSystem.METRIC -> Measure.MeasurementSystem.METRIC
-            Preferences.MeasureSystem.IMPERIAL -> Measure.MeasurementSystem.IMPERIAL
-        }
     }
 }
 

@@ -5,8 +5,9 @@ import com.auterion.tazama.libvehicle.VehicleImpl
 import com.auterion.tazama.libvehicle.service.VehicleService
 import com.auterion.tazama.libvehicle.service.dummy.DummyService
 import com.auterion.tazama.libvehicle.service.mavsdk.MavsdkService
-import com.auterion.tazama.libviewmodel.vehicle.VehicleType.FAKE
-import com.auterion.tazama.libviewmodel.vehicle.VehicleType.MAVSDK
+import com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType
+import com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType.FAKE
+import com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType.MAVSDK
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,13 +15,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-enum class VehicleType { FAKE, MAVSDK }
+interface VehicleRepository {
+    val vehicle: Vehicle
+}
 
-class VehicleRepository(vehicleType: Flow<VehicleType>) : CoroutineScope {
+internal class VehicleRepositoryImpl(vehicleType: Flow<VehicleType>) : VehicleRepository,
+    CoroutineScope {
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.IO
 
     private val vehicleImpl = VehicleImpl()
-    val vehicle: Vehicle = vehicleImpl
+    override val vehicle: Vehicle = vehicleImpl
 
     private var lastVehicleType: VehicleType? = null
     private var vehicleService: VehicleService = DummyService(vehicleImpl)
