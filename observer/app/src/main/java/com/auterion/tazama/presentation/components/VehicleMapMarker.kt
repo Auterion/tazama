@@ -1,4 +1,4 @@
-package com.auterion.tazama.libui.presentation.components
+package com.auterion.tazama.presentation.components
 
 import android.content.Context
 import android.graphics.Bitmap
