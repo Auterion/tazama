@@ -14,9 +14,9 @@ import org.maplibre.compose.MapLibreComposable
 import org.maplibre.compose.PixelToCoordMapper
 import org.maplibre.compose.PolyLine
 import org.maplibre.compose.Polygon
-import org.maplibre.compose.screenDistanceBetween
 import org.maplibre.compose.coordFromPixel
 import org.maplibre.compose.pixelFromCoord
+import org.maplibre.compose.screenDistanceBetween
 
 enum class VertexRole {
     DRAGGER, INSERTER
@@ -113,10 +113,10 @@ fun SurveyPolygon(
 
                 },
                 onDragStopped = { draggedId.value = null },
-                /*imageId = when (vertice.role) {
-                    VerticeRole.DRAGGER -> null
-                    VerticeRole.INSERTER -> R.drawable.plus
-                },*/
+                imageId = when (vertex.role) {
+                    VertexRole.DRAGGER -> null
+                    VertexRole.INSERTER -> R.drawable.plus
+                },
                 itemSize = 0.5f,
             )
         }
