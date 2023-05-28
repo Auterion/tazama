@@ -1,6 +1,5 @@
 package com.auterion.tazama.survey
 
-import android.graphics.PointF
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -9,9 +8,8 @@ import androidx.core.graphics.minus
 import androidx.core.graphics.plus
 import com.mapbox.mapboxsdk.geometry.LatLng
 import org.maplibre.compose.CircleWithItem
-import org.maplibre.compose.CoordToPixelMapper
 import org.maplibre.compose.MapLibreComposable
-import org.maplibre.compose.PixelToCoordMapper
+import org.maplibre.compose.MapObserver
 import org.maplibre.compose.PolyLine
 import org.maplibre.compose.Polygon
 import org.maplibre.compose.coordFromPixel
@@ -29,35 +27,8 @@ data class Vertex(
     val draggable: Boolean = false,
     val color: String = "Black",
     val role: VertexRole = VertexRole.DRAGGER,
-    val sequence: Int,
+    val sequence: Int
 )
-
-@Composable
-fun InsertPointsCalculator(coords: List<LatLng>, onChange: (List<LatLng>) -> Unit) {
-    val pixelCoordinates = remember { mutableStateOf(mutableListOf(PointF())) }
-
-    CoordToPixelMapper(
-        coordinates = coords.toMutableList(),
-        onChange = { pixelCoordinates.value = it.toMutableList() }
-    )
-
-    val points = mutableListOf<PointF>()
-
-    pixelCoordinates.value.forEachIndexed { index, point ->
-        var tmp = PointF()
-        if (index < pixelCoordinates.value.size - 1) {
-            tmp = (pixelCoordinates.value[index + 1] - point)
-        } else {
-            // last item
-            tmp = pixelCoordinates.value[0] - point
-        }
-        tmp.x = tmp.x * 0.5f
-        tmp.y = tmp.y * 0.5f
-        points.add(point + tmp)
-    }
-
-    PixelToCoordMapper(points = points, onChange = { onChange(it) })
-}
 
 @MapLibreComposable
 @Composable
@@ -65,8 +36,13 @@ fun SurveyPolygon(
     vertices: MutableList<Vertex>,
     onVerticesTranslated: (MutableList<LatLng>) -> Unit,
     onVertexWithIdChanged: (Int, LatLng) -> Unit,
-    onDeleteVertex: (Int) -> Unit
+    onDeleteVertex: (Int) -> Unit,
 ) {
+
+    val lastMapUpdateMs = remember {
+        mutableStateOf(System.currentTimeMillis())
+    }
+
     val pointsForPolyline: MutableList<LatLng> = vertices
         .sortedBy { it.sequence }
         .filter { it.role == VertexRole.DRAGGER }
@@ -74,16 +50,25 @@ fun SurveyPolygon(
 
     pointsForPolyline.add(vertices.first { it.sequence == 0 }.location)
 
+
     val draggedId = remember { mutableStateOf<Int?>(null) }
 
+    val mapScaleChangeToggler = remember {
+        mutableStateOf(true)
+    }
+
+    MapObserver(onMapScaled = {
+        if (System.currentTimeMillis() - lastMapUpdateMs.value > 100) {
+            lastMapUpdateMs.value = System.currentTimeMillis()
+            mapScaleChangeToggler.value = !mapScaleChangeToggler.value
+        }
+    })
+
     Polygon(
-        vertices = mutableListOf(vertices
-            .sortedBy { it.sequence }
-            .filter { it.role == VertexRole.DRAGGER }
-            .map { it.location }.toMutableList()
-        ),
+        vertices = pointsForPolyline,
+        draggerImageId = R.drawable.drag,
         fillColor = "Green",
-        opacity = 0.3f,
+        opacity = 0.2f,
         isDraggable = true,
         onVerticesChanged = { onVerticesTranslated(it.first()) }
     )
@@ -94,31 +79,38 @@ fun SurveyPolygon(
         lineWidth = 2.0f
     )
 
-    vertices.forEachIndexed { index, vertex ->
-        key(vertex.id) {
-            CircleWithItem(
-                center = when (vertex.role) {
-                    VertexRole.DRAGGER -> vertex.location
-                    VertexRole.INSERTER -> inserterCoordinateForId(
+    key(mapScaleChangeToggler.value) {  // this triggers recomposition when map is scaled
+        vertices.forEachIndexed { index, vertex ->
+            key(vertex.id) {
+                if (vertex.role == VertexRole.DRAGGER || isEnoughSpaceForInserter(
                         id = vertex.id,
                         vertices = vertices
                     )
-                },
-                radius = vertices[index].radius,
-                isDraggable = vertex.draggable,
-                color = vertex.color,
-                onCenterChanged = { latLng ->
-                    draggedId.value = vertex.id
-                    onVertexWithIdChanged(vertex.id, latLng)
+                )
+                    CircleWithItem(
+                        center = when (vertex.role) {
+                            VertexRole.DRAGGER -> vertex.location
+                            VertexRole.INSERTER -> inserterCoordinateForId(
+                                id = vertex.id,
+                                vertices = vertices
+                            )
+                        },
+                        radius = vertices[index].radius,
+                        isDraggable = vertex.draggable,
+                        color = vertex.color,
+                        onCenterChanged = { latLng ->
+                            draggedId.value = vertex.id
+                            onVertexWithIdChanged(vertex.id, latLng)
 
-                },
-                onDragStopped = { draggedId.value = null },
-                imageId = when (vertex.role) {
-                    VertexRole.DRAGGER -> null
-                    VertexRole.INSERTER -> R.drawable.plus
-                },
-                itemSize = 0.5f,
-            )
+                        },
+                        onDragStopped = { draggedId.value = null },
+                        imageId = when (vertex.role) {
+                            VertexRole.DRAGGER -> null
+                            VertexRole.INSERTER -> R.drawable.plus
+                        },
+                        itemSize = 0.5f,
+                    )
+            }
         }
     }
 
@@ -130,8 +122,26 @@ fun SurveyPolygon(
 }
 
 @Composable
+fun isEnoughSpaceForInserter(id: Int, vertices: MutableList<Vertex>): Boolean {
+    vertices.firstOrNull {
+        it.id == id
+    }?.sequence?.let { inserterSequence ->
+        val prevVertex =
+            vertices.find { it.sequence == (inserterSequence - 1).WrapToListIndex(vertices.size) }
+        val nextVertex =
+            vertices.find { it.sequence == (inserterSequence + 1).WrapToListIndex(vertices.size) }
+
+        val dist = screenDistanceBetween(a = prevVertex?.location!!, b = nextVertex?.location!!)
+
+        return dist > 400
+    }
+
+    return false
+}
+
+@Composable
 fun inserterCoordinateForId(id: Int, vertices: MutableList<Vertex>): LatLng {
-    val sequence = vertices.find { it.id == id }?.sequence?.let { sequence ->
+    vertices.find { it.id == id }?.sequence?.let { sequence ->
         val sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
         val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
 
@@ -158,7 +168,7 @@ fun VertexDeleter(
         mutableStateOf(-1)
     }
 
-    draggedId?.let { draggedId ->
+    draggedId?.let {
         vertices.firstOrNull { it.id == draggedId }?.let { vertex ->
             sequenceBefore.value = vertex.sequence
             val previousSequence = (vertex.sequence - 2).WrapToListIndex(vertices.size)
