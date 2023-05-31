@@ -82,7 +82,7 @@ fun SurveyPolygon(
     key(mapScaleChangeToggler.value) {  // this triggers recomposition when map is scaled
         vertices.forEachIndexed { index, vertex ->
             key(vertex.id) {
-                if (vertex.role == VertexRole.DRAGGER || isEnoughSpaceForInserter(
+                if (vertex.role == VertexRole.DRAGGER || hasEnoughSpaceForInserter(
                         id = vertex.id,
                         vertices = vertices
                     )
@@ -122,7 +122,7 @@ fun SurveyPolygon(
 }
 
 @Composable
-fun isEnoughSpaceForInserter(id: Int, vertices: MutableList<Vertex>): Boolean {
+fun hasEnoughSpaceForInserter(id: Int, vertices: MutableList<Vertex>): Boolean {
     vertices.firstOrNull {
         it.id == id
     }?.sequence?.let { inserterSequence ->
