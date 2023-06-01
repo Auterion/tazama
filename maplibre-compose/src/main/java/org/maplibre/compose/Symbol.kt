@@ -18,26 +18,31 @@ fun Symbol(
     size: Float,
     color: String,
     isDraggable: Boolean,
+    zIndex: Int = 0,
     imageId: Int? = null,
     text: String? = null
 ) {
     val mapApplier = currentComposer.applier as MapApplier
 
     imageId?.let {
-        mapApplier.style.addImage(
-            "symbol",
-            ImageBitmap.imageResource(id = it).asAndroidBitmap()
-        )
+
+        if (mapApplier.style.getImage(imageId.toString()) == null) {
+            mapApplier.style.addImage(
+                imageId.toString(),
+                ImageBitmap.imageResource(id = it).asAndroidBitmap()
+            )
+        }
     }
 
     ComposeNode<SymbolNode, MapApplier>(factory = {
+        val symbolManager = mapApplier.getSymoblManagerForZIndex(zIndex)
         var symbolOptions = SymbolOptions()
             .withDraggable(isDraggable)
             .withLatLng(center)
 
         imageId?.let {
             symbolOptions = symbolOptions
-                .withIconImage("symbol")
+                .withIconImage(imageId.toString())
                 .withIconColor(color)
                 .withIconSize(size)
         }
@@ -51,8 +56,8 @@ fun Symbol(
                 .withTextAnchor(TEXT_ANCHOR_CENTER)
         }
 
-        val symbol = mapApplier.symbolManager.create(symbolOptions)
-        SymbolNode(mapApplier.symbolManager, symbol)
+        val symbol = symbolManager.create(symbolOptions)
+        SymbolNode(symbolManager, symbol)
     }, update = {
         set(center) {
             symbol.latLng = center
@@ -62,6 +67,10 @@ fun Symbol(
         set(text) {
             symbol.textField = text
             symbolManager.update(symbol)
+        }
+
+        set(color) {
+            symbol.iconColor = color
         }
     })
 }
