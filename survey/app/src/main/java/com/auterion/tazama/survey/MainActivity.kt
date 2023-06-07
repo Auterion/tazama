@@ -19,7 +19,10 @@ class MainActivity : ComponentActivity() {
                 val surveyViewModel: SurveyViewModel = viewModel()
                 val vertices = surveyViewModel.survey.verticeFlow.collectAsState()
 
-                MapLibre(modifier = Modifier.fillMaxSize()) {
+                MapLibre(
+                    modifier = Modifier.fillMaxSize(),
+                    apiKey = getString(R.string.maps_api_key),
+                ) {
                     SurveyPolygon(
                         vertices.value.toMutableList(),
                         onVerticesTranslated = { surveyViewModel.survey.handleVerticesTranslated(it) },
