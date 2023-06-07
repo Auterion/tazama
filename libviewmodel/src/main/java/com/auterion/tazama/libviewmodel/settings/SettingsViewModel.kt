@@ -3,6 +3,9 @@ package com.auterion.tazama.libviewmodel.settings
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.auterion.tazama.libvehicle.Measure
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,6 +14,16 @@ open class SettingsViewModel(
     private val application: Application,
     private val preferences: Preferences
 ) : ViewModel() {
+    companion object {
+        fun factory(application: Application, preferences: Preferences): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    SettingsViewModel(application, preferences)
+                }
+            }
+        }
+    }
+
     private fun getContext(): Context {
         return application.applicationContext
     }

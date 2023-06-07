@@ -1,6 +1,8 @@
 package com.auterion.tazama.libviewmodel
 
 import android.app.Application
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import com.auterion.tazama.libviewmodel.settings.Preferences
 import com.auterion.tazama.libviewmodel.settings.PreferencesImpl
 import com.auterion.tazama.libviewmodel.settings.SettingsViewModel
@@ -19,18 +21,25 @@ import kotlinx.coroutines.flow.map
  */
 class TazamaBuilder(
     application: Application,
+    viewModelStoreOwner: ViewModelStoreOwner,
     settingsViewModel: SettingsViewModel? = null,
     vehicleRepository: VehicleRepository? = null,
     vehicleViewModel: VehicleViewModel? = null,
     preferences: Preferences? = null,
 ) {
     private val preferences = preferences ?: PreferencesImpl(application)
-    val settingsViewModel = settingsViewModel ?: SettingsViewModel(application, this.preferences)
+
+    val settingsViewModel = settingsViewModel ?: ViewModelProvider(
+        viewModelStoreOwner,
+        SettingsViewModel.factory(application, this.preferences)
+    )[SettingsViewModel::class.java]
 
     private val vehicleType = this.settingsViewModel.vehicleType
     private val vehicleRepository = vehicleRepository ?: VehicleRepositoryImpl(vehicleType)
     private val measureSystem = this.settingsViewModel.measureSystem.map { it.toMeasurement() }
 
-    val vehicleViewModel =
-        vehicleViewModel ?: VehicleViewModel(this.vehicleRepository, measureSystem)
+    val vehicleViewModel = vehicleViewModel ?: ViewModelProvider(
+        viewModelStoreOwner,
+        VehicleViewModel.factory(this.vehicleRepository, this.measureSystem)
+    )[VehicleViewModel::class.java]
 }
