@@ -5,6 +5,15 @@ plugins {
     id 'kotlin-kapt'
 }
 
+// Load file "keystore.properties" where we keep our keys
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+
+try {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} catch (IOException ignored) {
+}
+
 android {
     namespace 'com.auterion.tazama.observer'
     compileSdk 33
@@ -16,6 +25,13 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
+
+        if (keystoreProperties.containsKey("MAPS_API_KEY")) {
+            resValue "string", "MAPS_API_KEY", keystoreProperties["MAPS_API_KEY"]
+        } else {
+            println("WARNING: MAPS_API_KEY is missing from keystore file!")
+            resValue "string", "MAPS_API_KEY", ""
+        }
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
