@@ -31,7 +31,7 @@ class TazamaBuilder(
 
     val settingsViewModel = settingsViewModel ?: ViewModelProvider(
         viewModelStoreOwner,
-        SettingsViewModel.factory(application, this.preferences)
+        SettingsViewModel.factory(this.preferences)
     )[SettingsViewModel::class.java]
 
     private val vehicleType = this.settingsViewModel.vehicleType
