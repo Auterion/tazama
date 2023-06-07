@@ -1,6 +1,9 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libviewmodel.vehicle
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.auterion.tazama.libui.presentation.pages.main.TelemetryDisplayNumber
 import com.auterion.tazama.libvehicle.Distance
 import com.auterion.tazama.libvehicle.Measure
@@ -9,10 +12,23 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
-class VehicleViewModel(
+open class VehicleViewModel(
     vehicleRepository: VehicleRepository,
     measureSystem: Flow<Measure.MeasurementSystem>
 ) : ViewModel() {
+    companion object {
+        fun factory(
+            vehicleRepository: VehicleRepository,
+            measureSystem: Flow<Measure.MeasurementSystem>
+        ): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    VehicleViewModel(vehicleRepository, measureSystem)
+                }
+            }
+        }
+    }
+
     val vehiclePosition = vehicleRepository.vehicle.telemetry.position
         .combine(measureSystem) { pos, measureSystem -> pos?.toSystem(measureSystem) }
 

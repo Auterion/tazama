@@ -1,26 +1,35 @@
-package com.auterion.tazama.presentation.pages.settings
+package com.auterion.tazama.libviewmodel.settings
 
-import android.app.Application
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.auterion.tazama.util.Preferences
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.auterion.tazama.libvehicle.Measure
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SettingsViewModel(private val application: Application) : ViewModel() {
-    private fun getContext(): Context {
-        return application.applicationContext
+open class SettingsViewModel(
+    private val preferences: Preferences
+) : ViewModel() {
+    companion object {
+        fun factory(preferences: Preferences): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    SettingsViewModel(preferences)
+                }
+            }
+        }
     }
 
     // Vehicle
     enum class VehicleType { FAKE, MAVSDK }
 
     private val _vehicleType =
-        MutableStateFlow(Preferences.getVehicleType(getContext()).toSettings())
+        MutableStateFlow(preferences.getVehicleType().toSettings())
     val vehicleType = _vehicleType.asStateFlow()
 
     fun setVehicleType(vehicleType: VehicleType) {
-        Preferences.setVehicleType(getContext(), vehicleType.toPrefs())
+        preferences.setVehicleType(vehicleType.toPrefs())
         _vehicleType.value = vehicleType
     }
 
@@ -28,24 +37,33 @@ class SettingsViewModel(private val application: Application) : ViewModel() {
     enum class MapType { SATELLITE, NORMAL, HYBRID }
 
     private var _currentMapType =
-        MutableStateFlow(Preferences.getMapType(getContext()).toSettings())
+        MutableStateFlow(preferences.getMapType().toSettings())
     val currentMapType = _currentMapType.asStateFlow()
 
     fun setSatelliteMap(mapType: MapType) {
-        Preferences.setMapType(getContext(), mapType.toPrefs())
+        preferences.setMapType(mapType.toPrefs())
         _currentMapType.value = mapType
     }
 
     // Measure System
-    enum class MeasureSystem { METRIC, IMPERIAL }
+    enum class MeasureSystem {
+        METRIC, IMPERIAL;
+
+        internal fun toMeasurement(): Measure.MeasurementSystem {
+            return when (this) {
+                METRIC -> Measure.MeasurementSystem.METRIC
+                IMPERIAL -> Measure.MeasurementSystem.IMPERIAL
+            }
+        }
+    }
 
     private val _measureSystem =
-        MutableStateFlow(Preferences.getMeasureSystem(getContext()).toSettings())
+        MutableStateFlow(preferences.getMeasureSystem().toSettings())
     val measureSystem = _measureSystem.asStateFlow()
 
     fun setMeasureSystem(measureSystem: MeasureSystem) {
         println(measureSystem.toString())
-        Preferences.setMeasureSystem(getContext(), measureSystem.toPrefs())
+        preferences.setMeasureSystem(measureSystem.toPrefs())
         _measureSystem.value = measureSystem
     }
 

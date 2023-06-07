@@ -1,32 +1,37 @@
-package com.auterion.tazama.data.vehicle
+package com.auterion.tazama.libviewmodel.vehicle
 
 import com.auterion.tazama.libvehicle.Vehicle
 import com.auterion.tazama.libvehicle.VehicleImpl
 import com.auterion.tazama.libvehicle.service.VehicleService
 import com.auterion.tazama.libvehicle.service.dummy.DummyService
 import com.auterion.tazama.libvehicle.service.mavsdk.MavsdkService
-import com.auterion.tazama.presentation.pages.settings.SettingsViewModel
-import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.VehicleType
-import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.VehicleType.FAKE
-import com.auterion.tazama.presentation.pages.settings.SettingsViewModel.VehicleType.MAVSDK
+import com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType
+import com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType.FAKE
+import com.auterion.tazama.libviewmodel.settings.SettingsViewModel.VehicleType.MAVSDK
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class VehicleRepository(private val settingsViewModel: SettingsViewModel) : CoroutineScope {
+interface VehicleRepository {
+    val vehicle: Vehicle
+}
+
+internal class VehicleRepositoryImpl(vehicleType: Flow<VehicleType>) : VehicleRepository,
+    CoroutineScope {
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.IO
 
     private val vehicleImpl = VehicleImpl()
-    val vehicle: Vehicle = vehicleImpl
+    override val vehicle: Vehicle = vehicleImpl
 
     private var lastVehicleType: VehicleType? = null
     private var vehicleService: VehicleService = DummyService(vehicleImpl)
 
     init {
         launch {
-            settingsViewModel.vehicleType.collect { vehicleType ->
+            vehicleType.collect { vehicleType ->
                 if (vehicleType != lastVehicleType) {
                     lastVehicleType = vehicleType
                     swapVehicleType(vehicleType)

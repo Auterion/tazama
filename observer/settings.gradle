@@ -17,5 +17,6 @@ rootProject.name = "tazama-observer"
 include ':app'
 
 includeBuild '../libvehicle'
+includeBuild '../libviewmodel'
 includeBuild '../libui'
 

@@ -2,7 +2,10 @@ package com.auterion.tazama.presentation.pages.main
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.rtsp.RtspMediaSource
@@ -17,9 +20,22 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    val player: ExoPlayer,
-    private val videoStreamInfo: StateFlow<VideoStreamInfo?>,
+    private val player: ExoPlayer,
+    videoStreamInfo: StateFlow<VideoStreamInfo?>,
 ) : ViewModel() {
+    companion object {
+        fun factory(
+            player: ExoPlayer,
+            videoStreamInfo: StateFlow<VideoStreamInfo?>
+        ): ViewModelProvider.Factory {
+            return viewModelFactory {
+                initializer {
+                    MainViewModel(player, videoStreamInfo)
+                }
+            }
+        }
+    }
+
     private val _cameraPositionState = mutableStateOf(CameraPositionState())
 
     init {
@@ -32,8 +48,7 @@ class MainViewModel(
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     fun connectVideoStreamInfoFlow(flow: StateFlow<VideoStreamInfo?>) {
         viewModelScope.launch {
-            videoStreamInfo
-                .filterNotNull()
+            flow.filterNotNull()
                 .distinctUntilChanged { left, right -> left.uri == right.uri }
                 .collect {
                     player.stop()

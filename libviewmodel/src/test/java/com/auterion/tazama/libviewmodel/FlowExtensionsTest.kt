@@ -1,11 +1,11 @@
-package com.auterion.tazama
+package com.auterion.tazama.libviewmodel
 
 import com.auterion.tazama.libvehicle.Altitude
 import com.auterion.tazama.libvehicle.Degrees
 import com.auterion.tazama.libvehicle.Distance
 import com.auterion.tazama.libvehicle.PositionAbsolute
-import com.auterion.tazama.util.distinctUntil
-import com.auterion.tazama.util.windowed
+import com.auterion.tazama.libviewmodel.util.distinctUntil
+import com.auterion.tazama.libviewmodel.util.windowed
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.runTest
