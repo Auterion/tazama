@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: |
             cd observer
-            echo "MAPS_API_KEY=none" >> local.properties
+            touch local.properties
             ./gradlew assembleDebug
 
   test_observer:
@@ -34,7 +34,7 @@ jobs:
       - name: Test
         run: |
             cd observer
-            echo "MAPS_API_KEY=none" >> local.properties
+            touch local.properties
             ./gradlew test
 
   survey_debug:
