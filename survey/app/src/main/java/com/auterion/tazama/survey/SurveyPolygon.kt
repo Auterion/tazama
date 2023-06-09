@@ -7,14 +7,14 @@ import androidx.compose.runtime.remember
 import androidx.core.graphics.minus
 import androidx.core.graphics.plus
 import com.mapbox.mapboxsdk.geometry.LatLng
-import org.maplibre.compose.CircleWithItem
-import org.maplibre.compose.MapLibreComposable
-import org.maplibre.compose.MapObserver
-import org.maplibre.compose.PolyLine
-import org.maplibre.compose.Polygon
-import org.maplibre.compose.coordFromPixel
-import org.maplibre.compose.pixelFromCoord
-import org.maplibre.compose.screenDistanceBetween
+import org.ramani.compose.CircleWithItem
+import org.ramani.compose.MapLibreComposable
+import org.ramani.compose.MapObserver
+import org.ramani.compose.PolyLine
+import org.ramani.compose.Polygon
+import org.ramani.compose.coordFromPixel
+import org.ramani.compose.pixelFromCoord
+import org.ramani.compose.screenDistanceBetween
 
 enum class VertexRole {
     DRAGGER, INSERTER

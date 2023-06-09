@@ -106,7 +106,7 @@ jobs:
         with:
           submodules: recursive
       - name: Build
-        working-directory: ./maplibre-compose
+        working-directory: ./ramani-maps
         run: |
             ./gradlew build
             ./gradlew test
