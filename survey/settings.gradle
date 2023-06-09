@@ -19,5 +19,5 @@ include ':app'
 
 includeBuild '../libvehicle'
 includeBuild '../libui'
-includeBuild '../ramani-maps'
+includeBuild '../../ramani-maps/ramani'
 

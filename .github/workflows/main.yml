@@ -98,16 +98,3 @@ jobs:
             ./gradlew build
             ./gradlew test
 
-  maplibre-compose:
-    name: Build and test maplibre-compose
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Build
-        working-directory: ./ramani-maps
-        run: |
-            ./gradlew build
-            ./gradlew test
-
