@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId "com.auterion.tazama.observer"
-        minSdk 26
+        minSdk 25
 
         targetSdk 33
         versionCode 1
