@@ -70,13 +70,15 @@ fun SurveyPolygon(
         fillColor = "Green",
         opacity = 0.2f,
         isDraggable = true,
+        zIndex = 0,
+        zIndexDragHandle = 5,
         onVerticesChanged = { onVerticesTranslated(it.first()) }
     )
 
     PolyLine(
         points = pointsForPolyline,
         color = "Black",
-        lineWidth = 2.0f
+        lineWidth = 2.0f,
     )
 
     key(mapScaleChangeToggler.value) {  // this triggers recomposition when map is scaled
@@ -96,6 +98,7 @@ fun SurveyPolygon(
                             )
                         },
                         radius = vertices[index].radius,
+                        dragRadius = 40.0f,
                         isDraggable = vertex.draggable,
                         color = vertex.color,
                         onCenterChanged = { latLng ->
@@ -109,6 +112,7 @@ fun SurveyPolygon(
                             VertexRole.INSERTER -> R.drawable.plus
                         },
                         itemSize = 0.5f,
+                        zIndex = 1
                     )
             }
         }
