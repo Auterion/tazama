@@ -18,6 +18,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Build
         working-directory: ./observer
         run: |
@@ -31,6 +36,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Test
         working-directory: ./observer
         run: |
@@ -44,6 +54,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Build
         working-directory: ./survey
         run: ./gradlew assembleDebug
@@ -55,6 +70,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Test
         working-directory: ./survey
         run: ./gradlew test
@@ -66,6 +86,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Build
         working-directory: ./libui
         run: |
@@ -79,6 +104,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Build
         working-directory: ./libvehicle
         run: |
@@ -92,6 +122,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Build
         working-directory: ./libviewmodel
         run: |
