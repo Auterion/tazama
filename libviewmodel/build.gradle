@@ -1,8 +1,8 @@
 buildscript {
     ext {
-        kotlin_version = "1.8.10"
+        kotlin_version = "1.8.21"
         hilt_version = '2.44'
-        compose_ui_version = '1.4.0-beta01'
+        compose_ui_version = '1.4.3'
     }
 
     repositories {
@@ -10,7 +10,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.android.tools.build:gradle:8.0.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -26,6 +26,7 @@ allprojects {
     }
 
     android {
+        namespace 'com.auterion.tazama.libviewmodel'
         compileSdkVersion 33
         buildToolsVersion "30.0.3"
 
@@ -44,17 +45,17 @@ allprojects {
             }
         }
         compileOptions {
-            sourceCompatibility JavaVersion.VERSION_11
-            targetCompatibility JavaVersion.VERSION_11
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
         }
         kotlinOptions {
-            jvmTarget = '11'
+            jvmTarget = '17'
         }
         buildFeatures {
             compose true
         }
         composeOptions {
-            kotlinCompilerExtensionVersion "1.4.2"
+            kotlinCompilerExtensionVersion "1.4.7"
         }
 
         testOptions {
@@ -70,12 +71,12 @@ allprojects {
     }
 
     dependencies {
-        implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
+        implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
         implementation 'com.auterion.tazama:libui'
         implementation 'com.auterion.tazama:libvehicle'
-        implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+        implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
 
         testImplementation 'junit:junit:4.13.2'
-        testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
+        testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1'
     }
 }
