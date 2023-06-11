@@ -1,0 +1,6 @@
+[submodule "maplibre-plugins-android"]
+	path = maplibre-plugins-android
+	url = git@github.com:ramani-maps/maplibre-plugins-android
+[submodule "ramani-maps"]
+	path = ramani-maps
+	url = git@github.com:ramani-maps/ramani-maps
