@@ -67,7 +67,7 @@ class Survey() {
         _verticeFlow.value = vertices
     }
 
-    fun handleVerticesTranslated(coords: MutableList<LatLng>) {
+    fun handleVerticesTranslated(coords: List<LatLng>) {
         repeat(vertices.size) {
             if (vertices[it].role == VertexRole.DRAGGER) {
                 vertices[it] = vertices[it].copy(location = coords[vertices[it].sequence / 2])
@@ -137,10 +137,9 @@ class Survey() {
         var index = vertices.indexOfFirst { it.sequence == sequence }
 
         if (index > -1) {
-
             val vertexToChange = vertices[index]
 
-            var sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
+            val sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
             val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
 
             vertices.removeIf { it.sequence == sequencePrev }

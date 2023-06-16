@@ -10,7 +10,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import org.ramani.compose.CircleWithItem
 import org.ramani.compose.MapLibreComposable
 import org.ramani.compose.MapObserver
-import org.ramani.compose.PolyLine
+import org.ramani.compose.Polyline
 import org.ramani.compose.Polygon
 import org.ramani.compose.coordFromPixel
 import org.ramani.compose.pixelFromCoord
@@ -33,8 +33,8 @@ data class Vertex(
 @MapLibreComposable
 @Composable
 fun SurveyPolygon(
-    vertices: MutableList<Vertex>,
-    onVerticesTranslated: (MutableList<LatLng>) -> Unit,
+    vertices: List<Vertex>,
+    onVerticesTranslated: (List<LatLng>) -> Unit,
     onVertexWithIdChanged: (Int, LatLng) -> Unit,
     onDeleteVertex: (Int) -> Unit,
 ) {
@@ -75,7 +75,7 @@ fun SurveyPolygon(
         onVerticesChanged = { onVerticesTranslated(it.first()) }
     )
 
-    PolyLine(
+    Polyline(
         points = pointsForPolyline,
         color = "Black",
         lineWidth = 2.0f,
@@ -126,7 +126,7 @@ fun SurveyPolygon(
 }
 
 @Composable
-fun hasEnoughSpaceForInserter(id: Int, vertices: MutableList<Vertex>): Boolean {
+fun hasEnoughSpaceForInserter(id: Int, vertices: List<Vertex>): Boolean {
     vertices.firstOrNull {
         it.id == id
     }?.sequence?.let { inserterSequence ->
@@ -144,7 +144,7 @@ fun hasEnoughSpaceForInserter(id: Int, vertices: MutableList<Vertex>): Boolean {
 }
 
 @Composable
-fun inserterCoordinateForId(id: Int, vertices: MutableList<Vertex>): LatLng {
+fun inserterCoordinateForId(id: Int, vertices: List<Vertex>): LatLng {
     vertices.find { it.id == id }?.sequence?.let { sequence ->
         val sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
         val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
@@ -162,7 +162,7 @@ fun inserterCoordinateForId(id: Int, vertices: MutableList<Vertex>): LatLng {
 
 @Composable
 fun VertexDeleter(
-    vertices: MutableList<Vertex>,
+    vertices: List<Vertex>,
     draggedId: Int?,
     onDeleteVertex: (sequence: Int) -> Unit
 ) {
@@ -190,15 +190,12 @@ fun VertexDeleter(
                     b = vertices.first { it.sequence == previousSequence }.location
                 )
 
-            var seqToRemove = 0
-
-            if (distToNext < distToPrev) {
+            val seqToRemove = if (distToNext < distToPrev) {
                 distance.value = distToNext
-                seqToRemove = nextSequence
-
+                nextSequence
             } else {
                 distance.value = distToPrev
-                seqToRemove = previousSequence
+                previousSequence
             }
 
             if (distance.value < 100.0f) {
