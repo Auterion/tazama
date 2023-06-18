@@ -125,6 +125,9 @@ fun SurveyPolygon(
     )
 
     Polyline(points = transects, color = "Red", lineWidth = 2.0f)
+
+    // code below can be uncommented to debug issues with bounding rectangle, can probably be removed
+    // soon
 //
 //
 //    val projection = LocalProjection(vertices.first { it.role == VertexRole.DRAGGER }.location)
