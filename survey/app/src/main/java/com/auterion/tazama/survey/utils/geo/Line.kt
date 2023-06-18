@@ -37,18 +37,12 @@ class Line(start: PointF, end: PointF) {
     }
 
     fun rotateAroundCenter(center: PointF, angle: Double): Line {
-        val startOffset = _start - center
-        val newStartX = Math.cos(angle) * startOffset.x - Math.sin(angle) * startOffset.y
-        val newStartY = Math.cos(angle) * startOffset.y + Math.sin(angle) * startOffset.x
-
-
-        val endOffset = _end - center
-        val newEndX = Math.cos(angle) * endOffset.x - Math.sin(angle) * endOffset.y + center.x
-        val newEndY = Math.cos(angle) * endOffset.y + Math.sin(angle) * endOffset.x + center.y
+        val newStartX = _start.rotateAroundCenter(center, angle)
+        val newStartY = _end.rotateAroundCenter(center, angle)
 
         return Line(
-            PointF(newStartX.toFloat(), newStartY.toFloat()),
-            PointF(newEndX.toFloat(), newEndY.toFloat())
+            newStartX + center,
+            newStartY + center
         )
     }
 
@@ -59,7 +53,7 @@ class Line(start: PointF, end: PointF) {
     fun pointIsOnLine(point: PointF): Boolean {
 
         // first attempt to work around numerical issues, see unit tests for Line
-        val delta = 0.001 * length()
+        val delta = 0.01 * length()
 
         if (isVertical()) {
             return abs(point.x - _start.x) < 0.001f

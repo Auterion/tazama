@@ -1,5 +1,8 @@
 package com.auterion.tazama.survey
 
+import com.auterion.tazama.survey.utils.geo.Line
+import com.auterion.tazama.survey.utils.geo.PointF
+import com.auterion.tazama.survey.utils.geo.rotateAroundCenter
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import kotlin.math.PI
@@ -80,7 +83,7 @@ class LineTest {
         // the new intersection point should equal the rotates intersection point
         var angle = 0.0
         for (i in 0..100) {
-            val intersectRot = intersectPoint.rotate(angle)
+            val intersectRot = intersectPoint.rotateAroundCenter(PointF(), angle)
             val line1Rot = line1.rotateAroundCenter(PointF(0.0f, 0.0f), angle)
             val line2Rot = line2.rotateAroundCenter(PointF(0.0f, 0.0f), angle)
 
@@ -89,5 +92,18 @@ class LineTest {
 
             angle += 2 * PI * 0.01
         }
+    }
+
+    @Test
+    fun lineRotationCorrect() {
+        val line = Line(PointF(-1.0f, 1.0f), PointF(1 - 0f, 1 - 0f))
+
+        val lineRot = line.rotateAroundCenter(PointF(), -PI / 2)
+
+        assertEquals(lineRot.start.x, 1.0f)
+        assertEquals(lineRot.end.x, 1.0f)
+        assertEquals(lineRot.start.y, 1.0f)
+        assertEquals(lineRot.end.y, -1.0f)
+
     }
 }

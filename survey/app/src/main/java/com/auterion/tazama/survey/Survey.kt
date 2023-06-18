@@ -7,7 +7,7 @@ import com.auterion.tazama.survey.utils.geo.LineInterSectionPoint
 import com.auterion.tazama.survey.utils.geo.LocalProjection
 import com.auterion.tazama.survey.utils.geo.PointF
 import com.auterion.tazama.survey.utils.geo.Polygon
-import com.auterion.tazama.survey.utils.geo.rotate
+import com.auterion.tazama.survey.utils.geo.rotateAroundCenter
 import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -260,6 +260,8 @@ class Survey() {
 
         var rotAngle = _angleFlow.value.toDouble()
 
+        println("rot angle ${rotAngle}")
+
         _transectFlow.value =
             MutableList(((yEnd - yStart) / transectSpacing).roundToInt()) { index ->
                 // generates a list of indices according to number of horizontal lines we need
@@ -274,10 +276,20 @@ class Survey() {
 
                 val lineRot = line.rotateAroundCenter(boundRect.getCenterPoint(), rotAngle)
                 val intersection = polygon.getIntersectionPoints(lineRot).map {
-                    LineInterSectionPoint(it.point.rotate(-rotAngle))
+                    LineInterSectionPoint(
+                        it.point.rotateAroundCenter(
+                            boundRect.getCenterPoint(),
+                            -rotAngle
+                        )
+                    )
                 }.sortedBy { it.point.x }
                     .map {
-                        LineInterSectionPoint(it.point.rotate(rotAngle))
+                        LineInterSectionPoint(
+                            it.point.rotateAroundCenter(
+                                boundRect.getCenterPoint(),
+                                rotAngle
+                            )
+                        )
                     }
 
                 if (intersection.size <= 1) {

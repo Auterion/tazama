@@ -3,15 +3,20 @@ package com.auterion.tazama.survey.utils.geo
 import kotlin.math.cos
 import kotlin.math.sin
 
-class PointF(var x: Float, var y: Float) {
-    operator fun minus(center: PointF): PointF {
-        return PointF(x - center.x, y - center.y)
+class PointF(var x: Float = 0.0f, var y: Float = 0.0f) {
+    operator fun minus(other: PointF): PointF {
+        return PointF(x - other.x, y - other.y)
+    }
+
+    operator fun plus(other: PointF): PointF {
+        return PointF(x + other.x, y + other.y)
     }
 }
 
-fun PointF.rotate(angle: Double): PointF {
-    val newStartX = cos(angle) * x - sin(angle) * y
-    val newStartY = cos(angle) * y + sin(angle) * x
+fun PointF.rotateAroundCenter(center: PointF, angle: Double): PointF {
+    val tmp = this - center
+    val newStartX = cos(angle) * tmp.x - sin(angle) * tmp.y
+    val newStartY = cos(angle) * tmp.y + sin(angle) * tmp.x
 
-    return PointF(newStartX.toFloat(), newStartY.toFloat())
+    return PointF(newStartX.toFloat(), newStartY.toFloat()) + center
 }
