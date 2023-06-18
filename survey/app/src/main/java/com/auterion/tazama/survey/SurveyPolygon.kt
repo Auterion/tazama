@@ -10,8 +10,8 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import org.ramani.compose.CircleWithItem
 import org.ramani.compose.MapLibreComposable
 import org.ramani.compose.MapObserver
-import org.ramani.compose.Polyline
 import org.ramani.compose.Polygon
+import org.ramani.compose.Polyline
 import org.ramani.compose.coordFromPixel
 import org.ramani.compose.pixelFromCoord
 import org.ramani.compose.screenDistanceBetween
@@ -35,6 +35,7 @@ data class Vertex(
 fun SurveyPolygon(
     vertices: List<Vertex>,
     onVerticesTranslated: (List<LatLng>) -> Unit,
+    transects: List<LatLng>,
     onVertexWithIdChanged: (Int, LatLng) -> Unit,
     onDeleteVertex: (Int) -> Unit,
 ) {
@@ -49,7 +50,6 @@ fun SurveyPolygon(
         .map { it.location }.toMutableList()
 
     pointsForPolyline.add(vertices.first { it.sequence == 0 }.location)
-
 
     val draggedId = remember { mutableStateOf<Int?>(null) }
 
@@ -123,6 +123,60 @@ fun SurveyPolygon(
         draggedId = draggedId.value,
         onDeleteVertex = onDeleteVertex
     )
+
+    PolyLine(points = transects.toMutableList(), color = "Red", lineWidth = 2.0f)
+//
+//
+//    val projection = LocalProjection(vertices.first { it.role == VertexRole.DRAGGER }.location)
+//
+//    val boundRect =
+//        BoundingRectanglePolygon(
+//            vertices = vertices.filter { it.role == VertexRole.DRAGGER }
+//                .map { projection.project(it.location) },
+//            vertices.first { it.role == VertexRole.DRAGGER }.location
+//        )
+//
+//    val boundRectCorners = boundRect.getSquareCentered()
+//
+//    val transectSpacing = 10.0f
+//
+//    var yStart = boundRectCorners.topLeft.y
+//    val yEnd = boundRectCorners.bottomLeft.y
+//
+//    val polygon = Polygon(vertices = vertices.sortedBy { it.sequence }
+//        .filter { it.role == VertexRole.DRAGGER }.map {
+//            projection.project(it.location)
+//        })
+//
+//
+//    val lines =
+//        MutableList(((yEnd - yStart) / transectSpacing).roundToInt()) { index ->
+//            // generates a list of indices according to number of horizontal lines we need
+//            index
+//        }.map {
+//            // creates horizontal line for each index
+//            Line(
+//                PointF(boundRectCorners.topLeft.x, yStart + (it * transectSpacing).toFloat()),
+//                PointF(boundRectCorners.topRight.x, yStart + (it * transectSpacing).toFloat())
+//            )
+//        }.mapIndexed { index, line ->
+//            line.rotateAroundCenter(boundRect.getCenterPoint(), 1.0)
+//
+//
+//        }.filterNotNull().mapIndexed { index, line ->
+//            if (index % 2 == 0) {
+//                line
+//            } else {
+//                Line(line.end, line.start)
+//            }
+//        }.flatMap {
+//            listOf(it.start, it.end)
+//        }.map {
+//            projection.reproject(it)
+//        }
+//
+//    PolyLine(points = lines.toMutableList(), color = "Blue", lineWidth = 1.0f)
+
 }
 
 @Composable
