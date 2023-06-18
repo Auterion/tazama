@@ -273,9 +273,10 @@ class Survey() {
                     PointF(boundRectCorners.topRight.x, yStart + (it * transectSpacing).toFloat())
                 )
             }.mapIndexed { index, line ->
-
+                // rotate lines by grid angle and find polygon intersection points
                 val lineRot = line.rotateAroundCenter(boundRect.getCenterPoint(), rotAngle)
                 val intersection = polygon.getIntersectionPoints(lineRot).map {
+                    // rotate intersection points back to global frame for sorting
                     LineInterSectionPoint(
                         it.point.rotateAroundCenter(
                             boundRect.getCenterPoint(),
@@ -283,7 +284,9 @@ class Survey() {
                         )
                     )
                 }.sortedBy { it.point.x }
+                    // sort the intersection points, from left to right
                     .map {
+                        // rotate sorted points back to grid angle
                         LineInterSectionPoint(
                             it.point.rotateAroundCenter(
                                 boundRect.getCenterPoint(),
@@ -292,6 +295,7 @@ class Survey() {
                         )
                     }
 
+                // for a valid transect we need to intersect at least two sides of the polygon
                 if (intersection.size <= 1) {
                     null
                 } else {
@@ -300,6 +304,7 @@ class Survey() {
 
 
             }.filterNotNull().mapIndexed { index, line ->
+                // create lawnmower pattern by changing direction of every second transect
                 if (index % 2 == 0) {
                     line
                 } else {
