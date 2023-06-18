@@ -5,7 +5,7 @@ import kotlin.math.sin
 
 class PointF(var x: Float = 0.0f, var y: Float = 0.0f) {
     operator fun minus(other: PointF): PointF {
-        return PointF(x - other.x, y - other.y)
+        return PointF(other.x - x, other.y - y)
     }
 
     operator fun plus(other: PointF): PointF {

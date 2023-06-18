@@ -41,8 +41,8 @@ class Line(start: PointF, end: PointF) {
         val newStartY = _end.rotateAroundCenter(center, angle)
 
         return Line(
-            newStartX + center,
-            newStartY + center
+            newStartX,
+            newStartY
         )
     }
 

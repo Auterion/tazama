@@ -4,6 +4,7 @@ import com.auterion.tazama.survey.utils.geo.Line
 import com.auterion.tazama.survey.utils.geo.PointF
 import com.auterion.tazama.survey.utils.geo.rotateAroundCenter
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
 import org.junit.Test
 import kotlin.math.PI
 
@@ -104,6 +105,23 @@ class LineTest {
         assertEquals(lineRot.end.x, 1.0f)
         assertEquals(lineRot.start.y, 1.0f)
         assertEquals(lineRot.end.y, -1.0f)
+
+    }
+
+    @Test
+    fun lineIntersectionAlwaysFound() {
+        val line1 = Line(PointF(-10000000.0f, 100.0f), PointF(10000000.0f, 100.0f))
+        val line2 = Line(PointF(0.0f, -100000.0f), PointF(0.0f, 100000.0f))
+
+        var angle = 0.0
+        for (i in 0..100) {
+            val line2Rot = line2.rotateAroundCenter(PointF(), angle)
+            val inter = line1.intersect(line2Rot)
+            println(inter?.point?.x)
+            assertNotNull(line1.intersect(line2Rot))
+            println(angle)
+            angle += 2 * 3.2 / 100.0f
+        }
 
     }
 }
