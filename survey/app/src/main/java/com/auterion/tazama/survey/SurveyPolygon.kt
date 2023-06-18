@@ -124,7 +124,7 @@ fun SurveyPolygon(
         onDeleteVertex = onDeleteVertex
     )
 
-    PolyLine(points = transects.toMutableList(), color = "Red", lineWidth = 2.0f)
+    Polyline(points = transects, color = "Red", lineWidth = 2.0f)
 //
 //
 //    val projection = LocalProjection(vertices.first { it.role == VertexRole.DRAGGER }.location)

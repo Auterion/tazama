@@ -76,13 +76,13 @@ class MainActivity : ComponentActivity() {
                         apiKey = getString(R.string.maps_api_key),
                     ) {
                         SurveyPolygon(
-                            vertices.value.toMutableList(),
-                            transects.value,
+                            vertices.value,
                             onVerticesTranslated = {
                                 surveyViewModel.survey.handleVerticesTranslated(
                                     it
                                 )
                             },
+                            transects.value,
                             onVertexWithIdChanged = { index, vertex ->
                                 surveyViewModel.survey.handleVerticeChanged(
                                     index,

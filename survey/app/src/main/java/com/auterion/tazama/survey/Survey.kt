@@ -129,6 +129,7 @@ class Survey() {
         )
 
         _verticeFlow.value = vertices
+        updateTransects()
     }
 
     fun handleVerticesTranslated(coords: List<LatLng>) {
