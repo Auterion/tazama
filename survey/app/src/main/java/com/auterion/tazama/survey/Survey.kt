@@ -246,7 +246,7 @@ class Survey() {
                 vertices.first { it.role == VertexRole.DRAGGER }.location
             )
 
-        val boundRectCorners = boundRect.getSquareCentered()
+        val boundRectCorners = boundRect.getSquareEnlargedByFactor(1.2f)
 
         val transectSpacing = transectSpacingFlow.value
 
