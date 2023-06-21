@@ -15,7 +15,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TazamasurveyTheme {
-
                 val surveyViewModel: SurveyViewModel = viewModel()
                 val vertices = surveyViewModel.survey.verticeFlow.collectAsState()
 
@@ -24,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     apiKey = getString(R.string.maps_api_key),
                 ) {
                     SurveyPolygon(
-                        vertices.value.toMutableList(),
+                        vertices.value,
                         onVerticesTranslated = { surveyViewModel.survey.handleVerticesTranslated(it) },
                         onVertexWithIdChanged = { index, vertex ->
                             surveyViewModel.survey.handleVerticeChanged(
