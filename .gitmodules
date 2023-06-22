@@ -4,3 +4,6 @@
 [submodule "ramani-maps"]
 	path = ramani-maps
 	url = git@github.com:ramani-maps/ramani-maps
+[submodule "libvehicle-android"]
+	path = libvehicle
+	url = git@github.com:auterion/libvehicle-android
