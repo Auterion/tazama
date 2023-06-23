@@ -21,5 +21,5 @@ includeBuild '../libvehicle'
 includeBuild '../libviewmodel'
 includeBuild '../libui'
 includeBuild '../ramani-maps/ramani'
-includeBuild '../maplibre-plugins-android/plugin-annotation'
+//includeBuild '../maplibre-plugins-android/plugin-annotation'
 
