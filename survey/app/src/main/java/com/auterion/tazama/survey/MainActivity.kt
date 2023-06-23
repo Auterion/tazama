@@ -24,6 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.auterion.tazama.survey.ui.theme.TazamasurveyTheme
+import com.mapbox.mapboxsdk.geometry.LatLng
+import org.ramani.compose.CameraPosition
+import org.ramani.compose.CameraPositionState
 import org.ramani.compose.MapLibre
 import kotlin.math.PI
 
@@ -72,11 +75,19 @@ class MainActivity : ComponentActivity() {
                     MapLibre(
                         modifier = Modifier.fillMaxSize(),
                         apiKey = getString(R.string.maps_api_key),
+                        cameraPositionState = CameraPositionState(
+                            CameraPosition(
+                                target = LatLng(47.3552, 8.5215),
+                                zoom = 17.0
+                            )
+                        )
                     ) {
                         SurveyPolygon(
                             vertices.value,
                             transects.value,
-                            onVerticesTranslated = { surveyViewModel.survey.handleVerticesTranslated(it) },
+                            onVerticesTranslated = {
+                                surveyViewModel.survey.handleVerticesTranslated(it)
+                            },
                             onVertexWithIdChanged = { index, vertex ->
                                 surveyViewModel.survey.handleVerticeChanged(
                                     index,
