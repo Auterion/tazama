@@ -34,12 +34,11 @@ data class Vertex(
 @Composable
 fun SurveyPolygon(
     vertices: List<Vertex>,
-    onVerticesTranslated: (List<LatLng>) -> Unit,
     transects: List<LatLng>,
+    onVerticesTranslated: (List<LatLng>) -> Unit,
     onVertexWithIdChanged: (Int, LatLng) -> Unit,
     onDeleteVertex: (Int) -> Unit,
 ) {
-
     val lastMapUpdateMs = remember {
         mutableStateOf(System.currentTimeMillis())
     }
@@ -49,13 +48,9 @@ fun SurveyPolygon(
         .filter { it.role == VertexRole.DRAGGER }
         .map { it.location }.toMutableList()
 
-    pointsForPolyline.add(vertices.first { it.sequence == 0 }.location)
-
     val draggedId = remember { mutableStateOf<Int?>(null) }
-
-    val mapScaleChangeToggler = remember {
-        mutableStateOf(true)
-    }
+    val mapScaleChangeToggler = remember { mutableStateOf(true) }
+    val polygonZIndex = 0
 
     MapObserver(onMapScaled = {
         if (System.currentTimeMillis() - lastMapUpdateMs.value > 100) {
@@ -70,15 +65,10 @@ fun SurveyPolygon(
         fillColor = "Green",
         opacity = 0.2f,
         isDraggable = true,
-        zIndex = 0,
+        borderWidth = 2.0F,
+        zIndex = polygonZIndex,
         zIndexDragHandle = 5,
-        onVerticesChanged = { onVerticesTranslated(it.first()) }
-    )
-
-    Polyline(
-        points = pointsForPolyline,
-        color = "Black",
-        lineWidth = 2.0f,
+        onVerticesChanged = { onVerticesTranslated(it) }
     )
 
     key(mapScaleChangeToggler.value) {  // this triggers recomposition when map is scaled
@@ -88,7 +78,7 @@ fun SurveyPolygon(
                         id = vertex.id,
                         vertices = vertices
                     )
-                )
+                ) {
                     CircleWithItem(
                         center = when (vertex.role) {
                             VertexRole.DRAGGER -> vertex.location
@@ -112,8 +102,9 @@ fun SurveyPolygon(
                             VertexRole.INSERTER -> R.drawable.plus
                         },
                         itemSize = 0.5f,
-                        zIndex = 1
+                        zIndex = polygonZIndex + 2
                     )
+                }
             }
         }
     }

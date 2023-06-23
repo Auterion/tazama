@@ -32,14 +32,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TazamasurveyTheme {
-
                 val surveyViewModel: SurveyViewModel = viewModel()
                 val vertices = surveyViewModel.survey.verticeFlow.collectAsState()
                 val transects = surveyViewModel.survey.transectFlow.collectAsState()
                 val angle = surveyViewModel.survey.angleFlow.collectAsState()
                 val spacing = surveyViewModel.survey.transectSpacingFlow.collectAsState()
-                Box(modifier = Modifier.fillMaxSize()) {
 
+                Box(modifier = Modifier.fillMaxSize()) {
                     Box(
                         modifier = Modifier
                             .zIndex(1.0f)
@@ -70,28 +69,21 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-
                     MapLibre(
                         modifier = Modifier.fillMaxSize(),
                         apiKey = getString(R.string.maps_api_key),
                     ) {
                         SurveyPolygon(
                             vertices.value,
-                            onVerticesTranslated = {
-                                surveyViewModel.survey.handleVerticesTranslated(
-                                    it
-                                )
-                            },
                             transects.value,
+                            onVerticesTranslated = { surveyViewModel.survey.handleVerticesTranslated(it) },
                             onVertexWithIdChanged = { index, vertex ->
                                 surveyViewModel.survey.handleVerticeChanged(
                                     index,
                                     vertex
                                 )
                             },
-                            onDeleteVertex = {
-                                surveyViewModel.survey.deleteVertice(it)
-                            },
+                            onDeleteVertex = { surveyViewModel.survey.deleteVertice(it) },
                         )
                     }
                 }
@@ -107,8 +99,8 @@ class MainActivity : ComponentActivity() {
         range: ClosedFloatingPointRange<Float>,
         onValueChanged: (Float) -> Unit
     ) {
-        Column() {
-            Row() {
+        Column {
+            Row {
                 Text(text = label)
                 Spacer(modifier = Modifier.width(20.dp))
                 Text(
