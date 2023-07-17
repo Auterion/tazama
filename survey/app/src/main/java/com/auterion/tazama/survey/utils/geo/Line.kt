@@ -6,39 +6,42 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 class Line(start: PointF, end: PointF) {
-    private val _start = start
-    val start get() = _start
-    private val _end = end
-    val end get() = _end
 
-    private var _m: Float = 0.0f
-    val m get() = _m
-    private var _b: Float = 0.0f
-    val b get() = _b
+    val start: PointF
+    val end: PointF
+
+    val m: Float
+    val b: Float
 
     init {
 
-        if (abs(_end.x - _start.x) < 0.001f) {
-            if (_start.y < _end.y) {
-                _m = Float.POSITIVE_INFINITY
+        var startMod = start
+
+        if (abs(end.x - start.x) < 0.001f) {
+            if (start.y < end.y) {
+                m = Float.POSITIVE_INFINITY
             } else {
-                _m = Float.NEGATIVE_INFINITY
+                m = Float.NEGATIVE_INFINITY
             }
-            _start.x = _end.x
+            b = 0.0f
+            startMod = start.copy(x = end.x)
         } else {
-            _m = (_end.y - _start.y) / (_end.x - _start.x)
-            _b = _start.y - _m * _start.x
+            m = (end.y - start.y) / (end.x - start.x)
+            b = start.y - m * start.x
         }
+
+        this.start = startMod
+        this.end = end
     }
 
     fun length(): Float {
-        val tmp = _end - start
+        val tmp = end - start
         return sqrt(tmp.x * tmp.x + tmp.y * tmp.y)
     }
 
     fun rotateAroundCenter(center: PointF, angle: Double): Line {
-        val newStartX = _start.rotateAroundCenter(center, angle)
-        val newStartY = _end.rotateAroundCenter(center, angle)
+        val newStartX = start.rotateAroundCenter(center, angle)
+        val newStartY = end.rotateAroundCenter(center, angle)
 
         return Line(
             newStartX,
@@ -47,7 +50,7 @@ class Line(start: PointF, end: PointF) {
     }
 
     fun isVertical(): Boolean {
-        return _start.x == _end.x
+        return start.x == end.x
     }
 
     fun pointIsOnLine(point: PointF): Boolean {
@@ -56,17 +59,17 @@ class Line(start: PointF, end: PointF) {
         val delta = 0.01 * length()
 
         if (isVertical()) {
-            return abs(point.x - _start.x) < 0.001f
+            return abs(point.x - start.x) < 0.001f
         } else {
-            return (point.x + 0.001f) >= min(_start.x, _end.x) && (point.x - 0.001f) <= max(
-                _start.x,
-                _end.x
+            return (point.x + 0.001f) >= min(start.x, end.x) && (point.x - 0.001f) <= max(
+                start.x,
+                end.x
             ) && abs(point.y - (m * point.x + b)) < delta
         }
     }
 
     fun intersect(other: Line): LineInterSectionPoint? {
-        val point: PointF? = when {
+        val point: PointF = when {
             other.isVertical() && !isVertical() -> {
                 val y = m * other.start.x + b
                 val x = other.start.x
@@ -87,22 +90,19 @@ class Line(start: PointF, end: PointF) {
             }
 
             else -> {
-                null
+                return@intersect null
             }
         }
 
-        point?.let {
-            if (pointIsOnLine(it) && other.pointIsOnLine(it)) {
-                return LineInterSectionPoint(it)
-            }
+        if (!pointIsOnLine(point) || !other.pointIsOnLine(point)) {
+            return null
         }
 
-        return null
-
+        return LineInterSectionPoint(point)
     }
 
     fun toList(): List<PointF> {
-        return listOf(_start, _end)
+        return listOf(start, end)
     }
 }
 

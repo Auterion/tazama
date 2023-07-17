@@ -5,30 +5,31 @@ import com.auterion.tazama.survey.utils.geo.BoundingRectanglePolygon
 import com.auterion.tazama.survey.utils.geo.PointF
 import com.mapbox.mapboxsdk.geometry.LatLng
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import org.junit.Test
 
 class BoundingRectanglePolygonTest {
 
     // triangle
-    val _verticesTriangle = listOf(
+    val verticesTriangle = listOf(
         PointF(-1.0f, 0.0f), PointF(1.0f, 0.0f), PointF(0.0f, 1.0f)
     )
 
-    val _boundRectCornersForTriangle = BoundingRectangleCorners(
+    val boundRectCornersForTriangle = BoundingRectangleCorners(
         topLeft = PointF(-1.0f, 0.0f),
         topRight = PointF(1.0f, 0.0f),
         bottomLeft = PointF(-1.0f, 1.0f),
         bottomRight = PointF(1.0f, 1.0f)
     )
 
-    val _centerForBoundRectForTriangle = PointF(0.0f, 0.5f)
+    val centerForBoundRectForTriangle = PointF(0.0f, 0.5f)
 
     fun arePointsEqual(a: PointF, b: PointF): Boolean {
         return a.x == b.x && a.y == b.y
     }
 
     @Test
-    fun cornersAreCorrectForUnorderedSquare() {
+    fun boundingRectanglePolygon_correctForUnorderedSquare() {
 
         // coordinate system is aligned with screen, x points from left to right
         // y points from top to bottom
@@ -43,34 +44,26 @@ class BoundingRectanglePolygonTest {
         val boundRect = BoundingRectanglePolygon(vertices, LatLng())
         val corners = boundRect.corners
 
-        assertEquals(arePointsEqual(corners.topLeft, vertices[2]), true)
-        assertEquals(arePointsEqual(corners.topRight, vertices[0]), true)
-        assertEquals(arePointsEqual(corners.bottomLeft, vertices[1]), true)
-        assertEquals(arePointsEqual(corners.bottomRight, vertices[3]), true)
+        assertTrue(arePointsEqual(corners.topLeft, vertices[2]))
+        assertTrue(arePointsEqual(corners.topRight, vertices[0]))
+        assertTrue(arePointsEqual(corners.bottomLeft, vertices[1]))
+        assertTrue(arePointsEqual(corners.bottomRight, vertices[3]))
 
     }
 
     @Test
-    fun cornersAreCorrectForTriangle() {
-
-
-        val boundRect = BoundingRectanglePolygon(_verticesTriangle, LatLng())
+    fun boundingRectanglePolygon_correctForTriangle() {
+        val boundRect = BoundingRectanglePolygon(verticesTriangle, LatLng())
         val corners = boundRect.corners
 
-        assertEquals(arePointsEqual(corners.topLeft, _boundRectCornersForTriangle.topLeft), true)
-        assertEquals(arePointsEqual(corners.topRight, _boundRectCornersForTriangle.topRight), true)
-        assertEquals(
-            arePointsEqual(corners.bottomLeft, _boundRectCornersForTriangle.bottomLeft),
-            true
-        )
-        assertEquals(
-            arePointsEqual(corners.bottomRight, _boundRectCornersForTriangle.bottomRight),
-            true
-        )
+        assertTrue(arePointsEqual(corners.topLeft, boundRectCornersForTriangle.topLeft))
+        assertTrue(arePointsEqual(corners.topRight, boundRectCornersForTriangle.topRight))
+        assertTrue(arePointsEqual(corners.bottomLeft, boundRectCornersForTriangle.bottomLeft))
+        assertTrue(arePointsEqual(corners.bottomRight, boundRectCornersForTriangle.bottomRight))
     }
 
     @Test
-    fun originSetCorrectly() {
+    fun boundingRectanglePolygon_originSetCorrectly() {
         val lat = 1.01
         val lon = 3.04
         val boundRect = BoundingRectanglePolygon(emptyList<PointF>(), LatLng(lat, lon))
@@ -80,45 +73,39 @@ class BoundingRectanglePolygonTest {
     }
 
     @Test
-    fun passEmptyVerticesList() {
+    fun boundingRectanglePolygon_passEmptyVerticesListHandled() {
 
         // constructed with empty list of vertices
         val boundRect = BoundingRectanglePolygon(emptyList<PointF>(), LatLng())
         val corners = boundRect.corners
 
         // should result in all corners being set to default value
-        assertEquals(arePointsEqual(corners.topLeft, BoundingRectangleCorners().topLeft), true)
-        assertEquals(arePointsEqual(corners.topRight, BoundingRectangleCorners().topRight), true)
+        assertTrue(arePointsEqual(corners.topLeft, BoundingRectangleCorners().topLeft))
+        assertTrue(arePointsEqual(corners.topRight, BoundingRectangleCorners().topRight))
+        assertTrue(arePointsEqual(corners.bottomLeft, BoundingRectangleCorners().bottomLeft))
+        assertTrue(arePointsEqual(corners.bottomRight, BoundingRectangleCorners().bottomRight))
+    }
+
+    @Test
+    fun boundingRectanglePolygon_centerIsCorrectForTriangle() {
+        val boundRect = BoundingRectanglePolygon(verticesTriangle, LatLng())
+
         assertEquals(
-            arePointsEqual(corners.bottomLeft, BoundingRectangleCorners().bottomLeft),
-            true
-        )
-        assertEquals(
-            arePointsEqual(corners.bottomRight, BoundingRectangleCorners().bottomRight),
+            arePointsEqual(boundRect.getCenterPoint(), centerForBoundRectForTriangle),
             true
         )
     }
 
     @Test
-    fun test_getCenterPoint() {
-        val boundRect = BoundingRectanglePolygon(_verticesTriangle, LatLng())
+    fun boundingRectanglePolygon_enlargedByFactorCorrectly() {
 
-        assertEquals(
-            arePointsEqual(boundRect.getCenterPoint(), _centerForBoundRectForTriangle),
-            true
-        )
-    }
-
-    @Test
-    fun test_getSquareEnlargedByFactor() {
-
-        val boundRect = BoundingRectanglePolygon(_verticesTriangle, LatLng())
+        val boundRect = BoundingRectanglePolygon(verticesTriangle, LatLng())
         val cornersEnlarged = boundRect.getSquareEnlargedByFactor(2.0f)
 
-        assertEquals(arePointsEqual(cornersEnlarged.topLeft, PointF(-2.0f, -1.5f)), true)
-        assertEquals(arePointsEqual(cornersEnlarged.topRight, PointF(2.0f, -1.5f)), true)
-        assertEquals(arePointsEqual(cornersEnlarged.bottomLeft, PointF(-2.0f, 2.5f)), true)
-        assertEquals(arePointsEqual(cornersEnlarged.bottomRight, PointF(2.0f, 2.5f)), true)
+        assertTrue(arePointsEqual(cornersEnlarged.topLeft, PointF(-2.0f, -1.5f)))
+        assertTrue(arePointsEqual(cornersEnlarged.topRight, PointF(2.0f, -1.5f)))
+        assertTrue(arePointsEqual(cornersEnlarged.bottomLeft, PointF(-2.0f, 2.5f)))
+        assertTrue(arePointsEqual(cornersEnlarged.bottomRight, PointF(2.0f, 2.5f)))
 
     }
 }

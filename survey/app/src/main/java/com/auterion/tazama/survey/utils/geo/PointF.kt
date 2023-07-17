@@ -3,7 +3,7 @@ package com.auterion.tazama.survey.utils.geo
 import kotlin.math.cos
 import kotlin.math.sin
 
-class PointF(var x: Float = 0.0f, var y: Float = 0.0f) {
+data class PointF(val x: Float = 0.0f, val y: Float = 0.0f) {
     operator fun minus(other: PointF): PointF {
         return PointF(other.x - x, other.y - y)
     }

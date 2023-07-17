@@ -10,7 +10,7 @@ import kotlin.math.PI
 
 class LineTest {
     @Test
-    fun starEndAreSetCorrectly() {
+    fun line_startEndAreSetCorrectly() {
         val start = PointF(100.0f, -0.035f)
         val end = PointF(-1.57f, 1010.58f)
         val line = Line(start, end)
@@ -23,7 +23,7 @@ class LineTest {
     }
 
     @Test
-    fun lineParamsAreCorrect() {
+    fun line_paramsAreCorrect() {
         val start = PointF(0.0f, 0.0f)
         val end = PointF(1.0f, 1.0f)
 
@@ -38,7 +38,7 @@ class LineTest {
     }
 
     @Test
-    fun pointIsOnLine() {
+    fun line_pointIsOnLine() {
         val point = PointF(1.0f, 1.0f)
         val start = PointF(0.0f, 0.0f)
         val end = PointF(1.0f, 1.0f)
@@ -64,7 +64,7 @@ class LineTest {
     }
 
     @Test
-    fun intersectLongLines() {
+    fun line_intersectingLongLinesWorks() {
         // this test has been very useful to identify numerical problem that arise when rotating lines
         // and finding intersections. At first a fixed delta was used for comparison but that
         // turned out not to work due to seemingly loss of precision when doing the rotations.
@@ -96,20 +96,19 @@ class LineTest {
     }
 
     @Test
-    fun lineRotationCorrect() {
-        val line = Line(PointF(-1.0f, 1.0f), PointF(1 - 0f, 1 - 0f))
+    fun line_rotationCorrect() {
+        val line = Line(PointF(-1.0f, 1.0f), PointF(1.0f, 1.0f))
 
         val lineRot = line.rotateAroundCenter(PointF(), -PI / 2)
-
-        assertEquals(lineRot.start.x, 1.0f)
-        assertEquals(lineRot.end.x, 1.0f)
-        assertEquals(lineRot.start.y, 1.0f)
-        assertEquals(lineRot.end.y, -1.0f)
+        assertEquals(lineRot.start.x, -1.0f)
+        assertEquals(lineRot.end.x, -1.0f)
+        assertEquals(lineRot.start.y, -1.0f)
+        assertEquals(lineRot.end.y, 1.0f)
 
     }
 
     @Test
-    fun lineIntersectionAlwaysFound() {
+    fun line_intersectionBetweenTwoLinesAlwaysFound() {
         val line1 = Line(PointF(-10000000.0f, 100.0f), PointF(10000000.0f, 100.0f))
         val line2 = Line(PointF(0.0f, -100000.0f), PointF(0.0f, 100000.0f))
 

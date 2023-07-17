@@ -1,6 +1,7 @@
 package com.auterion.tazama.survey
 
 import androidx.compose.runtime.mutableStateListOf
+import com.auterion.tazama.survey.utils.geo.BoundingRectangleCorners
 import com.auterion.tazama.survey.utils.geo.BoundingRectanglePolygon
 import com.auterion.tazama.survey.utils.geo.Line
 import com.auterion.tazama.survey.utils.geo.LineInterSectionPoint
@@ -250,9 +251,6 @@ class Survey() {
 
         val transectSpacing = transectSpacingFlow.value
 
-        var yStart = boundRectCorners.topLeft.y
-        val yEnd = boundRectCorners.bottomLeft.y
-
         val polygon = Polygon(vertices = vertices.sortedBy { it.sequence }
             .filter { it.role == VertexRole.DRAGGER }.map {
                 projection.project(it.location)
@@ -260,61 +258,91 @@ class Survey() {
 
         var rotAngle = _angleFlow.value.toDouble()
 
-        println("rot angle ${rotAngle}")
 
         _transectFlow.value =
-            MutableList(((yEnd - yStart) / transectSpacing).roundToInt()) { index ->
-                // generates a list of indices according to number of horizontal lines we need
-                index
-            }.map {
-                // creates horizontal line for each index
-                Line(
-                    PointF(boundRectCorners.topLeft.x, yStart + (it * transectSpacing).toFloat()),
-                    PointF(boundRectCorners.topRight.x, yStart + (it * transectSpacing).toFloat())
+            createHorizontalLines(transectSpacing, boundRectCorners)
+                .map { line ->
+                    // rotate lines by grid angle
+                    rotateLineAroundCenter(line, rotAngle, boundRect)
+                }
+                .map { line ->
+                    createTransect(line, polygon, boundRect, rotAngle)
+                }.filterNotNull().mapIndexed { index, line ->
+                    // create lawnmower pattern
+                    alternateTransectDirection(index, line)
+                }.flatMap {
+                    listOf(it.start, it.end)
+                }.map {
+                    projection.reproject(it)
+                }
+    }
+
+    fun createHorizontalLines(
+        spacing: Float,
+        boundRectCorners: BoundingRectangleCorners
+    ): List<Line> {
+        val yStart = boundRectCorners.topLeft.y
+        val numTransects =
+            ((boundRectCorners.bottomLeft.y - boundRectCorners.topLeft.y) / spacing).roundToInt()
+
+        return MutableList(numTransects) { index ->
+            Line(
+                PointF(boundRectCorners.topLeft.x, yStart + (index * spacing)),
+                PointF(boundRectCorners.topRight.x, yStart + (index * spacing))
+            )
+        }
+    }
+
+    fun rotateLineAroundCenter(
+        line: Line,
+        rotAngle: Double,
+        boundRect: BoundingRectanglePolygon
+    ): Line {
+        return line.rotateAroundCenter(boundRect.getCenterPoint(), rotAngle)
+    }
+
+    fun createTransect(
+        line: Line,
+        polygon: Polygon,
+        boundRect: BoundingRectanglePolygon,
+        rotAngle: Double
+    ): Line? {
+
+        val intersection = polygon.getIntersectionPoints(line).map {
+            // rotate intersection points back to global frame for sorting
+            LineInterSectionPoint(
+                it.point.rotateAroundCenter(
+                    boundRect.getCenterPoint(),
+                    -rotAngle
                 )
-            }.mapIndexed { index, line ->
-                // rotate lines by grid angle and find polygon intersection points
-                val lineRot = line.rotateAroundCenter(boundRect.getCenterPoint(), rotAngle)
-                val intersection = polygon.getIntersectionPoints(lineRot).map {
-                    // rotate intersection points back to global frame for sorting
-                    LineInterSectionPoint(
-                        it.point.rotateAroundCenter(
-                            boundRect.getCenterPoint(),
-                            -rotAngle
-                        )
+            )
+        }.sortedBy { it.point.x }
+            // sort the intersection points, from left to right
+            .map {
+                // rotate sorted points back to grid angle
+                LineInterSectionPoint(
+                    it.point.rotateAroundCenter(
+                        boundRect.getCenterPoint(),
+                        rotAngle
                     )
-                }.sortedBy { it.point.x }
-                    // sort the intersection points, from left to right
-                    .map {
-                        // rotate sorted points back to grid angle
-                        LineInterSectionPoint(
-                            it.point.rotateAroundCenter(
-                                boundRect.getCenterPoint(),
-                                rotAngle
-                            )
-                        )
-                    }
-
-                // for a valid transect we need to intersect at least two sides of the polygon
-                if (intersection.size <= 1) {
-                    null
-                } else {
-                    Line(intersection.first().point, intersection.last().point)
-                }
-
-
-            }.filterNotNull().mapIndexed { index, line ->
-                // create lawnmower pattern by changing direction of every second transect
-                if (index % 2 == 0) {
-                    line
-                } else {
-                    Line(line.end, line.start)
-                }
-            }.flatMap {
-                listOf(it.start, it.end)
-            }.map {
-                projection.reproject(it)
+                )
             }
+
+        // for a valid transect we need to intersect at least two sides of the polygon
+        if (intersection.size <= 1) {
+            return null
+        } else {
+            return Line(intersection.first().point, intersection.last().point)
+        }
+    }
+
+    fun alternateTransectDirection(index: Int, transect: Line): Line {
+        // create lawnmower pattern by changing direction of every second transect
+        if (index % 2 == 0) {
+            return transect
+        } else {
+            return Line(transect.end, transect.start)
+        }
     }
 
     fun setAngle(angle: Float) {
