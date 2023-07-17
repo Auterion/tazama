@@ -23,11 +23,18 @@ android {
         versionCode 1
         versionName "1.0"
 
-        if (keystoreProperties.containsKey("MAPS_API_KEY")) {
-            resValue "string", "maps_api_key", keystoreProperties["MAPS_API_KEY"]
+        if (keystoreProperties.containsKey("MAPLIBRE_API_KEY")) {
+            resValue "string", "maplibre_api_key", keystoreProperties["MAPLIBRE_API_KEY"]
         } else {
-            println("WARNING: MAPS_API_KEY is missing from keystore file!")
-            resValue "string", "maps_api_key", ""
+            println("WARNING: MAPLIBRE_API_KEY is missing from keystore file!")
+            resValue "string", "maplibre_api_key", ""
+        }
+
+        if (keystoreProperties.containsKey("MAPBOX_API_KEY")) {
+            resValue "string", "mapbox_api_key", keystoreProperties["MAPBOX_API_KEY"]
+        } else {
+            println("WARNING: MAPBOX_API_KEY is missing from keystore file!")
+            resValue "string", "mapbox_api_key", ""
         }
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
