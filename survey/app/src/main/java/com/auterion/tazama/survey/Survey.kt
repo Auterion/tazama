@@ -242,22 +242,24 @@ class Survey() {
 
         val boundRect =
             BoundingRectanglePolygon(
-                vertices = vertices.filter { it.role == VertexRole.DRAGGER }
+                vertices = vertices
+                    .filter { it.role == VertexRole.DRAGGER }
                     .map { projection.project(it.location) },
-                vertices.first { it.role == VertexRole.DRAGGER }.location
+                topLeftOrigin = vertices.first { it.role == VertexRole.DRAGGER }.location
             )
 
         val boundRectCorners = boundRect.getSquareEnlargedByFactor(1.2f)
 
         val transectSpacing = transectSpacingFlow.value
 
-        val polygon = Polygon(vertices = vertices.sortedBy { it.sequence }
-            .filter { it.role == VertexRole.DRAGGER }.map {
+        val polygon = Polygon(vertices = vertices
+            .sortedBy { it.sequence }
+            .filter { it.role == VertexRole.DRAGGER }
+            .map {
                 projection.project(it.location)
             })
 
         var rotAngle = _angleFlow.value.toDouble()
-
 
         _transectFlow.value =
             createHorizontalLines(transectSpacing, boundRectCorners)
