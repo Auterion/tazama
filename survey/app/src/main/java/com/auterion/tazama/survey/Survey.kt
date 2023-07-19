@@ -10,17 +10,22 @@ import com.auterion.tazama.survey.utils.geo.PointF
 import com.auterion.tazama.survey.utils.geo.Polygon
 import com.auterion.tazama.survey.utils.geo.rotateAroundCenter
 import com.mapbox.mapboxsdk.geometry.LatLng
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.PI
 import kotlin.math.roundToInt
 
-class Survey() {
+class Survey() : CoroutineScope {
+    override val coroutineContext: CoroutineContext = Job() + Dispatchers.Main
     private var vertices = mutableStateListOf<Vertex>()
-    private var _verticeFlow = MutableStateFlow(vertices)
+    private var _verticeFlow = MutableStateFlow(vertices.toList())
     val verticeFlow = _verticeFlow.asStateFlow()
 
-    //private val _transects = mutableStateListOf<LatLng>()
     private val _transectFlow = MutableStateFlow(emptyList<LatLng>())
     val transectFlow = _transectFlow.asStateFlow()
 
@@ -29,20 +34,12 @@ class Survey() {
 
     private val _transectSpacingFlow = MutableStateFlow(50.0f)
     val transectSpacingFlow = _transectSpacingFlow.asStateFlow()
-    val _minSpacing = 1.0f
-    val minSpacing get() = _minSpacing
-    val _maxSpacing = 500.0f
-    val maxSpacing get() = _maxSpacing
-
+    val minSpacing = 1.0f
+    val maxSpacing = 500.0f
 
     var verticeId = 8
 
     init {
-//        runBlocking {
-//            verticeFlow.collect {
-//                updateTransects()
-//            }
-//        }
         vertices = mutableStateListOf<Vertex>()
         vertices.add(
             Vertex(
@@ -130,7 +127,23 @@ class Survey() {
         )
 
         _verticeFlow.value = vertices
-        updateTransects()
+
+        // this guy only collects once
+        launch {
+            _verticeFlow.collect {
+                updateTransects()
+            }
+        }
+        launch {
+            _angleFlow.collect() {
+                updateTransects()
+            }
+        }
+        launch {
+            _transectSpacingFlow.collect() {
+                updateTransects()
+            }
+        }
     }
 
     fun handleVerticesTranslated(coords: List<LatLng>) {
@@ -140,7 +153,6 @@ class Survey() {
             }
         }
         updateTransects()
-        _verticeFlow.value = vertices
     }
 
     fun handleVerticeChanged(id: Int, latLng: LatLng) {
@@ -195,10 +207,7 @@ class Survey() {
 
         }
 
-        var tmp = vertices
         updateTransects()
-        _verticeFlow.value = tmp
-
     }
 
     fun deleteVertice(sequence: Int) {
@@ -229,7 +238,6 @@ class Survey() {
                 }
             }
             updateTransects()
-            _verticeFlow.value = vertices
         }
     }
 
@@ -350,13 +358,9 @@ class Survey() {
     fun setAngle(angle: Float) {
         val angleConstrained = angle.coerceAtMost(PI.toFloat()).coerceAtLeast(0.0f)
         _angleFlow.value = angleConstrained
-        // get rid of these
-        updateTransects()
     }
 
     fun setSpacing(spacing: Float) {
-        _transectSpacingFlow.value = spacing.coerceAtLeast(_minSpacing).coerceAtMost(_maxSpacing)
-        // get rid of these
-        updateTransects()
+        _transectSpacingFlow.value = spacing.coerceAtLeast(minSpacing).coerceAtMost(maxSpacing)
     }
 }
