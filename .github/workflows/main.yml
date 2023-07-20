@@ -61,7 +61,9 @@ jobs:
           distribution: 'temurin'
       - name: Build
         working-directory: ./survey
-        run: ./gradlew assembleDebug
+        run: |
+            touch local.properties
+            ./gradlew assembleDebug
 
   test_survey:
     name: Test Tazama Survey
