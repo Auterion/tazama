@@ -62,7 +62,7 @@ jobs:
       - name: Build
         working-directory: ./survey
         run: |
-            touch local.properties
+            echo "MAPLIBRE_API_KEY=placeholder" > keystore.properties
             ./gradlew assembleDebug
 
   test_survey:
@@ -79,7 +79,9 @@ jobs:
           distribution: 'temurin'
       - name: Test
         working-directory: ./survey
-        run: ./gradlew test
+        run: |
+            echo "MAPLIBRE_API_KEY=placeholder" > keystore.properties
+            ./gradlew test
 
   libui:
     name: Build and test libui

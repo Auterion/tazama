@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
 
                     MapLibre(
                         modifier = Modifier.fillMaxSize(),
-                        apiKey = getString(R.string.maps_api_key),
+                        apiKey = getString(R.string.maplibre_api_key),
                         cameraPositionState = CameraPositionState(
                             CameraPosition(
                                 target = LatLng(47.3552, 8.5215),
