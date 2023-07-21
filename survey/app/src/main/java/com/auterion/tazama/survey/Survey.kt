@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import com.auterion.tazama.survey.utils.geo.BoundingRectangleCorners
 import com.auterion.tazama.survey.utils.geo.BoundingRectanglePolygon
 import com.auterion.tazama.survey.utils.geo.Line
-import com.auterion.tazama.survey.utils.geo.LineInterSectionPoint
+import com.auterion.tazama.survey.utils.geo.LineIntersectionPoint
 import com.auterion.tazama.survey.utils.geo.LocalProjection
 import com.auterion.tazama.survey.utils.geo.PointF
 import com.auterion.tazama.survey.utils.geo.Polygon
@@ -20,11 +20,11 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.math.PI
 import kotlin.math.roundToInt
 
-class Survey() : CoroutineScope {
+class Survey : CoroutineScope {
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.Main
     private var vertices = mutableStateListOf<Vertex>()
-    private var _verticeFlow = MutableStateFlow(vertices.toList())
-    val verticeFlow = _verticeFlow.asStateFlow()
+    private var _verticesFlow = MutableStateFlow(vertices.toList())
+    val verticesFlow = _verticesFlow.asStateFlow()
 
     private val _transectFlow = MutableStateFlow(emptyList<LatLng>())
     val transectFlow = _transectFlow.asStateFlow()
@@ -37,10 +37,10 @@ class Survey() : CoroutineScope {
     val minSpacing = 1.0f
     val maxSpacing = 500.0f
 
-    var verticeId = 8
+    var vertexId = 8
 
     init {
-        vertices = mutableStateListOf<Vertex>()
+        vertices = mutableStateListOf()
         vertices.add(
             Vertex(
                 id = 0,
@@ -126,11 +126,11 @@ class Survey() : CoroutineScope {
             )
         )
 
-        _verticeFlow.value = vertices
+        _verticesFlow.value = vertices
 
-        // this guy only collects once
+        // TODO this guy only collects once
         launch {
-            _verticeFlow.collect {
+            _verticesFlow.collect {
                 updateTransects()
             }
         }
@@ -155,16 +155,15 @@ class Survey() : CoroutineScope {
         updateTransects()
     }
 
-    fun handleVerticeChanged(id: Int, latLng: LatLng) {
-
-        val changedVertice = vertices.first { it.id == id }
+    fun handleVertexChanged(id: Int, latLng: LatLng) {
+        val changedVertex = vertices.first { it.id == id }
         val index = vertices.indexOfFirst { it.id == id }
 
-        if (changedVertice.role == VertexRole.DRAGGER) {
-            vertices[index] = changedVertice.copy(location = latLng)
+        if (changedVertex.role == VertexRole.DRAGGER) {
+            vertices[index] = changedVertex.copy(location = latLng)
         } else {
-            val sequence = changedVertice.sequence
-            vertices[index] = changedVertice.copy(
+            val sequence = changedVertex.sequence
+            vertices[index] = changedVertex.copy(
                 location = latLng,
                 role = VertexRole.DRAGGER,
                 sequence = sequence + 1,
@@ -173,7 +172,7 @@ class Survey() : CoroutineScope {
 
             vertices.add(
                 Vertex(
-                    id = verticeId,
+                    id = vertexId,
                     location = LatLng(),
                     radius = 4.0f,
                     draggable = true,
@@ -183,11 +182,11 @@ class Survey() : CoroutineScope {
                 )
             )
 
-            verticeId += 1
+            vertexId += 1
 
             vertices.add(
                 Vertex(
-                    id = verticeId,
+                    id = vertexId,
                     location = LatLng(),
                     radius = 4.0f,
                     draggable = true,
@@ -197,7 +196,7 @@ class Survey() : CoroutineScope {
                 )
             )
 
-            verticeId += 1
+            vertexId += 1
 
             for (i in 0..vertices.size - 3) {
                 if (i != index && vertices[i].sequence > sequence) {
@@ -210,7 +209,7 @@ class Survey() : CoroutineScope {
         updateTransects()
     }
 
-    fun deleteVertice(sequence: Int) {
+    fun deleteVertex(sequence: Int) {
         var index = vertices.indexOfFirst { it.sequence == sequence }
 
         if (index > -1) {
@@ -241,7 +240,7 @@ class Survey() : CoroutineScope {
         }
     }
 
-    fun updateTransects() {
+    private fun updateTransects() {
         if (vertices.isEmpty()) {
             return
         }
@@ -250,10 +249,9 @@ class Survey() : CoroutineScope {
 
         val boundRect =
             BoundingRectanglePolygon(
-                vertices = vertices
+                vertices
                     .filter { it.role == VertexRole.DRAGGER }
                     .map { projection.project(it.location) },
-                topLeftOrigin = vertices.first { it.role == VertexRole.DRAGGER }.location
             )
 
         val boundRectCorners = boundRect.getSquareEnlargedByFactor(1.2f)
@@ -263,31 +261,20 @@ class Survey() : CoroutineScope {
         val polygon = Polygon(vertices = vertices
             .sortedBy { it.sequence }
             .filter { it.role == VertexRole.DRAGGER }
-            .map {
-                projection.project(it.location)
-            })
+            .map { projection.project(it.location) })
 
-        var rotAngle = _angleFlow.value.toDouble()
+        val rotAngle = _angleFlow.value.toDouble()
 
         _transectFlow.value =
             createHorizontalLines(transectSpacing, boundRectCorners)
-                .map { line ->
-                    // rotate lines by grid angle
-                    rotateLineAroundCenter(line, rotAngle, boundRect)
-                }
-                .map { line ->
-                    createTransect(line, polygon, boundRect, rotAngle)
-                }.filterNotNull().mapIndexed { index, line ->
-                    // create lawnmower pattern
-                    alternateTransectDirection(index, line)
-                }.flatMap {
-                    listOf(it.start, it.end)
-                }.map {
-                    projection.reproject(it)
-                }
+                .map { line -> rotateLineAroundCenter(line, rotAngle, boundRect) }
+                .mapNotNull { line -> createTransect(line, polygon, boundRect, rotAngle) }
+                .mapIndexed { index, line -> alternateTransectDirection(index, line) }
+                .flatMap { listOf(it.start, it.end) }
+                .map { projection.reproject(it) }
     }
 
-    fun createHorizontalLines(
+    private fun createHorizontalLines(
         spacing: Float,
         boundRectCorners: BoundingRectangleCorners
     ): List<Line> {
@@ -303,7 +290,7 @@ class Survey() : CoroutineScope {
         }
     }
 
-    fun rotateLineAroundCenter(
+    private fun rotateLineAroundCenter(
         line: Line,
         rotAngle: Double,
         boundRect: BoundingRectanglePolygon
@@ -311,26 +298,24 @@ class Survey() : CoroutineScope {
         return line.rotateAroundCenter(boundRect.getCenterPoint(), rotAngle)
     }
 
-    fun createTransect(
+    private fun createTransect(
         line: Line,
         polygon: Polygon,
         boundRect: BoundingRectanglePolygon,
         rotAngle: Double
     ): Line? {
-
-        val intersection = polygon.getIntersectionPoints(line).map {
-            // rotate intersection points back to global frame for sorting
-            LineInterSectionPoint(
-                it.point.rotateAroundCenter(
-                    boundRect.getCenterPoint(),
-                    -rotAngle
+        val intersection = polygon.getIntersectionPoints(line)
+            .map {
+                // rotate intersection points back to global frame for sorting
+                LineIntersectionPoint(
+                    it.point.rotateAroundCenter(boundRect.getCenterPoint(), -rotAngle)
                 )
-            )
-        }.sortedBy { it.point.x }
+            }
+            .sortedBy { it.point.x }
             // sort the intersection points, from left to right
             .map {
                 // rotate sorted points back to grid angle
-                LineInterSectionPoint(
+                LineIntersectionPoint(
                     it.point.rotateAroundCenter(
                         boundRect.getCenterPoint(),
                         rotAngle
@@ -339,19 +324,19 @@ class Survey() : CoroutineScope {
             }
 
         // for a valid transect we need to intersect at least two sides of the polygon
-        if (intersection.size <= 1) {
-            return null
+        return if (intersection.size <= 1) {
+            null
         } else {
-            return Line(intersection.first().point, intersection.last().point)
+            Line(intersection.first().point, intersection.last().point)
         }
     }
 
-    fun alternateTransectDirection(index: Int, transect: Line): Line {
+    private fun alternateTransectDirection(index: Int, transect: Line): Line {
         // create lawnmower pattern by changing direction of every second transect
-        if (index % 2 == 0) {
-            return transect
+        return if (index % 2 == 0) {
+            transect
         } else {
-            return Line(transect.end, transect.start)
+            Line(transect.end, transect.start)
         }
     }
 

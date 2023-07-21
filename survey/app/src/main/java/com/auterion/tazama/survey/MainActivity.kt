@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TazamasurveyTheme {
                 val surveyViewModel: SurveyViewModel = viewModel()
-                val vertices = surveyViewModel.survey.verticeFlow.collectAsState()
+                val vertices = surveyViewModel.survey.verticesFlow.collectAsState()
                 val transects = surveyViewModel.survey.transectFlow.collectAsState()
                 val angle = surveyViewModel.survey.angleFlow.collectAsState()
                 val spacing = surveyViewModel.survey.transectSpacingFlow.collectAsState()
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                             SliderItem(
                                 "Grid Angle",
                                 text = (angle.value * 180 / PI).toInt().toString(),
-                                sliderValue = angle.value.toFloat(),
+                                sliderValue = angle.value,
                                 range = 0.0f..PI.toFloat(),
                                 onValueChanged = { surveyViewModel.survey.setAngle(it) })
 
@@ -89,12 +89,9 @@ class MainActivity : ComponentActivity() {
                                 surveyViewModel.survey.handleVerticesTranslated(it)
                             },
                             onVertexWithIdChanged = { index, vertex ->
-                                surveyViewModel.survey.handleVerticeChanged(
-                                    index,
-                                    vertex
-                                )
+                                surveyViewModel.survey.handleVertexChanged(index, vertex)
                             },
-                            onDeleteVertex = { surveyViewModel.survey.deleteVertice(it) },
+                            onDeleteVertex = { surveyViewModel.survey.deleteVertex(it) },
                         )
                     }
                 }
@@ -114,14 +111,12 @@ class MainActivity : ComponentActivity() {
             Row {
                 Text(text = label)
                 Spacer(modifier = Modifier.width(20.dp))
-                Text(
-                    text = text
-                )
+                Text(text = text)
             }
             Slider(
                 value = sliderValue,
                 valueRange = range,
-                onValueChange = onValueChanged
+                onValueChange = onValueChanged,
             )
         }
     }

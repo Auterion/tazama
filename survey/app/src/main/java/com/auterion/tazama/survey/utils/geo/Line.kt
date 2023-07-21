@@ -6,7 +6,6 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 class Line(start: PointF, end: PointF) {
-
     val start: PointF
     val end: PointF
 
@@ -14,14 +13,13 @@ class Line(start: PointF, end: PointF) {
     val b: Float
 
     init {
-
         var startMod = start
 
         if (abs(end.x - start.x) < 0.001f) {
-            if (start.y < end.y) {
-                m = Float.POSITIVE_INFINITY
+            m = if (start.y < end.y) {
+                Float.POSITIVE_INFINITY
             } else {
-                m = Float.NEGATIVE_INFINITY
+                Float.NEGATIVE_INFINITY
             }
             b = 0.0f
             startMod = start.copy(x = end.x)
@@ -34,7 +32,7 @@ class Line(start: PointF, end: PointF) {
         this.end = end
     }
 
-    fun length(): Float {
+    private fun length(): Float {
         val tmp = end - start
         return sqrt(tmp.x * tmp.x + tmp.y * tmp.y)
     }
@@ -49,26 +47,25 @@ class Line(start: PointF, end: PointF) {
         )
     }
 
-    fun isVertical(): Boolean {
+    private fun isVertical(): Boolean {
         return start.x == end.x
     }
 
     fun pointIsOnLine(point: PointF): Boolean {
-
         // first attempt to work around numerical issues, see unit tests for Line
         val delta = 0.01 * length()
 
-        if (isVertical()) {
-            return abs(point.x - start.x) < 0.001f
+        return if (isVertical()) {
+            abs(point.x - start.x) < 0.001f
         } else {
-            return (point.x + 0.001f) >= min(start.x, end.x) && (point.x - 0.001f) <= max(
+            (point.x + 0.001f) >= min(start.x, end.x) && (point.x - 0.001f) <= max(
                 start.x,
                 end.x
             ) && abs(point.y - (m * point.x + b)) < delta
         }
     }
 
-    fun intersect(other: Line): LineInterSectionPoint? {
+    fun intersect(other: Line): LineIntersectionPoint? {
         val point: PointF = when {
             other.isVertical() && !isVertical() -> {
                 val y = m * other.start.x + b
@@ -90,7 +87,7 @@ class Line(start: PointF, end: PointF) {
             }
 
             else -> {
-                return@intersect null
+                return null
             }
         }
 
@@ -98,12 +95,8 @@ class Line(start: PointF, end: PointF) {
             return null
         }
 
-        return LineInterSectionPoint(point)
-    }
-
-    fun toList(): List<PointF> {
-        return listOf(start, end)
+        return LineIntersectionPoint(point)
     }
 }
 
-data class LineInterSectionPoint(val point: PointF)
+data class LineIntersectionPoint(val point: PointF)

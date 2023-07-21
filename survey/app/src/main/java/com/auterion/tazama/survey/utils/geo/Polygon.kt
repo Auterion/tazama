@@ -10,7 +10,7 @@ class Polygon(val vertices: List<PointF>) {
         }
     }
 
-    fun getIntersectionPoints(line: Line): List<LineInterSectionPoint> {
+    fun getIntersectionPoints(line: Line): List<LineIntersectionPoint> {
         return lines.map {
             it.intersect(line)
         }.filterNotNull()

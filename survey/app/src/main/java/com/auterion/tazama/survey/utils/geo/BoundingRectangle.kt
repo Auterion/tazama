@@ -1,6 +1,5 @@
 package com.auterion.tazama.survey.utils.geo
 
-import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlin.math.max
 
 data class BoundingRectangleCorners(
@@ -10,33 +9,20 @@ data class BoundingRectangleCorners(
     val bottomLeft: PointF = PointF(),
 )
 
-class BoundingRectanglePolygon(vertices: List<PointF>, topLeftOrigin: LatLng) {
-
-    private val _corners = if (vertices.isEmpty()) {
+class BoundingRectanglePolygon(vertices: List<PointF>) {
+    val corners = if (vertices.isEmpty()) {
         BoundingRectangleCorners()
     } else {
         BoundingRectangleCorners(
-            PointF(vertices.map { it.x }.min(), vertices.map {
-                it.y
-            }.min()),
-            PointF(vertices.map { it.x }.max(), vertices.map {
-                it.y
-            }.min()),
-            PointF(vertices.map { it.x }.max(), vertices.map {
-                it.y
-            }.max()),
-            PointF(vertices.map { it.x }.min(), vertices.map {
-                it.y
-            }.max())
+            PointF(vertices.minOf { it.x }, vertices.minOf { it.y }),
+            PointF(vertices.maxOf { it.x }, vertices.minOf { it.y }),
+            PointF(vertices.maxOf { it.x }, vertices.maxOf { it.y }),
+            PointF(vertices.minOf { it.x }, vertices.maxOf { it.y }),
         )
     }
 
-    val corners get() = _corners
-    private val _origin = topLeftOrigin
-    val origin get() = _origin
-
     fun getCenterPoint(): PointF {
-        val centerX = (_corners.topRight.x - _corners.topLeft.x) * 0.5f + corners.topLeft.x
+        val centerX = (corners.topRight.x - corners.topLeft.x) * 0.5f + corners.topLeft.x
         val centerY = (corners.bottomRight.y - corners.topRight.y) * 0.5f + corners.topRight.y
 
         return PointF(centerX, centerY)
