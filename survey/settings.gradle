@@ -45,6 +45,6 @@ include ':app'
 includeBuild '../libvehicle'
 includeBuild '../libviewmodel'
 includeBuild '../libui'
-includeBuild '../ramani-maps/ramani-maplibre'
+//includeBuild '../ramani-maps/ramani-maplibre'
 //includeBuild '../maplibre-plugins-android/plugin-annotation'
 
