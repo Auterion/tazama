@@ -17,8 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.PI
 import kotlin.math.roundToInt
+
 
 class Survey : CoroutineScope {
     override val coroutineContext: CoroutineContext = Job() + Dispatchers.Main
@@ -26,7 +26,7 @@ class Survey : CoroutineScope {
     private var _verticesFlow = MutableStateFlow(vertices.toList())
     val verticesFlow = _verticesFlow.asStateFlow()
 
-    private val _transectFlow = MutableStateFlow(emptyList<LatLng>())
+    private val _transectFlow = MutableStateFlow(emptyList<Transect>())
     val transectFlow = _transectFlow.asStateFlow()
 
     private val _angleFlow = MutableStateFlow(0.0f)
@@ -36,6 +36,8 @@ class Survey : CoroutineScope {
     val transectSpacingFlow = _transectSpacingFlow.asStateFlow()
     val minSpacing = 1.0f
     val maxSpacing = 500.0f
+
+    val transectMargin = 10.0f
 
     var vertexId = 8
 
@@ -268,10 +270,17 @@ class Survey : CoroutineScope {
         _transectFlow.value =
             createHorizontalLines(transectSpacing, boundRectCorners)
                 .map { line -> rotateLineAroundCenter(line, rotAngle, boundRect) }
-                .mapNotNull { line -> createTransect(line, polygon, boundRect, rotAngle) }
-                .mapIndexed { index, line -> alternateTransectDirection(index, line) }
-                .flatMap { listOf(it.start, it.end) }
-                .map { projection.reproject(it) }
+                .mapNotNull { line ->
+                    createTransect(
+                        line,
+                        polygon,
+                        boundRect,
+                        rotAngle,
+                        transectMargin,
+                        projection,
+                    )
+                }
+                .mapIndexed { index, transect -> alternateTransectDirection(index, transect) }
     }
 
     private fun createHorizontalLines(
@@ -302,8 +311,10 @@ class Survey : CoroutineScope {
         line: Line,
         polygon: Polygon,
         boundRect: BoundingRectanglePolygon,
-        rotAngle: Double
-    ): Line? {
+        rotAngle: Double,
+        transectMargin: Float,
+        projection: LocalProjection,
+    ): Transect? {
         val intersection = polygon.getIntersectionPoints(line)
             .map {
                 // rotate intersection points back to global frame for sorting
@@ -326,23 +337,38 @@ class Survey : CoroutineScope {
         // for a valid transect we need to intersect at least two sides of the polygon
         return if (intersection.size <= 1) {
             null
+        } else if (Line(
+                intersection.first().point,
+                intersection.last().point
+            ).getLength() < 2 * transectMargin  // skip transect if it's too short
+        ) {
+            null
         } else {
-            Line(intersection.first().point, intersection.last().point)
+            val tmpLine = Line(intersection.first().point, intersection.last().point)
+            Transect(
+                Line(
+                    tmpLine.start + tmpLine.getNormalizedDirection() * transectMargin,
+                    tmpLine.end - tmpLine.getNormalizedDirection() * transectMargin
+                ),
+                projection
+            )
         }
     }
 
-    private fun alternateTransectDirection(index: Int, transect: Line): Line {
+    private fun alternateTransectDirection(index: Int, transect: Transect): Transect {
         // create lawnmower pattern by changing direction of every second transect
         return if (index % 2 == 0) {
             transect
         } else {
-            Line(transect.end, transect.start)
+            Transect(
+                Line(transect.photoLine.end, transect.photoLine.start),
+                transect.projection,
+            )
         }
     }
 
     fun setAngle(angle: Float) {
-        val angleConstrained = angle.coerceAtMost(PI.toFloat()).coerceAtLeast(0.0f)
-        _angleFlow.value = angleConstrained
+        _angleFlow.value = angle
     }
 
     fun setSpacing(spacing: Float) {

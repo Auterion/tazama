@@ -7,6 +7,7 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import org.junit.Test
 import kotlin.math.PI
+import kotlin.math.sqrt
 
 class LineTest {
     @Test
@@ -100,10 +101,10 @@ class LineTest {
         val line = Line(PointF(-1.0f, 1.0f), PointF(1.0f, 1.0f))
 
         val lineRot = line.rotateAroundCenter(PointF(), -PI / 2)
-        assertEquals(lineRot.start.x, -1.0f)
-        assertEquals(lineRot.end.x, -1.0f)
-        assertEquals(lineRot.start.y, -1.0f)
-        assertEquals(lineRot.end.y, 1.0f)
+        assertEquals(lineRot.start.x, 1.0f)
+        assertEquals(lineRot.end.x, 1.0f)
+        assertEquals(lineRot.start.y, 1.0f)
+        assertEquals(lineRot.end.y, -1.0f)
 
     }
 
@@ -122,5 +123,28 @@ class LineTest {
             angle += 2 * 3.2 / 100.0f
         }
 
+    }
+
+    @Test
+    fun line_normalizedDirectionCorrect() {
+        val line = Line(PointF(0.0f, 1.0f), PointF(1.0f, 2.0f))
+
+        val direction = line.getNormalizedDirection()
+        assertEquals(direction.x, sqrt(0.5f))
+        assertEquals(direction.y, sqrt(0.5f))
+    }
+
+    @Test
+    fun line_midPointCorrect() {
+        val line = Line(PointF(0.0f, 0.0f), PointF(1.0f, 1.0f))
+        assertEquals(line.getMidPoint().x, 0.5f)
+        assertEquals(line.getMidPoint().y, 0.5f)
+    }
+
+    @Test
+    fun line_azimuthCorrect() {
+        val line = Line(PointF(0.0f, 0.0f), PointF(0.0f, 1.0f))
+
+        val az = line.getAzimuth()
     }
 }
