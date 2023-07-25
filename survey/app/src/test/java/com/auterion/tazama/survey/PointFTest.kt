@@ -7,7 +7,6 @@ import org.junit.Test
 class PointFTest {
     @Test
     fun point_operatorMinus() {
-
         val point1 = PointF(0.0f, 0.0f)
         val point2 = PointF(1.0f, -1.0f)
 

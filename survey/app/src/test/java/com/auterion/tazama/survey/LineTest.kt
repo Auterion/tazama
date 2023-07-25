@@ -47,13 +47,13 @@ class LineTest {
 
         assertEquals(line.pointIsOnLine(point), true)
 
-        // chose random x and plug it into line equation, point should be on line
+        // Choose random x and plug it into line equation, point should be on line
         var randomX = 0.57f
         assertEquals(line.pointIsOnLine(PointF(randomX, line.m * randomX + line.b)), true)
 
-        // test some long lines
-        val longStart = PointF(-10000.577777778f, 300.556f)
-        val longEnd = PointF(25467111777777.1f, -27487312.578f)
+        // Test some long lines
+        val longStart = PointF(-10000.578f, 300.556f)
+        val longEnd = PointF(2.54671113E13f, -2.7487312E7f)
         val longLine = Line(longStart, longEnd)
 
         randomX = -557.777f
@@ -65,7 +65,7 @@ class LineTest {
 
     @Test
     fun line_intersectingLongLinesWorks() {
-        // this test has been very useful to identify numerical problem that arise when rotating lines
+        // This test has been very useful to identify numerical problem that arise when rotating lines
         // and finding intersections. At first a fixed delta was used for comparison but that
         // turned out not to work due to seemingly loss of precision when doing the rotations.
         // Currently we are using a delta as a function of the line length which seems to work better.
@@ -79,8 +79,7 @@ class LineTest {
         assertEquals(line1.intersect(line2)?.point?.x, intersectPoint.x)
         assertEquals(line1.intersect(line2)?.point?.y, intersectPoint.y)
 
-
-        // rotate the two lines and the intersection point using various angles
+        // Rotate the two lines and the intersection point using various angles
         // the new intersection point should equal the rotates intersection point
         var angle = 0.0
         for (i in 0..100) {
@@ -104,7 +103,6 @@ class LineTest {
         assertEquals(lineRot.end.x, 1.0f)
         assertEquals(lineRot.start.y, 1.0f)
         assertEquals(lineRot.end.y, -1.0f)
-
     }
 
     @Test
@@ -121,7 +119,6 @@ class LineTest {
             println(angle)
             angle += 2 * 3.2 / 100.0f
         }
-
     }
 
     @Test

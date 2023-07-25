@@ -1,6 +1,6 @@
 package com.auterion.tazama.survey
 
-fun Int.WrapToListIndex(listSize: Int): Int {
+internal fun Int.wrapToListIndex(listSize: Int): Int {
     if (this < 0) {
         return this + listSize
     } else if (this > listSize - 1) {

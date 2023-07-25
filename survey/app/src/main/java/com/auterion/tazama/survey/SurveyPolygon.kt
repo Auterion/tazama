@@ -147,42 +147,42 @@ fun SurveyPolygon(
         )
     }
 
-    if (!transects.isEmpty()) {
-        Symbol(
-            center = transects.first().directionIndicator.position,
-            size = 0.5f,
-            color = "White",
-            isDraggable = false,
-            imageId = R.drawable.arrow_right_white,
-            imageRotation = transects.first().directionIndicator.rotation * 180 / PI.toFloat() - mapBearing.value.toFloat(),
-            zIndex = 12,
-        )
+    if (transects.isNotEmpty()) {
+        ArrowOnTransect(transects.first(), mapBearing.value)
     }
 
     if (transects.size > 1) {
-        Symbol(
-            center = transects.last().directionIndicator.position,
-            size = 0.5f,
-            color = "White",
-            isDraggable = false,
-            imageId = R.drawable.arrow_right_white,
-            imageRotation = transects.last().directionIndicator.rotation * 180 / PI.toFloat() - mapBearing.value.toFloat(),
-            zIndex = 12,
-        )
+        ArrowOnTransect(transects.last(), mapBearing.value)
     }
 }
 
 @Composable
-fun hasEnoughSpaceForInserter(id: Int, vertices: List<Vertex>): Boolean {
+private fun ArrowOnTransect(
+    transect: Transect,
+    mapBearing: Double,
+) {
+    Symbol(
+        center = transect.directionIndicator.position,
+        size = 0.5f,
+        color = "White",
+        isDraggable = false,
+        imageId = R.drawable.arrow_right_white,
+        imageRotation = transect.directionIndicator.rotation * 180 / PI.toFloat() - mapBearing.toFloat(),
+        zIndex = 12,
+    )
+}
+
+@Composable
+private fun hasEnoughSpaceForInserter(id: Int, vertices: List<Vertex>): Boolean {
     vertices.firstOrNull {
         it.id == id
     }?.sequence?.let { inserterSequence ->
         val prevVertex =
-            vertices.find { it.sequence == (inserterSequence - 1).WrapToListIndex(vertices.size) }
+            vertices.find { it.sequence == (inserterSequence - 1).wrapToListIndex(vertices.size) }
         val nextVertex =
-            vertices.find { it.sequence == (inserterSequence + 1).WrapToListIndex(vertices.size) }
+            vertices.find { it.sequence == (inserterSequence + 1).wrapToListIndex(vertices.size) }
 
-        val dist = screenDistanceBetween(a = prevVertex?.location!!, b = nextVertex?.location!!)
+        val dist = screenDistanceBetween(a = prevVertex!!.location, b = nextVertex!!.location)
 
         return dist > 400
     }
@@ -191,10 +191,10 @@ fun hasEnoughSpaceForInserter(id: Int, vertices: List<Vertex>): Boolean {
 }
 
 @Composable
-fun inserterCoordinateForId(id: Int, vertices: List<Vertex>): LatLng {
+private fun inserterCoordinateForId(id: Int, vertices: List<Vertex>): LatLng {
     vertices.find { it.id == id }?.sequence?.let { sequence ->
-        val sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
-        val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
+        val sequencePrev = (sequence - 1).wrapToListIndex(vertices.size)
+        val sequenceNext = (sequence + 1).wrapToListIndex(vertices.size)
 
         val pixelPrev = pixelFromCoord(vertices.first { it.sequence == sequencePrev }.location)
         val pixelNext = pixelFromCoord(vertices.first { it.sequence == sequenceNext }.location)
@@ -208,7 +208,7 @@ fun inserterCoordinateForId(id: Int, vertices: List<Vertex>): LatLng {
 }
 
 @Composable
-fun VertexDeleter(
+private fun VertexDeleter(
     vertices: List<Vertex>,
     draggedId: Int?,
     onDeleteVertex: (sequence: Int) -> Unit
@@ -222,8 +222,8 @@ fun VertexDeleter(
     draggedId?.let {
         vertices.firstOrNull { it.id == draggedId }?.let { vertex ->
             sequenceBefore.value = vertex.sequence
-            val previousSequence = (vertex.sequence - 2).WrapToListIndex(vertices.size)
-            val nextSequence = (vertex.sequence + 2).WrapToListIndex(vertices.size)
+            val previousSequence = (vertex.sequence - 2).wrapToListIndex(vertices.size)
+            val nextSequence = (vertex.sequence + 2).wrapToListIndex(vertices.size)
 
             val distToNext =
                 screenDistanceBetween(

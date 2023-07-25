@@ -137,12 +137,12 @@ class Survey : CoroutineScope {
             }
         }
         launch {
-            _angleFlow.collect() {
+            _angleFlow.collect {
                 updateTransects()
             }
         }
         launch {
-            _transectSpacingFlow.collect() {
+            _transectSpacingFlow.collect {
                 updateTransects()
             }
         }
@@ -217,8 +217,8 @@ class Survey : CoroutineScope {
         if (index > -1) {
             val vertexToChange = vertices[index]
 
-            val sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
-            val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
+            val sequencePrev = (sequence - 1).wrapToListIndex(vertices.size)
+            val sequenceNext = (sequence + 1).wrapToListIndex(vertices.size)
 
             vertices.removeIf { it.sequence == sequencePrev }
             vertices.removeIf { it.sequence == sequenceNext }
@@ -234,10 +234,11 @@ class Survey : CoroutineScope {
             repeat(vertices.size) {
                 if (vertices[it].sequence > sequence) {
                     vertices[it] = vertices[it].copy(
-                        sequence = (vertices[it].sequence - 2).WrapToListIndex(vertices.size)
+                        sequence = (vertices[it].sequence - 2).wrapToListIndex(vertices.size)
                     )
                 }
             }
+
             updateTransects()
         }
     }
@@ -249,15 +250,12 @@ class Survey : CoroutineScope {
 
         val projection = LocalProjection(vertices.first { it.role == VertexRole.DRAGGER }.location)
 
-        val boundRect =
-            BoundingRectanglePolygon(
-                vertices
-                    .filter { it.role == VertexRole.DRAGGER }
-                    .map { projection.project(it.location) },
-            )
+        val draggerLocations = vertices
+            .filter { it.role == VertexRole.DRAGGER }
+            .map { projection.project(it.location) }
 
-        val boundRectCorners = boundRect.getSquareEnlargedByFactor(1.2f)
-
+        val boundingRect = BoundingRectanglePolygon(draggerLocations)
+        val boundRectCorners = boundingRect.getSquareEnlargedByFactor(1.2f)
         val transectSpacing = transectSpacingFlow.value
 
         val polygon = Polygon(vertices = vertices
@@ -269,12 +267,12 @@ class Survey : CoroutineScope {
 
         _transectFlow.value =
             createHorizontalLines(transectSpacing, boundRectCorners)
-                .map { line -> rotateLineAroundCenter(line, rotAngle, boundRect) }
+                .map { line -> rotateLineAroundCenter(line, rotAngle, boundingRect) }
                 .mapNotNull { line ->
                     createTransect(
                         line,
                         polygon,
-                        boundRect,
+                        boundingRect,
                         rotAngle,
                         transectMargin,
                         projection,
@@ -315,44 +313,50 @@ class Survey : CoroutineScope {
         transectMargin: Float,
         projection: LocalProjection,
     ): Transect? {
-        val intersection = polygon.getIntersectionPoints(line)
+        val intersection = sortedIntersect(polygon, line, boundRect, rotAngle)
+
+        // For a valid transect we need to intersect at least two sides of the polygon
+        if (intersection.size <= 1) {
+            return null
+        }
+
+        val candidateLine = Line(intersection.first().point, intersection.last().point)
+
+        // Skip transect if it's too short
+        if (candidateLine.getLength() < 2 * transectMargin) {
+            return null
+        }
+
+        return Transect(
+            Line(
+                candidateLine.start + candidateLine.getNormalizedDirection() * transectMargin,
+                candidateLine.end - candidateLine.getNormalizedDirection() * transectMargin
+            ),
+            projection
+        )
+    }
+
+    private fun sortedIntersect(
+        polygon: Polygon,
+        line: Line,
+        boundingRect: BoundingRectanglePolygon,
+        rotAngle: Double,
+    ): List<LineIntersectionPoint> {
+        return polygon.getIntersectionPoints(line)
             .map {
-                // rotate intersection points back to global frame for sorting
+                // Rotate intersection points back to global frame for sorting
                 LineIntersectionPoint(
-                    it.point.rotateAroundCenter(boundRect.getCenterPoint(), -rotAngle)
+                    it.point.rotateAroundCenter(boundingRect.getCenterPoint(), -rotAngle)
                 )
             }
             .sortedBy { it.point.x }
-            // sort the intersection points, from left to right
+            // Sort the intersection points, from left to right
             .map {
-                // rotate sorted points back to grid angle
+                // Rotate sorted points back to grid angle
                 LineIntersectionPoint(
-                    it.point.rotateAroundCenter(
-                        boundRect.getCenterPoint(),
-                        rotAngle
-                    )
+                    it.point.rotateAroundCenter(boundingRect.getCenterPoint(), rotAngle)
                 )
             }
-
-        // for a valid transect we need to intersect at least two sides of the polygon
-        return if (intersection.size <= 1) {
-            null
-        } else if (Line(
-                intersection.first().point,
-                intersection.last().point
-            ).getLength() < 2 * transectMargin  // skip transect if it's too short
-        ) {
-            null
-        } else {
-            val tmpLine = Line(intersection.first().point, intersection.last().point)
-            Transect(
-                Line(
-                    tmpLine.start + tmpLine.getNormalizedDirection() * transectMargin,
-                    tmpLine.end - tmpLine.getNormalizedDirection() * transectMargin
-                ),
-                projection
-            )
-        }
     }
 
     private fun alternateTransectDirection(index: Int, transect: Transect): Transect {
@@ -372,6 +376,8 @@ class Survey : CoroutineScope {
     }
 
     fun setSpacing(spacing: Float) {
-        _transectSpacingFlow.value = spacing.coerceAtLeast(minSpacing).coerceAtMost(maxSpacing)
+        _transectSpacingFlow.value = spacing
+            .coerceAtLeast(minSpacing)
+            .coerceAtMost(maxSpacing)
     }
 }
