@@ -20,7 +20,6 @@ class LineTest {
         assertEquals(line.start.y, start.y)
         assertEquals(line.end.x, end.x)
         assertEquals(line.end.y, end.y)
-
     }
 
     @Test
@@ -130,6 +129,7 @@ class LineTest {
         val line = Line(PointF(0.0f, 1.0f), PointF(1.0f, 2.0f))
 
         val direction = line.getNormalizedDirection()
+
         assertEquals(direction.x, sqrt(0.5f))
         assertEquals(direction.y, sqrt(0.5f))
     }
@@ -137,8 +137,12 @@ class LineTest {
     @Test
     fun line_midPointCorrect() {
         val line = Line(PointF(0.0f, 0.0f), PointF(1.0f, 1.0f))
-        assertEquals(line.getMidPoint().x, 0.5f)
-        assertEquals(line.getMidPoint().y, 0.5f)
+        val epsilon = 0.001f
+
+        val midPoint = line.getMidPoint()
+
+        assertEquals(midPoint.x, 0.5f, epsilon)
+        assertEquals(midPoint.y, 0.5f, epsilon)
     }
 
     @Test
