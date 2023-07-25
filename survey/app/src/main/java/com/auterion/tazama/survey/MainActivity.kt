@@ -17,6 +17,8 @@ import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.auterion.tazama.survey.ui.theme.TazamasurveyTheme
+import com.mapbox.mapboxsdk.geometry.LatLng
+import org.ramani.compose.CameraPosition
 import org.ramani.compose.MapLibre
 
 class MainActivity : ComponentActivity() {
@@ -36,6 +40,15 @@ class MainActivity : ComponentActivity() {
                 val transects = surveyViewModel.survey.transectFlow.collectAsState()
                 val angle = surveyViewModel.survey.angleFlow.collectAsState()
                 val spacing = surveyViewModel.survey.transectSpacingFlow.collectAsState()
+
+                val cameraPosition = rememberSaveable {
+                    mutableStateOf(
+                        CameraPosition(
+                            target = LatLng(47.3552, 8.5215),
+                            zoom = 17.0
+                        )
+                    )
+                }
 
                 Box(modifier = Modifier.fillMaxSize()) {
                     Box(
@@ -64,12 +77,7 @@ class MainActivity : ComponentActivity() {
                     MapLibre(
                         modifier = Modifier.fillMaxSize(),
                         apiKey = getString(R.string.maplibre_api_key),
-//                        cameraPositionState = CameraPositionState(
-//                            CameraPosition(
-//                                target = LatLng(47.3552, 8.5215),
-//                                zoom = 17.0
-//                            )
-//                        )
+                        cameraPosition = cameraPosition.value
                     ) {
                         SurveyPolygon(
                             vertices.value,
