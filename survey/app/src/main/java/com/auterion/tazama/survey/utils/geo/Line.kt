@@ -1,6 +1,8 @@
 package com.auterion.tazama.survey.utils.geo
 
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -96,6 +98,37 @@ class Line(start: PointF, end: PointF) {
         }
 
         return LineIntersectionPoint(point)
+    }
+
+    fun getNormalizedDirection(): PointF {
+        return (end - start).normalized()
+    }
+
+    fun getLength(): Float {
+        val tmp = end - start
+        return sqrt(tmp.x * tmp.x + tmp.y * tmp.y)
+    }
+
+    fun getMidPoint(): PointF {
+        return start + getNormalizedDirection() * length() * 0.5f
+    }
+
+    fun getAzimuth(): Float {
+        val tmp = getNormalizedDirection()
+        return wrapPi(atan2(tmp.y, tmp.x))
+    }
+
+    fun wrapPi(value: Float): Float {
+        var tmp = value
+        while (tmp > PI.toFloat()) {
+            tmp -= 2 * PI.toFloat()
+        }
+
+        while (tmp < -PI.toFloat()) {
+            tmp += 2 * PI.toFloat()
+        }
+
+        return tmp
     }
 }
 

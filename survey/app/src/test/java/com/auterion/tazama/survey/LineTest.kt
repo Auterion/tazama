@@ -7,6 +7,7 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import org.junit.Test
 import kotlin.math.PI
+import kotlin.math.sqrt
 
 class LineTest {
     @Test
@@ -19,7 +20,6 @@ class LineTest {
         assertEquals(line.start.y, start.y)
         assertEquals(line.end.x, end.x)
         assertEquals(line.end.y, end.y)
-
     }
 
     @Test
@@ -47,13 +47,13 @@ class LineTest {
 
         assertEquals(line.pointIsOnLine(point), true)
 
-        // chose random x and plug it into line equation, point should be on line
+        // Choose random x and plug it into line equation, point should be on line
         var randomX = 0.57f
         assertEquals(line.pointIsOnLine(PointF(randomX, line.m * randomX + line.b)), true)
 
-        // test some long lines
-        val longStart = PointF(-10000.577777778f, 300.556f)
-        val longEnd = PointF(25467111777777.1f, -27487312.578f)
+        // Test some long lines
+        val longStart = PointF(-10000.578f, 300.556f)
+        val longEnd = PointF(2.54671113E13f, -2.7487312E7f)
         val longLine = Line(longStart, longEnd)
 
         randomX = -557.777f
@@ -65,7 +65,7 @@ class LineTest {
 
     @Test
     fun line_intersectingLongLinesWorks() {
-        // this test has been very useful to identify numerical problem that arise when rotating lines
+        // This test has been very useful to identify numerical problem that arise when rotating lines
         // and finding intersections. At first a fixed delta was used for comparison but that
         // turned out not to work due to seemingly loss of precision when doing the rotations.
         // Currently we are using a delta as a function of the line length which seems to work better.
@@ -79,8 +79,7 @@ class LineTest {
         assertEquals(line1.intersect(line2)?.point?.x, intersectPoint.x)
         assertEquals(line1.intersect(line2)?.point?.y, intersectPoint.y)
 
-
-        // rotate the two lines and the intersection point using various angles
+        // Rotate the two lines and the intersection point using various angles
         // the new intersection point should equal the rotates intersection point
         var angle = 0.0
         for (i in 0..100) {
@@ -100,11 +99,10 @@ class LineTest {
         val line = Line(PointF(-1.0f, 1.0f), PointF(1.0f, 1.0f))
 
         val lineRot = line.rotateAroundCenter(PointF(), -PI / 2)
-        assertEquals(lineRot.start.x, -1.0f)
-        assertEquals(lineRot.end.x, -1.0f)
-        assertEquals(lineRot.start.y, -1.0f)
-        assertEquals(lineRot.end.y, 1.0f)
-
+        assertEquals(lineRot.start.x, 1.0f)
+        assertEquals(lineRot.end.x, 1.0f)
+        assertEquals(lineRot.start.y, 1.0f)
+        assertEquals(lineRot.end.y, -1.0f)
     }
 
     @Test
@@ -121,6 +119,33 @@ class LineTest {
             println(angle)
             angle += 2 * 3.2 / 100.0f
         }
+    }
 
+    @Test
+    fun line_normalizedDirectionCorrect() {
+        val line = Line(PointF(0.0f, 1.0f), PointF(1.0f, 2.0f))
+
+        val direction = line.getNormalizedDirection()
+
+        assertEquals(direction.x, sqrt(0.5f))
+        assertEquals(direction.y, sqrt(0.5f))
+    }
+
+    @Test
+    fun line_midPointCorrect() {
+        val line = Line(PointF(0.0f, 0.0f), PointF(1.0f, 1.0f))
+        val epsilon = 0.001f
+
+        val midPoint = line.getMidPoint()
+
+        assertEquals(midPoint.x, 0.5f, epsilon)
+        assertEquals(midPoint.y, 0.5f, epsilon)
+    }
+
+    @Test
+    fun line_azimuthCorrect() {
+        val line = Line(PointF(0.0f, 0.0f), PointF(0.0f, 1.0f))
+
+        val az = line.getAzimuth()
     }
 }

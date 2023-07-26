@@ -4,19 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,9 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.auterion.tazama.survey.ui.theme.TazamasurveyTheme
 import com.mapbox.mapboxsdk.geometry.LatLng
 import org.ramani.compose.CameraPosition
-import org.ramani.compose.CameraPositionState
 import org.ramani.compose.MapLibre
-import kotlin.math.PI
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,27 +41,29 @@ class MainActivity : ComponentActivity() {
                 val angle = surveyViewModel.survey.angleFlow.collectAsState()
                 val spacing = surveyViewModel.survey.transectSpacingFlow.collectAsState()
 
+                val cameraPosition = rememberSaveable {
+                    mutableStateOf(
+                        CameraPosition(
+                            target = LatLng(47.3552, 8.5215),
+                            zoom = 17.0
+                        )
+                    )
+                }
+
                 Box(modifier = Modifier.fillMaxSize()) {
                     Box(
                         modifier = Modifier
+                            .heightIn()
                             .zIndex(1.0f)
                             .width(300.dp)
-                            .height(150.dp)
                             .background(color = Color.LightGray)
                             .align(Alignment.TopCenter)
                     ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(20.dp), verticalArrangement = Arrangement.SpaceBetween
+                                .fillMaxWidth()
+                                .padding(20.dp),
                         ) {
-                            SliderItem(
-                                "Grid Angle",
-                                text = (angle.value * 180 / PI).toInt().toString(),
-                                sliderValue = angle.value,
-                                range = 0.0f..PI.toFloat(),
-                                onValueChanged = { surveyViewModel.survey.setAngle(it) })
-
                             SliderItem(
                                 label = "Spacing",
                                 text = spacing.value.toInt().toString(),
@@ -75,16 +77,12 @@ class MainActivity : ComponentActivity() {
                     MapLibre(
                         modifier = Modifier.fillMaxSize(),
                         apiKey = getString(R.string.maplibre_api_key),
-                        cameraPositionState = CameraPositionState(
-                            CameraPosition(
-                                target = LatLng(47.3552, 8.5215),
-                                zoom = 17.0
-                            )
-                        )
+                        cameraPosition = cameraPosition.value
                     ) {
                         SurveyPolygon(
                             vertices.value,
                             transects.value,
+                            angle.value,
                             onVerticesTranslated = {
                                 surveyViewModel.survey.handleVerticesTranslated(it)
                             },
@@ -92,6 +90,7 @@ class MainActivity : ComponentActivity() {
                                 surveyViewModel.survey.handleVertexChanged(index, vertex)
                             },
                             onDeleteVertex = { surveyViewModel.survey.deleteVertex(it) },
+                            onGridAngleChanged = { surveyViewModel.survey.setAngle(it) }
                         )
                     }
                 }

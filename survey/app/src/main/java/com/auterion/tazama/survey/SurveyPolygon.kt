@@ -12,9 +12,11 @@ import org.ramani.compose.MapLibreComposable
 import org.ramani.compose.MapObserver
 import org.ramani.compose.Polygon
 import org.ramani.compose.Polyline
+import org.ramani.compose.Symbol
 import org.ramani.compose.coordFromPixel
 import org.ramani.compose.pixelFromCoord
 import org.ramani.compose.screenDistanceBetween
+import kotlin.math.PI
 
 enum class VertexRole {
     DRAGGER, INSERTER
@@ -34,10 +36,12 @@ data class Vertex(
 @Composable
 fun SurveyPolygon(
     vertices: List<Vertex>,
-    transects: List<LatLng>,
+    transects: List<Transect>,
+    azimuth: Float,
     onVerticesTranslated: (List<LatLng>) -> Unit,
     onVertexWithIdChanged: (Int, LatLng) -> Unit,
     onDeleteVertex: (Int) -> Unit,
+    onGridAngleChanged: (Float) -> Unit,
 ) {
     val lastMapUpdateMs = remember {
         mutableStateOf(System.currentTimeMillis())
@@ -52,23 +56,33 @@ fun SurveyPolygon(
     val mapScaleChangeToggler = remember { mutableStateOf(true) }
     val polygonZIndex = 0
 
+    val mapBearing = remember {
+        mutableStateOf(0.0)
+    }
+
     MapObserver(onMapScaled = {
         if (System.currentTimeMillis() - lastMapUpdateMs.value > 100) {
             lastMapUpdateMs.value = System.currentTimeMillis()
             mapScaleChangeToggler.value = !mapScaleChangeToggler.value
         }
-    })
+
+    },
+        onMapRotated = {
+            mapBearing.value = it
+        })
 
     Polygon(
         vertices = pointsForPolyline,
+        azimuth = azimuth,
         draggerImageId = R.drawable.drag,
         fillColor = "Green",
         opacity = 0.2f,
         isDraggable = true,
-        borderWidth = 2.0F,
+        borderWidth = 0.5F,
         zIndex = polygonZIndex,
         zIndexDragHandle = 5,
-        onVerticesChanged = { onVerticesTranslated(it) }
+        onVerticesChanged = { onVerticesTranslated(it) },
+        onAzimuthChanged = onGridAngleChanged,
     )
 
     key(mapScaleChangeToggler.value) {  // this triggers recomposition when map is scaled
@@ -91,6 +105,8 @@ fun SurveyPolygon(
                         dragRadius = 40.0f,
                         isDraggable = vertex.draggable,
                         color = vertex.color,
+                        borderColor = "Black",
+                        borderWidth = 1.0f,
                         onCenterChanged = { latLng ->
                             draggedId.value = vertex.id
                             onVertexWithIdChanged(vertex.id, latLng)
@@ -102,7 +118,7 @@ fun SurveyPolygon(
                             VertexRole.INSERTER -> R.drawable.plus
                         },
                         itemSize = 0.5f,
-                        zIndex = polygonZIndex + 2
+                        zIndex = 10
                     )
                 }
             }
@@ -115,75 +131,58 @@ fun SurveyPolygon(
         onDeleteVertex = onDeleteVertex
     )
 
-    Polyline(points = transects, color = "Red", lineWidth = 2.0f)
+    transects.forEach {
+        Polyline(points = listOf(it.startLat, it.endLat), color = "White", lineWidth = 1.0f)
+    }
 
-    // code below can be uncommented to debug issues with bounding rectangle, can probably be removed
-    // soon
-//
-//
-//    val projection = LocalProjection(vertices.first { it.role == VertexRole.DRAGGER }.location)
-//
-//    val boundRect =
-//        BoundingRectanglePolygon(
-//            vertices = vertices.filter { it.role == VertexRole.DRAGGER }
-//                .map { projection.project(it.location) },
-//            vertices.first { it.role == VertexRole.DRAGGER }.location
-//        )
-//
-//    val boundRectCorners = boundRect.getSquareCentered()
-//
-//    val transectSpacing = 10.0f
-//
-//    var yStart = boundRectCorners.topLeft.y
-//    val yEnd = boundRectCorners.bottomLeft.y
-//
-//    val polygon = Polygon(vertices = vertices.sortedBy { it.sequence }
-//        .filter { it.role == VertexRole.DRAGGER }.map {
-//            projection.project(it.location)
-//        })
-//
-//
-//    val lines =
-//        MutableList(((yEnd - yStart) / transectSpacing).roundToInt()) { index ->
-//            // generates a list of indices according to number of horizontal lines we need
-//            index
-//        }.map {
-//            // creates horizontal line for each index
-//            Line(
-//                PointF(boundRectCorners.topLeft.x, yStart + (it * transectSpacing).toFloat()),
-//                PointF(boundRectCorners.topRight.x, yStart + (it * transectSpacing).toFloat())
-//            )
-//        }.mapIndexed { index, line ->
-//            line.rotateAroundCenter(boundRect.getCenterPoint(), 1.0)
-//
-//
-//        }.filterNotNull().mapIndexed { index, line ->
-//            if (index % 2 == 0) {
-//                line
-//            } else {
-//                Line(line.end, line.start)
-//            }
-//        }.flatMap {
-//            listOf(it.start, it.end)
-//        }.map {
-//            projection.reproject(it)
-//        }
-//
-//    PolyLine(points = lines.toMutableList(), color = "Blue", lineWidth = 1.0f)
+    transects.windowed(2, 1) {
+        listOf(it.first().endLat, it.last().startLat)
+    }.forEach {
+        Polyline(
+            points = it,
+            color = "White",
+            lineWidth = 1.0f,
+            isDashed = true,
+            zIndex = 2
+        )
+    }
 
+    if (transects.isNotEmpty()) {
+        ArrowOnTransect(transects.first(), mapBearing.value)
+    }
+
+    if (transects.size > 1) {
+        ArrowOnTransect(transects.last(), mapBearing.value)
+    }
 }
 
 @Composable
-fun hasEnoughSpaceForInserter(id: Int, vertices: List<Vertex>): Boolean {
+private fun ArrowOnTransect(
+    transect: Transect,
+    mapBearing: Double,
+) {
+    Symbol(
+        center = transect.directionIndicator.position,
+        size = 0.5f,
+        color = "White",
+        isDraggable = false,
+        imageId = R.drawable.arrow_right_white,
+        imageRotation = transect.directionIndicator.rotation * 180 / PI.toFloat() - mapBearing.toFloat(),
+        zIndex = 12,
+    )
+}
+
+@Composable
+private fun hasEnoughSpaceForInserter(id: Int, vertices: List<Vertex>): Boolean {
     vertices.firstOrNull {
         it.id == id
     }?.sequence?.let { inserterSequence ->
         val prevVertex =
-            vertices.find { it.sequence == (inserterSequence - 1).WrapToListIndex(vertices.size) }
+            vertices.find { it.sequence == (inserterSequence - 1).wrapToListIndex(vertices.size) }
         val nextVertex =
-            vertices.find { it.sequence == (inserterSequence + 1).WrapToListIndex(vertices.size) }
+            vertices.find { it.sequence == (inserterSequence + 1).wrapToListIndex(vertices.size) }
 
-        val dist = screenDistanceBetween(a = prevVertex?.location!!, b = nextVertex?.location!!)
+        val dist = screenDistanceBetween(a = prevVertex!!.location, b = nextVertex!!.location)
 
         return dist > 400
     }
@@ -192,10 +191,10 @@ fun hasEnoughSpaceForInserter(id: Int, vertices: List<Vertex>): Boolean {
 }
 
 @Composable
-fun inserterCoordinateForId(id: Int, vertices: List<Vertex>): LatLng {
+private fun inserterCoordinateForId(id: Int, vertices: List<Vertex>): LatLng {
     vertices.find { it.id == id }?.sequence?.let { sequence ->
-        val sequencePrev = (sequence - 1).WrapToListIndex(vertices.size)
-        val sequenceNext = (sequence + 1).WrapToListIndex(vertices.size)
+        val sequencePrev = (sequence - 1).wrapToListIndex(vertices.size)
+        val sequenceNext = (sequence + 1).wrapToListIndex(vertices.size)
 
         val pixelPrev = pixelFromCoord(vertices.first { it.sequence == sequencePrev }.location)
         val pixelNext = pixelFromCoord(vertices.first { it.sequence == sequenceNext }.location)
@@ -209,7 +208,7 @@ fun inserterCoordinateForId(id: Int, vertices: List<Vertex>): LatLng {
 }
 
 @Composable
-fun VertexDeleter(
+private fun VertexDeleter(
     vertices: List<Vertex>,
     draggedId: Int?,
     onDeleteVertex: (sequence: Int) -> Unit
@@ -223,8 +222,8 @@ fun VertexDeleter(
     draggedId?.let {
         vertices.firstOrNull { it.id == draggedId }?.let { vertex ->
             sequenceBefore.value = vertex.sequence
-            val previousSequence = (vertex.sequence - 2).WrapToListIndex(vertices.size)
-            val nextSequence = (vertex.sequence + 2).WrapToListIndex(vertices.size)
+            val previousSequence = (vertex.sequence - 2).wrapToListIndex(vertices.size)
+            val nextSequence = (vertex.sequence + 2).wrapToListIndex(vertices.size)
 
             val distToNext =
                 screenDistanceBetween(
