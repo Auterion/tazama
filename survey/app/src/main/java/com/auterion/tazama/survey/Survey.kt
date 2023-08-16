@@ -255,7 +255,7 @@ class Survey : CoroutineScope {
             .map { projection.project(it.location) }
 
         val boundingRect = BoundingRectanglePolygon(draggerLocations)
-        val boundRectCorners = boundingRect.getSquareEnlargedByFactor(1.2f)
+        val boundRectCorners = boundingRect.getSquareEnlargedByFactor(2.0f)
         val transectSpacing = transectSpacingFlow.value
 
         val polygon = Polygon(vertices = vertices
@@ -321,17 +321,18 @@ class Survey : CoroutineScope {
         }
 
         val candidateLine = Line(intersection.first().point, intersection.last().point)
+        val trimmedLine = Line(
+            candidateLine.start + candidateLine.getNormalizedDirection() * transectMargin,
+            candidateLine.end - candidateLine.getNormalizedDirection() * transectMargin
+        )
 
         // Skip transect if it's too short
-        if (candidateLine.getLength() < 2 * transectMargin) {
+        if (trimmedLine.getLength() < 2 * transectMargin) {
             return null
         }
 
         return Transect(
-            Line(
-                candidateLine.start + candidateLine.getNormalizedDirection() * transectMargin,
-                candidateLine.end - candidateLine.getNormalizedDirection() * transectMargin
-            ),
+            trimmedLine,
             projection
         )
     }
