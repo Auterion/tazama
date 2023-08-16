@@ -80,7 +80,8 @@ fun SurveyPolygon(
         isDraggable = true,
         borderWidth = 0.5F,
         zIndex = polygonZIndex,
-        zIndexDragHandle = 5,
+        zIndexDragHandle = 20,
+        zIndexRotationHandle = 5,
         onVerticesChanged = { onVerticesTranslated(it) },
         onAzimuthChanged = onGridAngleChanged,
     )
