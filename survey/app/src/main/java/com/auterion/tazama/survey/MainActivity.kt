@@ -6,9 +6,11 @@
 
 package com.auterion.tazama.survey
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,14 +34,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.auterion.tazama.survey.LocationProvider.Location
 import com.auterion.tazama.survey.ui.theme.TazamasurveyTheme
 import com.mapbox.mapboxsdk.geometry.LatLng
+import kotlinx.coroutines.delay
 import org.ramani.compose.CameraPosition
 import org.ramani.compose.MapLibre
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val lm = Location(this)
+
+        val perm =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                lm.start()
+            }
+
+        perm.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+
         setContent {
             TazamasurveyTheme {
                 val surveyViewModel: SurveyViewModel = viewModel()
@@ -47,6 +63,7 @@ class MainActivity : ComponentActivity() {
                 val angle = surveyViewModel.survey.angleFlow.collectAsState()
                 val spacing = surveyViewModel.survey.transectSpacingFlow.collectAsState()
 
+
                 val cameraPosition = rememberSaveable {
                     mutableStateOf(
                         CameraPosition(
@@ -54,6 +71,19 @@ class MainActivity : ComponentActivity() {
                             zoom = 17.0
                         )
                     )
+                }
+                LaunchedEffect(key1 = Unit) {
+                    var counter = 0
+                    while (counter < 50) {
+                        println("trying to get location")
+                        lm.lastLocation?.let {
+                            println("got location $it")
+                            cameraPosition.value.target = it
+                            return@LaunchedEffect
+                        }
+                        counter++
+                        delay(1000)
+                    }
                 }
 
                 Box(modifier = Modifier.fillMaxSize()) {
